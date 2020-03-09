@@ -31,6 +31,7 @@ class Team_Historical:
             else: self.coaches[season].append(coach)
 
 def fill_team_stats(team: Team_Historical, df, win: bool):
+    return
 
 
 def fill_team_year(team: Team_Historical, year: int):
