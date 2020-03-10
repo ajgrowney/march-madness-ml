@@ -130,7 +130,6 @@ teams2018 = [
     "Villanova", "Purdue", "Texas Tech", "Wichita St", "West Virginia", "Florida", "Arkansas", "Virginia Tech", "Alabama", "Butler", "St Bonaventure", "UCLA", "Murray St", "Marshall", "SF Austin", "CS Fullerton", "LIU Brooklyn", "Radford",
     "Kansas", "Duke", "Michigan St", "Auburn", "Clemson", "TCU", "Rhode Island", "Seton Hall", "NC State", "Oklahoma", "Arizona St", "Syracuse", "New Mexico St", "Col Charleston", "Bucknell", "Iona", "Penn"
 ]
-print(len(teams2018))
 df_columns, df_rows = None, []
 
 for tm in teams2018:
@@ -145,4 +144,4 @@ for tm in teams2018:
 
 
 df = pd.DataFrame(df_rows, columns=df_columns)
-print(df)
+df.to_csv('./Data/phase1.csv', index=False)
