@@ -1,4 +1,3 @@
-Data/
-UnusuedData/
-*.csv
+Data/*
+UnusuedData/*
 __pycache__/*

@@ -8,10 +8,8 @@ teamscoach_df = pd.read_csv('Data/MTeamCoaches.csv')
 
 # Regular Szn Data
 regularseasonresults_df = pd.read_csv('Data/MRegularSeasonDetailedResults.csv')
-
 # Conference Tourney Data
 conferencetourney_df = pd.read_csv('Data/MConferenceTourneyGames.csv')
-
 # NCAA Tourney Data
 ncaatourneyresults_df = pd.read_csv('Data/MNCAATourneyDetailedResults.csv')
 
