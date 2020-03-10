@@ -93,10 +93,14 @@ class Team_Historical:
             if season not in self.coaches: self.coaches[season] = [coach]
             else: self.coaches[season].append(coach)
     
+    # Description: Call fill_year upon a list of years
     def fill_years(self, years: list):
         for year in years:
             self.fill_year(year)
 
+    # Description: Fill the TeamSeason object of that year
+    # Param: year { int } - year to fill with data
+    # Return: { None }
     def fill_year(self, year: int):
         # Setup Team's Dataframes for: Regular Season (team_rs), Conference Tournament (team_ct), and March Madness (team_mm)
         rs_df = regularseasonresults_df.loc[regularseasonresults_df['Season'] == year]
@@ -104,12 +108,12 @@ class Team_Historical:
         team_mm = mm_df[(mm_df['WTeamID'] == self.id) | (mm_df['LTeamID'] == self.id)]
         team_rs = rs_df[(rs_df['WTeamID'] == self.id) | (rs_df['LTeamID'] == self.id)]
         
-        
         t = TeamSeason(self.name, self.id, year)
         t.fill_regularseason(team_rs)
         t.calculate_season_avgs()
         self.team_seasons[year] = t
     
+    # Description: Get the ML data for that TeamSeason
     def get_season_data(self, year):
         return self.team_seasons[year].get_data()
         
