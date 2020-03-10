@@ -18,9 +18,14 @@ done=False
 while(not done):
     team1 = input("Team 1: ")
     team2 = input("Team 2: ")
-    t1_id = teams_df.loc[teams_df['TeamName'] == team1]['TeamID'].values[0]
-    t2_id = teams_df.loc[teams_df['TeamName'] == team2]['TeamID'].values[0]
+    try:
+        t1_id = teams_df.loc[teams_df['TeamName'] == team1]['TeamID'].values[0]
+        t2_id = teams_df.loc[teams_df['TeamName'] == team2]['TeamID'].values[0]
+        t1_data, t2_data = get_matchup_data(t1_id, t2_id)
+        make_pred = np.append(t1_data, t2_data).reshape(1,-1)
+        print(model.predict_proba(make_pred))
     
-    t1_data, t2_data = get_matchup_data(t1_id, t2_id)
-    print(model.predict_proba(np.append(t1_data, t2_data).reshape(1,-1)))
+    except IndexError as er:
+        print("Invalid Team Selection")
+    
     done=(input("Continue (y/n): ") == "n")
