@@ -16,10 +16,6 @@ conferencetourney_df = pd.read_csv('Data/MConferenceTourneyGames.csv')
 # NCAA Tourney Data
 ncaatourneyresults_df = pd.read_csv('Data/MNCAATourneyDetailedResults.csv')
 
-class GameStats():
-    def __init__(self):
-        self.id = 0
-
 class TeamSeason:
     def __init__(self, name: str, id, year: int ):
         self.name, self.id, self.year = name, id, year
@@ -82,7 +78,7 @@ class TeamSeason:
         
 
 class Team_Historical:
-    def __init__(self, name:str):
+    def __init__(self, name:str, years_to_fill: list = []):
         self.name = name
         self.id = teams_df.loc[teams_df['TeamName'] == self.name]['TeamID'].values[0]
         self.conference, self.coaches = {}, {}
@@ -95,6 +91,8 @@ class Team_Historical:
         for i, season, coach in teamscoach_df.loc[teamscoach_df['TeamID'] == self.id][['Season', 'CoachName']].itertuples():
             if season not in self.coaches: self.coaches[season] = [coach]
             else: self.coaches[season].append(coach)
+
+        self.fill_years(years_to_fill)
     
     # Description: Call fill_year upon a list of years
     def fill_years(self, years: list):
@@ -126,25 +124,25 @@ class Team_Historical:
 
 
 
-filled_teams, team_id = {}, {}
 teams2018 = [
     "Virginia", "Cincinnati", "Tennessee", "Arizona", "Kentucky", "Miami FL", "Nevada", "Creighton", "Kansas St", "Texas", "Loyola-Chicago", "Davidson", "Buffalo", "Wright St", "Georgia St", "UMBC",
     "Xavier", "North Carolina", "Michigan", "Gonzaga", "Ohio St", "Houston", "Texas A&M", "Missouri", "Florida St", "Providence", "San Diego St", "S Dakota St", "UNC Greensboro", "Montana", "NC Central", "TX Southern",
     "Villanova", "Purdue", "Texas Tech", "Wichita St", "West Virginia", "Florida", "Arkansas", "Virginia Tech", "Alabama", "Butler", "St Bonaventure", "UCLA", "Murray St", "Marshall", "SF Austin", "CS Fullerton", "LIU Brooklyn", "Radford",
     "Kansas", "Duke", "Michigan St", "Auburn", "Clemson", "TCU", "Rhode Island", "Seton Hall", "NC State", "Oklahoma", "Arizona St", "Syracuse", "New Mexico St", "Col Charleston", "Bucknell", "Iona", "Penn"
 ]
+print(len(teams2018))
+df_columns, df_rows = None, []
 
-df_rows = []
 for tm in teams2018:
-    team = Team_Historical(tm)
-    team.fill_years([2018, 2019])
+    team = Team_Historical(tm, [2018, 2019])
+    
+    # Initialize Columns of DataFrame based on what is coming from data
+    if(not df_columns):
+        df_columns = ['TeamID'] + team.get_data_columns(2019)
+    
     # Fill rows of DataFrame
     df_rows.append(np.append(team.id, team.get_season_data(2018)))
 
-    # Fill Exploratory Data Analysis Objects
-    filled_teams[team.id] = team
-    team_id[tm] = team.id
 
-df_columns = ['TeamID'] + filled_teams[team_id[teams2018[0]]].get_data_columns(2018)
 df = pd.DataFrame(df_rows, columns=df_columns)
-print(df.head())
+print(df)

@@ -1,11 +1,10 @@
 # 2020 March Madness Bracket Predictor
 
-## Objectives
-1. Data driven prediction with confidence of who will win any given basketball game 
+## Objectives by Phase
+1. Data driven prediction with confidence of who will win any NCAA tournament games based on Regular Season Stats
 
 
-## Data
-
+## Data Classes
 Each team has
 1. Name
 2. ID
