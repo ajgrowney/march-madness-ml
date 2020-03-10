@@ -35,6 +35,9 @@ class TeamSeason:
         for k, v in self.stats.items():
             self.averages[k] = mean([val for (opp, val) in v])
 
+    def get_data_columns(self):
+        return list(self.averages.keys())
+
     def get_data(self):
         return np.array(list(self.averages.values()))
 
@@ -116,9 +119,14 @@ class Team_Historical:
     # Description: Get the ML data for that TeamSeason
     def get_season_data(self, year):
         return self.team_seasons[year].get_data()
-        
 
-filled_teams = {}
+    def get_data_columns(self, year):
+        return self.team_seasons[year].get_data_columns()
+
+
+
+
+filled_teams, team_id = {}, {}
 teams2018 = [
     "Virginia", "Cincinnati", "Tennessee", "Arizona", "Kentucky", "Miami FL", "Nevada", "Creighton", "Kansas St", "Texas", "Loyola-Chicago", "Davidson", "Buffalo", "Wright St", "Georgia St", "UMBC",
     "Xavier", "North Carolina", "Michigan", "Gonzaga", "Ohio St", "Houston", "Texas A&M", "Missouri", "Florida St", "Providence", "San Diego St", "S Dakota St", "UNC Greensboro", "Montana", "NC Central", "TX Southern",
@@ -126,9 +134,17 @@ teams2018 = [
     "Kansas", "Duke", "Michigan St", "Auburn", "Clemson", "TCU", "Rhode Island", "Seton Hall", "NC State", "Oklahoma", "Arizona St", "Syracuse", "New Mexico St", "Col Charleston", "Bucknell", "Iona", "Penn"
 ]
 
+df_rows = []
 for tm in teams2018:
     team = Team_Historical(tm)
     team.fill_years([2018, 2019])
-    filled_teams[tm] = team
+    # Fill rows of DataFrame
+    df_rows.append(np.append(team.id, team.get_season_data(2018)))
 
-print(filled_teams["UMBC"].get_season_data(2019))
+    # Fill Exploratory Data Analysis Objects
+    filled_teams[team.id] = team
+    team_id[tm] = team.id
+
+df_columns = ['TeamID'] + filled_teams[team_id[teams2018[0]]].get_data_columns(2018)
+df = pd.DataFrame(df_rows, columns=df_columns)
+print(df.head())
