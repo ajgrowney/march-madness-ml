@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import pandas as pd
 import pickle
@@ -8,6 +9,7 @@ year = 2018
 df = pd.read_csv("phase1_{:d}.csv".format(year))
 tourney_games = pd.read_csv("Data/MNCAATourneyDetailedResults.csv")
 tourney_games_year = tourney_games[tourney_games["Season"] == year]
+
 
 model_data = []
 X, Y = [], []
@@ -20,9 +22,11 @@ for tournament_game in tourney_games_year.itertuples():
     X.append(datarow_1), Y.append(0)
     X.append(datarow_2), Y.append(1)
 
-(x_train, x_test, y_train, y_test) = train_test_split(X, Y, train_size=0.9)
+(x_train, x_test, y_train, y_test) = train_test_split(X, Y, train_size=0.95)
 
-model = SVC(kernel="linear")
+model = SVC(kernel="linear", probability=True)
 model.fit(x_train, y_train)
-print(model.score(x_test, y_test))
-pickle.dump(model, open('model.sav', 'wb'))
+
+
+
+if len(sys.argv) > 1 and sys.argv[1] == "save": pickle.dump(model, open('model.sav', 'wb'))
