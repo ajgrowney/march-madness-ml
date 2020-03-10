@@ -1,3 +1,4 @@
 Data/
 UnusuedData/
 *.csv
+__pycache__/*
