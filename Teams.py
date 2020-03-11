@@ -76,9 +76,9 @@ class TeamSeason:
         
 
 class Team_Historical:
-    def __init__(self, name:str, years_to_fill: list = []):
-        self.name = name
-        self.id = teams_df.loc[teams_df['TeamName'] == self.name]['TeamID'].values[0]
+    def __init__(self, id:int, years_to_fill: list = []):
+        self.id = id
+        self.name = teams_df.loc[teams_df['TeamID'] == self.id]['TeamName'].values[0]
         self.conference, self.coaches = {}, {}
         
         # Dictionary: Key { int } - Year, Value { TeamSeason } - Season Stats
