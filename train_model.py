@@ -3,7 +3,9 @@ import numpy as np
 import pandas as pd
 import pickle
 from sklearn.svm import SVC
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.pipeline import Pipeline
+from sklearn.neural_network import MLPClassifier
 
 years = [2015,2016,2017,2018,2019]
 dfs = {}
@@ -32,12 +34,28 @@ for tournament_game in tourney_games_years.itertuples():
     X.append(get_matchup_data(loser, winner, dfs[season])), Y.append(1)
 
 print("Training and Testing Data Finished")
-(x_train, x_test, y_train, y_test) = train_test_split(X, Y, train_size=0.8)
+(x_train, x_test, y_train, y_test) = train_test_split(X, Y, train_size=0.7)
 
+
+# GridSearchCV Classifier
+steps = [('SVM', SVC())]
+pipeline = Pipeline(steps) # define the pipeline object.
+parameters = {'SVM__C':[0.001,0.1,10,100,10e5], 'SVM__gamma':[0.1,0.01,0.001,0.0001]}
+grid = GridSearchCV(pipeline, param_grid=parameters, cv=5)
+
+# Basic LinearSVC
 model = SVC(kernel="linear", probability=True)
+
+# Neural Net
+neural_net = MLPClassifier(solver='lbfgs', hidden_layer_sizes=(5,2))
+
+
 print("Fitting model")
 model.fit(x_train, y_train)
+grid.fit(x_train, y_train)
+neural_net.fit(x_train, y_train)
 print("Model fit")
-print("Score: ", model.score(x_test, y_test))
-
+print("LinearSVC Score: ", model.score(x_test, y_test))
+print("Grid Score: ", grid.score(x_test, y_test))
+print("Neural Net Score: ", neural_net.score(x_test, y_test))
 if len(sys.argv) > 1 and sys.argv[1] == "save": pickle.dump(model, open('model.sav', 'wb'))

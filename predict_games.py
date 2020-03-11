@@ -2,11 +2,11 @@ import pickle
 import sys
 import pandas as pd
 import numpy as np
-
+import json
 year = 2018 if len(sys.argv) < 2 else int(sys.argv[1])
 df = pd.read_csv("TrainingData/phase1_{:d}.csv".format(year))
 teams_df = pd.read_csv('Data/MTeams.csv').drop(columns=['FirstD1Season', 'LastD1Season'])
-model = pickle.load(open('model.sav', 'rb'))
+model = pickle.load(open('Results/model.sav', 'rb'))
 
 def get_matchup_data(team1, team2, dataframe):
     team1Data = np.delete(np.array(dataframe[dataframe['TeamID'] == float(team1)]), 0)
@@ -51,7 +51,7 @@ def calculate_tourney_percentage(mm_df):
         if(pred_id != wt_id):
             wt_name = teams_df.loc[teams_df['TeamID'] == wt_id]['TeamName'].values[0]
             lt_name = teams_df.loc[teams_df['TeamID'] == lt_id]['TeamName'].values[0]
-            misses.append([wt_name,lt_name])
+            misses.append([str(wt_name),str(lt_name)])
 
     return misses
 
@@ -62,4 +62,5 @@ else:
     ncaa_tourney_games = ncaa_tourney_games[ncaa_tourney_games["Season"] == year]
     ncaa_tourney_games = ncaa_tourney_games[["WTeamID", "LTeamID"]]
     misses = calculate_tourney_percentage(ncaa_tourney_games)
-    print(misses)
+    output = { year: misses }
+    print(json.dumps(output))
