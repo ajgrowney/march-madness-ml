@@ -1,4 +1,12 @@
 # 2020 March Madness Bracket Predictor
+## Current Status
+| Tournament Year | Accuracy |
+| --- | --- |
+| 2015 | 69% |
+| 2016 | 73% |
+| 2017 | 70% |
+| 2018 | 73% |
+| 2019 | 76% |
 
 ## Tutorial
 ### Write Data (write_data.py)
