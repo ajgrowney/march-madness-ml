@@ -1,5 +1,13 @@
-# 2020 March Madness Bracket Predictor
-## Current Status
+# March Madness Bracket Predictor
+
+## 2021
+
+
+## 2020 
+Covid...
+
+## 2019 Model Information
+## Find source code in Archives/2019
 | Tournament Year | Accuracy |
 | --- | --- |
 | 2015 | 69% |
@@ -7,6 +15,8 @@
 | 2017 | 70% |
 | 2018 | 73% |
 | 2019 | 76% |
+
+This model was based just a LinearSVC based on a team's averages throughout the season
 
 ## Tutorial
 ### Write Data (write_data.py)

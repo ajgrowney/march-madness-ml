@@ -24,4 +24,4 @@ for tm in tourney_teams:
 
 for year in years:
     df = pd.DataFrame(teams_data[year], columns=df_columns)
-    df.to_csv('./TrainingData/phase1_{:d}.csv'.format(year), index=False)
+    df.to_csv('./Data/Training/features_{:d}.csv'.format(year), index=False)

@@ -1,39 +1,80 @@
-from statistics import mean
 import numpy as np
 import pandas as pd
-# Teams Data
-teamsconf_df = pd.read_csv('Data/MTeamConferences.csv')
-teams_df = pd.read_csv('Data/MTeams.csv').drop(columns=['FirstD1Season', 'LastD1Season'])
-teamscoach_df = pd.read_csv('Data/MTeamCoaches.csv')
+import re
 
-# Regular Szn Data
-regularseasonresults_df = pd.read_csv('Data/MRegularSeasonDetailedResults.csv')
+# Teams Data
+teamsconf_df = pd.read_csv('Data/Stage2/MTeamConferences.csv')
+teams_df = pd.read_csv('Data/Stage2/MTeams.csv').drop(columns=['FirstD1Season', 'LastD1Season'])
+teamscoach_df = pd.read_csv('Data/Stage2/MTeamCoaches.csv')
+
+# Regular Season Data
+regularseasonresults_df = pd.read_csv('Data/Stage2/MRegularSeasonDetailedResults.csv')
+
 # Conference Tourney Data
-conferencetourney_df = pd.read_csv('Data/MConferenceTourneyGames.csv')
+conferencetourney_df = pd.read_csv('Data/Stage2/MConferenceTourneyGames.csv')
+
 # NCAA Tourney Data
-ncaatourneyresults_df = pd.read_csv('Data/MNCAATourneyDetailedResults.csv')
+tourney_seeds = pd.read_csv('Data/Stage2/MNCAATourneySeeds.csv')
+ncaatourneyresults_df = pd.read_csv('Data/Stage2/MNCAATourneyDetailedResults.csv')
 
 
 class TeamSeason:
-    def __init__(self, name: str, id, year: int ):
-        self.name, self.id, self.year = name, id, year
-        self.wins, self.losses = [], []
+    def __init__(self, id, year:int, tournament_seed:int):
+        self.id, self.year = id, year
+        self.wins, self.losses, self.win_pct, self.opp_win_pct = [], [], None, None
+        self.sos, self.sov = None, None
+        self.tourney_seed = tournament_seed
+        try:
+            self.conf = teamsconf_df[(teamsconf_df['TeamID'] == self.id) & (teamsconf_df['Season'] == self.year)]['ConfAbbrev'].values[0]
+            self.coach = teamscoach_df[(teamscoach_df['TeamID'] == self.id) & (teamscoach_df['Season'] == self.year)]['CoachName'].values[0]
+        except Exception as e:
+            raise Exception(e)
+
         self.stats = {
-            "Points": [], "FGM": [], "FGA": [], "FGM3": [], "FGA3": [], "FTM": [], "FTA": [], "OR": [], "DR": [], "Ast": [], "TO": [], "Stl": [], "Blk": [], "Fouls": [],
+            "Points": [], "Poss": [], "OE": [], "DE": [], "FGM": [], "FGA": [], "FGM3": [], "FGA3": [], "FTM": [], "FTA": [], "OR": [], "DR": [], "Ast": [], "TO": [], "Stl": [], "Blk": [], "Fouls": [],
             "OppPoints": [], "OppFGM": [], "OppFGA": [], "OppFGM3": [], "OppFGA3": [], "OppFTM": [], "OppFTA": [], "OppOR": [], "OppDR": [], "OppAst": [], "OppTO": [], "OppStl": [], "OppBlk": [], "OppFouls": []
         }
         # Filled in after populating the stats
-        self.averages = {}
+        self.means, self.averages, self.stdev = {}, {}, {}
 
-    def calculate_season_avgs(self):
+
+
+    def calculate_season_stats(self):
+        self.win_pct = len(self.wins) / (len(self.wins) + len(self.losses))
         for k, v in self.stats.items():
-            self.averages[k] = mean([val for (opp, val) in v])
+            stat_vals = [val for (opp_id, val) in v]
+            self.means[k] = np.mean(stat_vals)
+            self.averages[k] = np.average(stat_vals)
+            self.stdev[k] = np.std(stat_vals)
+    
+    def calculate_post_season_stats(self, league_season_data):
+        """ Calculate statistics that you need other teams info for """
+        """ Param: league_season_data: dict<id,TeamSeason> """
+        
+        beat_opps = [i for i in self.wins]
+        loss_opps = beat_opps + [i for i in self.losses]
+        opp_win_pcts = []
+        for o in beat_opps:
+            opp_win_pcts.append(league_season_data[o].win_pct)
+        self.sov = np.average(opp_win_pcts)
+
+        for o in loss_opps:
+            opp_win_pcts.append(league_season_data[o].win_pct)
+        self.sos = np.average(opp_win_pcts)
+        return
+            
 
     def get_data_columns(self):
-        return list(self.averages.keys())
+        return list([k+"_mean" for k in self.means.keys()]) + ["WinPct", "SOS", "SOV", "Seed"]
 
-    def get_data(self):
-        return np.array(list(self.averages.values()))
+    def get_data(self, columns:list = None):
+        if columns is None:
+            return np.array(list(self.means.values()) + [self.win_pct, self.sos, self.sov, self.tourney_seed])
+        else:
+            vals = []
+            for c in columns:
+                vals.append(self.averages[c])
+            return np.array(vals)
 
     def fill_game(self, game_row):
         if(game_row[3] == self.id):
@@ -50,6 +91,11 @@ class TeamSeason:
             print("Error: TeamID not in game row")
             exit(0)
 
+        Poss = (FGA - OR) + TO + (.475 * FTA)
+        self.stats["Poss"].append((OppID, Poss))
+        self.stats["OE"].append((OppID, (TeamPoints*100)/Poss))
+        self.stats["DE"].append((OppID, (OppPoints*100)/Poss))
+
         self.stats["Points"].append((OppID, TeamPoints))
         self.stats["FGM"].append((OppID, FGM)), self.stats["FGA"].append((OppID, FGA)), self.stats["FGM3"].append((OppID, FGM3)), self.stats["FGA3"].append((OppID, FGA3)), self.stats["FTM"].append((OppID, FTM)), self.stats["FTA"].append((OppID, FTA)), self.stats["OR"].append((OppID, OR)), self.stats["DR"].append((OppID, DR)), self.stats["Ast"].append((OppID, Ast)), self.stats["TO"].append((OppID, TO)), self.stats["Stl"].append((OppID, Stl)), self.stats["Blk"].append((OppID, Blk)), self.stats["Fouls"].append((OppID, Fouls))
         
@@ -58,44 +104,28 @@ class TeamSeason:
         
     # Param: rs_df { Pandas Dataframe } - Dataframe containing only games that team has played in
     def fill_regularseason(self, rs_df):
-        ## All Conference Tournament Data is phase 2
-        ## ct_df = conferencetourney_df.loc[conferencetourney_df['Season'] == year]
-        ## ct_gamedays = list(ct_df[(ct_df['WTeamID'] == self.id) | (ct_df['LTeamID'] == self.id)]['DayNum'].values)
-        ## conf_tournament_mask = rs_df['DayNum'].isin(ct_gamedays)
-
-        ## Split into Regular Season and Conference Tournament Dataframes
-        ## team_ct, team_rs = rs_df[conf_tournament_mask], rs_df[~conf_tournament_mask]
-        ## win_ct_mask = team_ct["WTeamID"] == self.id
-        ## team_ct_wins_df, team_ct_losses_df = team_ct[win_ct_mask], team_ct[~win_ct_mask]
-        
         team_rs = rs_df
 
         # Fill Regular Season Data
         [self.fill_game(row) for row in team_rs.itertuples()]
 
-        
 
 class Team_Historical:
     def __init__(self, id:int, years_to_fill: list = []):
         self.id = id
+        self.valid_years = set(years_to_fill)
         self.name = teams_df.loc[teams_df['TeamID'] == self.id]['TeamName'].values[0]
         self.conference, self.coaches = {}, {}
         
         # Dictionary: Key { int } - Year, Value { TeamSeason } - Season Stats
         self.team_seasons = {}
-
-        for i, season, conf in teamsconf_df.loc[teamsconf_df['TeamID'] == self.id][['Season', 'ConfAbbrev']].itertuples(): self.conference[season] = conf
-        
-        for i, season, coach in teamscoach_df.loc[teamscoach_df['TeamID'] == self.id][['Season', 'CoachName']].itertuples():
-            if season not in self.coaches: self.coaches[season] = [coach]
-            else: self.coaches[season].append(coach)
-
         self.fill_years(years_to_fill)
     
     # Description: Call fill_year upon a list of years
     def fill_years(self, years: list):
         for year in years:
             self.fill_year(year)
+        return
 
     # Description: Fill the TeamSeason object of that year
     # Param: year { int } - year to fill with data
@@ -103,14 +133,20 @@ class Team_Historical:
     def fill_year(self, year: int):
         # Setup Team's Dataframes for: Regular Season (team_rs), Conference Tournament (team_ct), and March Madness (team_mm)
         rs_df = regularseasonresults_df.loc[regularseasonresults_df['Season'] == year]
-        mm_df = ncaatourneyresults_df.loc[ncaatourneyresults_df['Season'] == year]
-        team_mm = mm_df[(mm_df['WTeamID'] == self.id) | (mm_df['LTeamID'] == self.id)]
         team_rs = rs_df[(rs_df['WTeamID'] == self.id) | (rs_df['LTeamID'] == self.id)]
-        
-        t = TeamSeason(self.name, self.id, year)
-        t.fill_regularseason(team_rs)
-        t.calculate_season_avgs()
-        self.team_seasons[year] = t
+        raw_tournament_seed = tourney_seeds[(tourney_seeds['Season'] == year) & (tourney_seeds['TeamID'] == self.id)]['Seed'].values
+        if len(raw_tournament_seed) == 0:
+            seed = None
+        else:
+            seed = int(re.sub("[^0-9^.]", "",raw_tournament_seed[0]).lstrip('0'))
+        try:
+            t = TeamSeason(self.id, year, seed)
+            t.fill_regularseason(team_rs)
+            t.calculate_season_stats()
+            self.team_seasons[year] = t
+        except:
+            print(f"Unable to make season: {self.id}, {year}")
+            self.valid_years.remove(year)
     
     # Description: Get the ML data for that TeamSeason
     def get_season_data(self, year):
