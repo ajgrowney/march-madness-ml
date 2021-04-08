@@ -1,63 +1,28 @@
-# March Madness Bracket Predictor
+# March Madness ML Prediction
+Year by year progression of my attempt to let data try to beat my fanaticism for NCAA basketball <br />
+<i>Hint: haven't beat it yet</i>
 
 ## 2021
+Results coming in
 
+### ML Pipeline
+1) Data Collection
+    - Using exclusively Kaggle provided data so simple download of the CSVs into a Data folder
+
+2) Exploratory Data Analysis
+    - Used my `eda.py` file rather dynamically to explore different pieces of the data
+
+3) Feature Extraction
+    - After doing some visual analysis of the data set we were working with, used the `objects.py` file to structure the feature based representation of a team's performance for a single season. Using that class, I dumped the data into a simple vector and used that as the feature for that team. The `build_features.py` file was used to save those to a training data folder to cache the feature sets.
+
+4) Model Training
+    - Model training was the big place of exploration I did this year, spent time implementing GridSearch to do hyperparameter exploration and experimented with different model architectures. You can find this in the `train_model.py` file.
+
+5) Filling out the submission
+    - Unfortunately I forgot to upload the submission to Kaggle, but I did fill out the submission template and used that in tandem with the `bracketeer` pip moudle to fill out the model's bracket. This is done in the `fill_submission.py` file
 
 ## 2020 
 Covid...
 
-## 2019 Model Information
-## Find source code in Archives/2019
-| Tournament Year | Accuracy |
-| --- | --- |
-| 2015 | 69% |
-| 2016 | 73% |
-| 2017 | 70% |
-| 2018 | 73% |
-| 2019 | 76% |
-
-This model was based just a LinearSVC based on a team's averages throughout the season
-
-## Tutorial
-### Write Data (write_data.py)
-Handles the creation of the data that the mdoels will train off of.
-Uses the data from the Kaggle competition to generate a new set of CSVs with meaningful statistics about each team.
-These stats will be used as the way to compare teams.
-
-Ex: `py write_data.py`
-
-### Train Model
-Using the data stored in the TrainingData folder, train the model(s).
-You can save the model as well.
-
-Ex: `py train_model.py save`
-
-### Predict Games
-Using a saved model, run predictions for games between teams of your choosing, or against a full March Madness set.
-
-Ex 1: `py predict_games.py 2018` will run predictions for the 2018 NCAA Tournament 
-
-Ex 2: `py predict_games.py 2019 userin` will pop open a menu that allows you to continuously predict outcomes of games between two teams 
-
-## Objectives by Phase
-1. Data driven prediction with confidence of who will win any NCAA tournament games based on Regular Season Stats
-
-
-## Data Classes
-Each team has
-1. Name
-2. ID
-3. Conference / Year
-4. Coach(es) / Year
-
-Each team plays
-1. Regular Season Games
-2. Conference Tourney Games
-3. NCAA Tourney Games
-
-Each game has
-1. Winning team
-2. Losing team
-3. Location
-    - Distance from each team's home
-4. Statistics
+## 2019
+[Archives for 2019](Archives/2019/README.md)
