@@ -14,10 +14,10 @@ stage_1_comp = pd.read_csv("./Data/Stage2/MSampleSubmissionStage2.csv")
 feature_dfs = {}
 # features_df = pd.read_csv("./Data/Training/features_{:d}.csv".format(year))
 if write:
-    with open(f"./Results/2021_Stage2_{MODEL_SELECTED}.csv","w") as f:
+    with open(f"./Results/2021_Stage2_{MODEL_SELECTED}_first_round.csv","w") as f:
         f.write("ID,Pred\n")
 
-with open(f"./Results/2021_Stage2_{MODEL_SELECTED}.csv","a") as f:
+with open(f"./Results/2021_Stage2_{MODEL_SELECTED}_first_round.csv","a") as f:
     for i, id, _ in stage_1_comp.itertuples():
         year, t1, t2 = id.split("_")
         year, t1, t2 = int(year), int(t1), int(t2)
@@ -37,10 +37,11 @@ with open(f"./Results/2021_Stage2_{MODEL_SELECTED}.csv","a") as f:
 
 if write:
     b = build_bracket(
-        outputPath=f'Results/2021_bracket_{MODEL_SELECTED}.png',
+        outputPath=f'Results/2021_bracket_{MODEL_SELECTED}_first_round.png',
         teamsPath='Data/Stage2/MTeams.csv',
         seedsPath='Data/Stage2/MNCAATourneySeeds.csv',
-        submissionPath=f'Results/2021_Stage2_{MODEL_SELECTED}.csv',
+        submissionPath=f'Results/2021_Stage2_{MODEL_SELECTED}_first_round.csv',
         slotsPath='Data/Stage2/MNCAATourneySlots.csv',
+        resultsPath='Results/first_round_misses.csv',
         year=2021
     )
