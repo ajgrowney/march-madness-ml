@@ -29,13 +29,22 @@ def train(models, save, scale):
     (x_train, x_test, y_train, y_test) = train_test_split(X, Y, train_size=0.85)
     model_ids = models.split(",")
     trained_models = []
+    metadata = {}
 
     for m in model_ids:
         if m == "basic_svc":
             from model_trainer import train_basic_svc
             model, score = train_basic_svc(x_train, x_test, y_train, y_test )
-            print(f"Basic SVC Score: {score}")
-            trained_models.append(("basic_svc", model))
+        elif m == "basic_xgb":
+            from model_trainer import train_xgb_basic
+            model, score = train_xgb_basic(x_train, x_test, y_train, y_test)
+        elif m == "grid_xgb":
+            from model_trainer import train_xgb_grid
+            model, score, selected_params = train_xgb_grid(x_train, x_test, y_train, y_test)
+            print(f"Grid XGB Params: {selected_params}")
+        
+        print(f"Model\t\tScore\n{m}\t{score}")
+        trained_models.append((m, model))
 
     
     if save:
