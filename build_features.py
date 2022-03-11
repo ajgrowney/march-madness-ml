@@ -3,7 +3,8 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from objects import TeamSeason, Team_Historical
-raw_data_dir = "./Data/Stage2/"
+from utilities import DATA_ROOT
+raw_data_dir = f"{DATA_ROOT}/Stage2/"
 season_res = pd.read_csv(raw_data_dir+"MRegularSeasonCompactResults.csv")
 tourney_res = pd.read_csv(raw_data_dir+"MNCAATourneyCompactResults.csv")
 
