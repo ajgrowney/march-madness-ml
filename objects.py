@@ -1,22 +1,54 @@
 import numpy as np
 import pandas as pd
 import re
+from utilities import DATA_ROOT
 
 # Teams Data
-teamsconf_df = pd.read_csv('Data/Stage2/MTeamConferences.csv')
-teams_df = pd.read_csv('Data/Stage2/MTeams.csv').drop(columns=['FirstD1Season', 'LastD1Season'])
-teamscoach_df = pd.read_csv('Data/Stage2/MTeamCoaches.csv')
-
+teamsconf_df = pd.read_csv(f'{DATA_ROOT}/Stage2/MTeamConferences.csv')
+teams_df = pd.read_csv(f'{DATA_ROOT}/Stage2/MTeams.csv').drop(columns=['FirstD1Season', 'LastD1Season'])
+teamscoach_df = pd.read_csv(f'{DATA_ROOT}/Stage2/MTeamCoaches.csv')
+ordinals_df = pd.read_csv(f"{DATA_ROOT}/Stage2/MMasseyOrdinals.csv")
 # Regular Season Data
-regularseasonresults_df = pd.read_csv('Data/Stage2/MRegularSeasonDetailedResults.csv')
+regularseasonresults_df = pd.read_csv(f'{DATA_ROOT}/Stage2/MRegularSeasonDetailedResults.csv')
 
 # Conference Tourney Data
-conferencetourney_df = pd.read_csv('Data/Stage2/MConferenceTourneyGames.csv')
+conferencetourney_df = pd.read_csv(f'{DATA_ROOT}/Stage2/MConferenceTourneyGames.csv')
 
 # NCAA Tourney Data
-tourney_seeds = pd.read_csv('Data/Stage2/MNCAATourneySeeds.csv')
-ncaatourneyresults_df = pd.read_csv('Data/Stage2/MNCAATourneyDetailedResults.csv')
+tourney_seeds = pd.read_csv(f'{DATA_ROOT}/Stage2/MNCAATourneySeeds.csv')
+ncaatourneyresults_df = pd.read_csv(f'{DATA_ROOT}/Stage2/MNCAATourneyDetailedResults.csv')
 
+class TeamSeasonOrdinals:
+    def __init__(self, id, year) -> None:
+        self.id = id
+        self.year = year
+        self.rpi = {"count": 0, "average": None, "last": None}
+    
+    def fill_data(self):
+        rpi_data = ordinals_df.loc[
+            (ordinals_df["SystemName"] == "RPI") & 
+            (ordinals_df["TeamID"] == self.id) & 
+            (ordinals_df["Season"] == self.year)][["RankingDayNum","OrdinalRank"]]
+
+        if len(rpi_data) > 0:
+            rpi_season_ranks = {}
+            for idx, daynum, rank in rpi_data.itertuples():
+                self.rpi["count"] += 1
+                rpi_season_ranks[daynum] = rank
+            self.rpi["average"] = np.average(list(rpi_season_ranks.values()))
+            self.rpi["last"] = rpi_season_ranks[max(rpi_season_ranks.keys())]
+        else:
+            self.rpi["count"] = 0
+            self.rpi["average"] = 999
+            self.rpi["last"] = 999
+
+        return
+    
+    def get_data(self):
+        return [self.rpi["average"], self.rpi["count"], self.rpi["last"]]
+    
+    def get_data_columns(self):
+        return ["rpi_avg", "rpi_count", "rpi_last"]
 
 class TeamSeason:
     def __init__(self, id, year:int, tournament_seed:int):
@@ -24,6 +56,8 @@ class TeamSeason:
         self.wins, self.losses, self.win_pct, self.opp_win_pct = [], [], None, None
         self.sos, self.sov = None, None
         self.tourney_seed = tournament_seed
+        # Ordinal Info
+        self.ordinal_data = TeamSeasonOrdinals(id, year)
         try:
             self.conf = teamsconf_df[(teamsconf_df['TeamID'] == self.id) & (teamsconf_df['Season'] == self.year)]['ConfAbbrev'].values[0]
             self.coach = teamscoach_df[(teamscoach_df['TeamID'] == self.id) & (teamscoach_df['Season'] == self.year)]['CoachName'].values[0]
@@ -40,36 +74,60 @@ class TeamSeason:
 
 
     def calculate_season_stats(self):
+        # Calculate Win Pct
         self.win_pct = len(self.wins) / (len(self.wins) + len(self.losses))
+        # Calculate distributions for status
         for k, v in self.stats.items():
             stat_vals = [val for (opp_id, val) in v]
             self.means[k] = np.mean(stat_vals)
             self.averages[k] = np.average(stat_vals)
             self.stdev[k] = np.std(stat_vals)
+        
+        # Calculate ordinals info
+        self.ordinal_data.fill_data()
+
     
     def calculate_post_season_stats(self, league_season_data):
         """ Calculate statistics that you need other teams info for """
         """ Param: league_season_data: dict<id,TeamSeason> """
         
-        beat_opps = [i for i in self.wins]
-        loss_opps = beat_opps + [i for i in self.losses]
-        opp_win_pcts = []
-        for o in beat_opps:
-            opp_win_pcts.append(league_season_data[o].win_pct)
-        self.sov = np.average(opp_win_pcts)
+        opp_wp = []
+        opp_opp_wp = []
+        for o in self.wins:
+            opponent = league_season_data[o]
+            opp_wp.append(opponent.win_pct)
+            opp_games = opponent.wins + opponent.losses
+            opp_opp_wp.append(np.average([league_season_data[oo].win_pct for oo in opp_games]))
 
-        for o in loss_opps:
-            opp_win_pcts.append(league_season_data[o].win_pct)
-        self.sos = np.average(opp_win_pcts)
+        self.sov = np.average(opp_wp)
+        
+        for o in self.losses:
+            opponent = league_season_data[o]
+            opp_wp.append(opponent.win_pct)
+            opp_games = opponent.wins + opponent.losses
+            opp_opp_wp.append(np.average([league_season_data[oo].win_pct for oo in opp_games]))
+
+
+        ow = np.average(opp_wp)
+        oow = np.average(opp_opp_wp)
+        self.sos = (2*ow + oow) / 3
         return
             
 
     def get_data_columns(self):
-        return list([k+"_mean" for k in self.means.keys()]) + ["WinPct", "SOS", "SOV", "Seed"]
+        return list([k+"_mean" for k in self.means.keys()]) + \
+            list([k+"_stdev" for k in self.stdev.keys()]) + \
+             self.ordinal_data.get_data_columns() + \
+             ["WinPct", "SOS", "SOV", "Seed"]
 
     def get_data(self, columns:list = None):
         if columns is None:
-            return np.array(list(self.means.values()) + [self.win_pct, self.sos, self.sov, self.tourney_seed])
+            return np.array(
+                list(self.means.values()) + 
+                list(self.stdev.values()) + 
+                self.ordinal_data.get_data() +
+                [self.win_pct, self.sos, self.sov, self.tourney_seed]
+            )
         else:
             vals = []
             for c in columns:
@@ -102,12 +160,10 @@ class TeamSeason:
         self.stats["OppPoints"].append((OppID, OppPoints))
         self.stats["OppFGM"].append((OppID, OppFGM)), self.stats["OppFGA"].append((OppID, OppFGA)), self.stats["OppFGM3"].append((OppID, OppFGM3)), self.stats["OppFGA3"].append((OppID, OppFGA3)), self.stats["OppFTM"].append((OppID, OppFTM)), self.stats["OppFTA"].append((OppID, OppFTA)), self.stats["OppOR"].append((OppID, OppOR)), self.stats["OppDR"].append((OppID, OppDR)), self.stats["OppAst"].append((OppID, OppAst)), self.stats["OppTO"].append((OppID, OppTO)), self.stats["OppStl"].append((OppID, OppStl)), self.stats["OppBlk"].append((OppID, OppBlk)), self.stats["OppFouls"].append((OppID, OppFouls))
         
-    # Param: rs_df { Pandas Dataframe } - Dataframe containing only games that team has played in
-    def fill_regularseason(self, rs_df):
-        team_rs = rs_df
-
+    # Param: team_rs_df { Pandas Dataframe } - Dataframe containing only games that team has played in
+    def fill_regularseason(self, team_rs_df):
         # Fill Regular Season Data
-        [self.fill_game(row) for row in team_rs.itertuples()]
+        [self.fill_game(row) for row in team_rs_df.itertuples()]
 
 
 class Team_Historical:

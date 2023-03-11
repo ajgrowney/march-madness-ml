@@ -1,72 +1,21 @@
+import uuid
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
 import os
 import sys
 
 DATA_ROOT = os.getenv("MM_DATA_ROOT")
 MODELS_ROOT = os.getenv("MM_MODELS_ROOT")
+SUBMISSIONS_ROOT = os.getenv("MM_SUBMISSIONS_ROOT", "./Results/2022")
 
-def find_team_id(name:str):
-    teams_df = pd.read_csv("./Data/Raw/MTeams.csv")
-    team_id = teams_df[teams_df["TeamName"] == name]["TeamID"].values[0]
-    return team_id
-
-
-def fetch_training_data(years = range(2003,2020)):
-    dfs = {}
-    for year in years:
-        dfs[year] = pd.read_csv(f"{DATA_ROOT}/Training/features_{year}.csv")
-    feature_list = list(list(dfs.values())[0].columns.values)[1:]
-
-    tourney_games = pd.read_csv(f"{DATA_ROOT}/Raw/MNCAATourneyDetailedResults.csv")
-    tourney_games_years = tourney_games[tourney_games["Season"].isin(years)]
-
-    X, Y = [], []
-
-    print("Fill Training and Testing Data")
-
-    for tournament_game in tourney_games_years.itertuples():
-        season = tournament_game[1]
-        winner, loser = tournament_game[3], tournament_game[5]
-        X.append(get_matchup_data(winner, loser, dfs[season])), Y.append(0)
-        X.append(get_matchup_data(loser, winner, dfs[season])), Y.append(1)
-    return (X,Y, feature_list)
-
-def fetch_features(year):
-    df = pd.read_csv(f"{DATA_ROOT}/Training/features_{year}.csv")
-    return df
-
-def get_matchup_data(team1, team2, dataframe):
-    team1Data = np.delete(np.array(dataframe[dataframe['TeamID'] == float(team1)]), 0)
-    team2Data = np.delete(np.array(dataframe[dataframe['TeamID'] == float(team2)]), 0)
-    dataDifference = []
-
-    for a,b in zip(team1Data,team2Data):
-        diff = a-b
-        # if diff > 0:
-        #     result = diff**2
-        # else:
-        #     result = (-1)*(diff**2)
-        dataDifference.append(diff)
-    return dataDifference
-
-def make_prediction(model, scaler, t1: int, t2: int, feature_set_df):
-    matchup = get_matchup_data(t1, t2, feature_set_df)
-    matchup = np.array(matchup).reshape(1,-1)
-    if scaler is not None:
-        matchup = scaler.transform(matchup)
-    prediction = model.predict_proba(matchup).flatten()
-    winner = t1 if (prediction[0] > prediction[1]) else t2
-    return winner, max(prediction[0], prediction[1])
-    
-def evaluate_model_on_tournament(model, scaler, year):
+def evaluate_model_on_tournament(model, scaler, year, data_version):
     correct, incorrect = [], []
 
     # Load auxillary data
-    features = fetch_features(year)
-    teams_df = pd.read_csv(f"{DATA_ROOT}/Raw/MTeams.csv")
-
+    features = fetch_features(year, data_version)
+    teams_df = pd.read_csv(f'{DATA_ROOT}/Raw/MTeams.csv')
     tourney_df = pd.read_csv(f"{DATA_ROOT}/Raw/MNCAATourneyCompactResults.csv")
     tourney_df = tourney_df[tourney_df["Season"] == year]
     tourney_df = tourney_df[["WTeamID", "LTeamID"]]
@@ -83,6 +32,127 @@ def evaluate_model_on_tournament(model, scaler, year):
         "score": (len(correct) / (len(correct) + len(incorrect)))
     }
 
+
+def fetch_training_data(years = list(range(2003,2020))+[2021], version:str = "Raw", format:str = "diff", inclued_reg_season = False):
+    """
+    :param format { str }: diff, stacked
+    """
+    tourney_game_start_index = 0
+    dfs = {}
+    for year in years:
+        dfs[year] = pd.read_csv(f"{DATA_ROOT}/Training/{version}/features_{year}.csv")
+    feature_list = list(list(dfs.values())[0].columns.values)[1:]
+
+    if inclued_reg_season:
+        reg_season_games = pd.read_csv(f"{DATA_ROOT}/Stage2/MNCAATourneyDetailedResults.csv")
+        reg_season_games_years = reg_season_games[reg_season_games["Season"].isin(years)]
+    
+    tourney_games = pd.read_csv(f"{DATA_ROOT}/Stage2/MNCAATourneyDetailedResults.csv")
+    tourney_games_years = tourney_games[tourney_games["Season"].isin(years)]
+
+
+    X, Y = [], []
+
+    print("Fill Training and Testing Data")
+    if inclued_reg_season:
+        for game in reg_season_games_years.itertuples():
+            season = game[1]
+            winner, loser = game[3], game[5]
+            t1_win_data = get_matchup_data(loser, winner, dfs[season], format)
+            t2_win_data = get_matchup_data(winner, loser, dfs[season], format)
+            X.append(t1_win_data), Y.append(1)
+            X.append(t2_win_data), Y.append(0)
+            tourney_game_start_index += 1
+    
+    for tournament_game in tourney_games_years.itertuples():
+        season = tournament_game[1]
+        winner, loser = tournament_game[3], tournament_game[5]
+        t1_win_data = get_matchup_data(loser, winner, dfs[season], format)
+        t2_win_data = get_matchup_data(winner, loser, dfs[season], format)
+        X.append(t1_win_data), Y.append(1)
+        X.append(t2_win_data), Y.append(0)
+    return (X,Y, feature_list, tourney_game_start_index)
+
+def fetch_features(year, version = None):
+    train_data_dir = "Training"
+    if version is not None:
+        train_data_dir += f"/{version}"
+    df = pd.read_csv(f"{DATA_ROOT}/{train_data_dir}/features_{year}.csv")
+    return df
+
+def find_team_id(name:str):
+    teams_df = pd.read_csv(f"{DATA_ROOT}/Raw/MTeams.csv")
+    team_id = teams_df[teams_df["TeamName"] == name]["TeamID"].values[0]
+    return team_id
+
+def fill_submission(model, scaler, model_id, submission_id = str(uuid.uuid4())[0:8], matchup_format:str = "diff", stage="2", data_dir = "Training", model_type = "sav"):
+    stage_folder = "Raw" if stage == "1" else "Stage2"
+    submission_template = pd.read_csv(f"{DATA_ROOT}/{stage_folder}/MSampleSubmissionStage{stage}.csv")
+    feature_dfs = {}
+    submission_df = pd.DataFrame(columns=["Id","Pred"])
+    for i, id, _ in submission_template.itertuples():
+        year, t1, t2 = id.split("_")
+        year, t1, t2 = int(year), int(t1), int(t2)
+
+        if year not in feature_dfs.keys():
+            print(year)
+            feature_dfs[year] = pd.read_csv(f"{DATA_ROOT}/{data_dir}/features_{year}.csv")
+
+        matchup = get_matchup_data(t1, t2, feature_dfs[year], matchup_format)
+        matchup = np.array(matchup).reshape(1,-1)
+        if scaler is not None:
+            matchup = scaler.transform(matchup)
+        if model_type == "sav":
+            prediction = model.predict_proba(matchup).flatten()
+        else:
+            prediction = model.predict(matchup).flatten()
+        submission_df = submission_df.append({'Id': id, 'Pred': prediction[0]}, ignore_index=True)
+    
+    submission_root = f"{SUBMISSIONS_ROOT}/{submission_id}"
+    if not os.path.exists(submission_root):
+        os.makedirs(submission_root)
+    submission_df.to_csv(f"{submission_root}/{model_id}_{stage}.csv", index=False)
+
+def get_matchup_data(team1, team2, feature_df, format:str = "diff"):
+    team1Data = np.delete(np.array(feature_df[feature_df['TeamID'] == float(team1)]), 0)
+    team2Data = np.delete(np.array(feature_df[feature_df['TeamID'] == float(team2)]), 0)
+    results = []
+
+    if format == "diff":
+        for a,b in zip(team1Data,team2Data):
+            diff = a-b
+            # if diff > 0:
+            #     result = diff**2
+            # else:
+            #     result = (-1)*(diff**2)
+            results.append(diff)
+    elif format == "stack":
+        results = list(team1Data) + list(team2Data)
+    else:
+        raise Exception(f"Invalid get_matchup_data format: {format}")
+    return results
+
+def get_scaler(run_id:str):
+    """
+    """
+    run_root = os.path.join(MODELS_ROOT, run_id)
+    scaler_path = os.path.join(run_root, "scaler.pkl")
+    
+    if os.path.exists(scaler_path):
+        scaler = pickle.load(open(scaler_path, "rb"))
+    else:
+        scaler = None
+    return scaler
+
+def make_prediction(model, scaler, t1: int, t2: int, feature_set_df):
+    matchup = get_matchup_data(t1, t2, feature_set_df)
+    matchup = np.array(matchup).reshape(1,-1)
+    if scaler is not None:
+        matchup = scaler.transform(matchup)
+    prediction = model.predict_proba(matchup).flatten()
+    winner = t1 if (prediction[0] > prediction[1]) else t2
+    return winner, max(prediction[0], prediction[1])
+    
 def f_importances(coef, names):
     imp = coef[0]
     imp,names = zip(*sorted(zip(imp,names)))
@@ -92,4 +162,4 @@ def f_importances(coef, names):
 
 if __name__ == "__main__":
     if sys.argv[1] == "search":
-        find_team_id(sys.argv[2])
+        print(find_team_id(sys.argv[2]))

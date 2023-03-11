@@ -1,0 +1,1 @@
+{"Data": {"TrainingSource": "ComputedV1", "Scale": "no", "TrainSplit": 0.85}, "TrainingData": "ComputedV1", "grid_xgb": {"score": 0.922425952045134}}

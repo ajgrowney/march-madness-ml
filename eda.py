@@ -1,10 +1,10 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
-from utilities import get_matchup_data
+from utilities import get_matchup_data, DATA_ROOT
 
 def compare_teams(year, team_1, team_2):
-    df = pd.read_csv(f'Data/Training/features_{year}.csv')
+    df = pd.read_csv(f'{DATA_ROOT}/Training/features_{year}.csv')
     team_1_df = df[df['TeamID'] == float(team_1)]
     team_2_df = df[df['TeamID'] == float(team_2)]
     print(team_1_df)

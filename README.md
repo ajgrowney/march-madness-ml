@@ -2,8 +2,9 @@
 Year by year progression of my attempt to let data try to beat my fanaticism for NCAA basketball <br />
 <i>Hint: haven't beat it yet</i>
 
-## 2021
-Results coming in
+## 2022
+Currently building models based on last tournaments. This year I built a CLI around the model training, exploring, and submission process.
+Submitted grid_xgb_2 to kaggle
 
 ### ML Pipeline
 1) Data Collection
@@ -15,11 +16,17 @@ Results coming in
 3) Feature Extraction
     - After doing some visual analysis of the data set we were working with, used the `objects.py` file to structure the feature based representation of a team's performance for a single season. Using that class, I dumped the data into a simple vector and used that as the feature for that team. The `build_features.py` file was used to save those to a training data folder to cache the feature sets.
 
-4) Model Training
-    - Model training was the big place of exploration I did this year, spent time implementing GridSearch to do hyperparameter exploration and experimented with different model architectures. You can find this in the `train_model.py` file.
+4) Model Training - train
+    - `python cli.py train --models basic_svc,grid_xgb --save`
+        - Outputs a run id that the models are saved to
 
-5) Filling out the submission
-    - Unfortunately I forgot to upload the submission to Kaggle, but I did fill out the submission template and used that in tandem with the `bracketeer` pip moudle to fill out the model's bracket. This is done in the `fill_submission.py` file
+5) Model Evaluation - evalute
+    - `python cli.py evaluate --run 12341234 --models basic_svc`
+
+6) Kaggle Submission - submit
+
+## 2021
+[Archives for 2021](Archives/2021/README.md)
 
 ## 2020 
 Covid...

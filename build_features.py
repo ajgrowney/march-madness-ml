@@ -1,15 +1,13 @@
 import numpy as np
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
 from objects import TeamSeason, Team_Historical
 from utilities import DATA_ROOT
 raw_data_dir = f"{DATA_ROOT}/Stage2/"
 season_res = pd.read_csv(raw_data_dir+"MRegularSeasonCompactResults.csv")
 tourney_res = pd.read_csv(raw_data_dir+"MNCAATourneyCompactResults.csv")
 
-
-years = [2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021]
+years = [2022]
+# years = [2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021]
 tourney_games = pd.read_csv(raw_data_dir+"MNCAATourneyDetailedResults.csv")
 season_games = season_res[season_res["Season"].isin(years)]
 season_teams = set(season_games[["WTeamID", "LTeamID"]].values.flatten())
@@ -47,4 +45,4 @@ for team in historical_teams.values():
 
 for year in years:
     df = pd.DataFrame(teams_data[year], columns=df_columns)
-    df.to_csv('./Data/Training/features_{:d}.csv'.format(year), index=False)
+    df.to_csv(f'{DATA_ROOT}/Training/features_{year}.csv', index=False)

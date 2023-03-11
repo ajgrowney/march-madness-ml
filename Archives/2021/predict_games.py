@@ -5,11 +5,12 @@ import pandas as pd
 import numpy as np
 import json
 from utilities import get_matchup_data
+DATA_ROOT = "/Users/andrewgrowney/Data/kaggle/marchmadness-2021"
 MODELS_ROOT = os.getenv("MM_MODELS_ROOT")
 MODEL_SELECTED = "poly_model" if len(sys.argv) < 2 else sys.argv[1]
-year = 2021 if len(sys.argv) < 3 else int(sys.argv[2])
-features_df = pd.read_csv("./Data/Training/features_{:d}.csv".format(year))
-teams_df = pd.read_csv('Data/Stage2/MTeams.csv').drop(columns=['FirstD1Season', 'LastD1Season'])
+year = 2022 if len(sys.argv) < 3 else int(sys.argv[2])
+features_df = pd.read_csv(f"{DATA_ROOT}/Training/V1/features_{year}.csv")
+teams_df = pd.read_csv(f'{DATA_ROOT}/Stage2/MTeams.csv').drop(columns=['FirstD1Season', 'LastD1Season'])
 model = pickle.load(open(f'Models/{MODEL_SELECTED}.sav', 'rb'))
 scaler = pickle.load(open('Models/scaler.pkl', "rb"))
 
@@ -56,7 +57,7 @@ def calculate_tourney_percentage(mm_df, features):
 if "userin" in sys.argv:
     user_in()
 else:
-    ncaa_tourney_games = pd.read_csv("./Data/Raw/MNCAATourneyCompactResults.csv")
+    ncaa_tourney_games = pd.read_csv(f"{DATA_ROOT}/Stage2/MNCAATourneyCompactResults.csv")
     ncaa_tourney_games = ncaa_tourney_games[ncaa_tourney_games["Season"] == year]
     ncaa_tourney_games = ncaa_tourney_games[["WTeamID", "LTeamID"]]
     misses = calculate_tourney_percentage(ncaa_tourney_games, features_df)

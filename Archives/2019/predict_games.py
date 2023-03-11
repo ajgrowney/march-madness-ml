@@ -5,7 +5,7 @@ import numpy as np
 import json
 import os
 TRAINING_SRC = "/Users/andrewgrowney/Data/kaggle/marchmadness-2019/TrainingData"
-COMPETITION_SRC = "/Users/andrewgrowney/Data/kaggle/marchmadness-2022/stage_1"
+COMPETITION_SRC = "/Users/andrewgrowney/Data/kaggle/marchmadness-2022/Raw"
 year = 2018 if len(sys.argv) < 2 else int(sys.argv[1])
 
 df = pd.read_csv(os.path.join(TRAINING_SRC, "features_{:d}.csv".format(year)))

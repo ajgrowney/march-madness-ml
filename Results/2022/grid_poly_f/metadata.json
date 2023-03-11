@@ -1,0 +1,12 @@
+{
+    "Data": {
+        "TrainingSource": "ComputedV1",
+        "Scale": "no",
+        "TrainSplit": 0.85
+    },
+    "TrainingData": "ComputedV1",
+    "grid_poly": {
+        "selected_params": "{\"svc__C\": 0.01, \"svc__degree\": 5, \"svc__gamma\": 0.1}",
+        "score": 0.9281183932346723
+    }
+}
