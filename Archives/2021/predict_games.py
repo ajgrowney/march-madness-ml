@@ -4,7 +4,7 @@ import sys
 import pandas as pd
 import numpy as np
 import json
-from utilities import get_matchup_data
+from mm_analytics.utilities import get_matchup_data
 DATA_ROOT = "/Users/andrewgrowney/Data/kaggle/marchmadness-2021"
 MODELS_ROOT = os.getenv("MM_MODELS_ROOT")
 MODEL_SELECTED = "poly_model" if len(sys.argv) < 2 else sys.argv[1]

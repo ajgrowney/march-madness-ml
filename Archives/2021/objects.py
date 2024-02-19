@@ -126,7 +126,7 @@ class TeamSeason:
         [self.fill_game(row) for row in team_rs_df.itertuples()]
 
 
-class Team_Historical:
+class TeamHistorical:
     def __init__(self, id:int, years_to_fill: list = []):
         self.id = id
         self.valid_years = set(years_to_fill)

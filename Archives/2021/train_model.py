@@ -10,7 +10,7 @@ from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.neural_network import MLPClassifier
-from utilities import get_matchup_data, f_importances
+from mm_analytics.utilities import get_matchup_data, f_importances
 scaler = StandardScaler()
 
 years = [2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020]

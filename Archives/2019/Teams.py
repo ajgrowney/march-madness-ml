@@ -74,7 +74,7 @@ class TeamSeason:
 
         
 
-class Team_Historical:
+class TeamHistorical:
     def __init__(self, id:int, years_to_fill: list = []):
         self.id = id
         self.name = teams_df.loc[teams_df['TeamID'] == self.id]['TeamName'].values[0]

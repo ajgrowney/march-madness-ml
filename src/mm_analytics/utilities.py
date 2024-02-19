@@ -1,3 +1,4 @@
+from typing import List
 import uuid
 import pandas as pd
 import numpy as np
@@ -8,15 +9,40 @@ import sys
 
 DATA_ROOT = os.getenv("MM_DATA_ROOT")
 MODELS_ROOT = os.getenv("MM_MODELS_ROOT")
-SUBMISSIONS_ROOT = os.getenv("MM_SUBMISSIONS_ROOT", "./Results/2022")
+SUBMISSIONS_ROOT = os.getenv("MM_SUBMISSIONS_ROOT", "./Results/2023")
 
-def evaluate_model_on_tournament(model, scaler, year, data_version):
+class Datasets:
+    """Class for interacting with the kaggle datasets
+    through prefetching and/or cachiing
+    """
+    package_data = { "MTeams", "MNCAATourneyDetailedResults", "MRegularSeasonCompactResults", "MRegularSeasonDetailedResults", "MSeasons", "MGameCities", "MConferenceTourneyGames", "MConferenceTourneyGames", "MTeamCoaches" }
+    def __init__(self, root:str = None, load_package_datasets:List[str] = None) -> None:
+        self.data_root = root
+        self.datasets = {}
+        if load_package_datasets is not None:
+            for dataset in load_package_datasets:
+                self.load(dataset, dataset)
+
+    def load(self, path:str, from_root:bool = False) -> pd.DataFrame:
+        """Load a dataset
+        :param path { str }: path to the dataset
+        :param from_root { bool }: load from root or relative path
+        :return { pd.DataFrame }: the loaded dataset
+        """
+        if from_root:
+            path = os.path.join(self.data_root, path)
+        if name is None:
+            name = path.split("/")[-1]
+        return pd.read_csv(path)
+        
+
+def evaluate_model_on_tournament(model, scaler, year, data_version, datasets:Datasets):
     correct, incorrect = [], []
 
     # Load auxillary data
     features = fetch_features(year, data_version)
-    teams_df = pd.read_csv(f'{DATA_ROOT}/Raw/MTeams.csv')
-    tourney_df = pd.read_csv(f"{DATA_ROOT}/Raw/MNCAATourneyCompactResults.csv")
+    teams_df = datasets.load('/MTeams.csv', from_root=True)
+    tourney_df = datasets.load('/MNCAATourneyCompactResults.csv', from_root=True)
     tourney_df = tourney_df[tourney_df["Season"] == year]
     tourney_df = tourney_df[["WTeamID", "LTeamID"]]
     for i, wt_id, lt_id in tourney_df.itertuples():
@@ -33,7 +59,7 @@ def evaluate_model_on_tournament(model, scaler, year, data_version):
     }
 
 
-def fetch_training_data(years = list(range(2003,2020))+[2021], version:str = "Raw", format:str = "diff", inclued_reg_season = False):
+def fetch_training_data(years = list(range(2003,2020))+[2021], version:str = "Stage2", format:str = "diff", inclued_reg_season = False):
     """
     :param format { str }: diff, stacked
     """
@@ -81,13 +107,14 @@ def fetch_features(year, version = None):
     return df
 
 def find_team_id(name:str):
-    teams_df = pd.read_csv(f"{DATA_ROOT}/Raw/MTeams.csv")
+    teams_df = pd.read_csv(f"{DATA_ROOT}/Stage2/MTeams.csv")
     team_id = teams_df[teams_df["TeamName"] == name]["TeamID"].values[0]
     return team_id
 
 def fill_submission(model, scaler, model_id, submission_id = str(uuid.uuid4())[0:8], matchup_format:str = "diff", stage="2", data_dir = "Training", model_type = "sav"):
-    stage_folder = "Raw" if stage == "1" else "Stage2"
-    submission_template = pd.read_csv(f"{DATA_ROOT}/{stage_folder}/MSampleSubmissionStage{stage}.csv")
+    stage_folder = "Stage2" if stage == "1" else "Stage2"
+    submission_template = pd.read_csv(f"{DATA_ROOT}/{stage_folder}/SampleSubmission2023.csv")
+    print(submission_template)
     feature_dfs = {}
     submission_df = pd.DataFrame(columns=["Id","Pred"])
     for i, id, _ in submission_template.itertuples():
@@ -100,12 +127,16 @@ def fill_submission(model, scaler, model_id, submission_id = str(uuid.uuid4())[0
 
         matchup = get_matchup_data(t1, t2, feature_dfs[year], matchup_format)
         matchup = np.array(matchup).reshape(1,-1)
+        print(matchup)
         if scaler is not None:
             matchup = scaler.transform(matchup)
-        if model_type == "sav":
-            prediction = model.predict_proba(matchup).flatten()
-        else:
-            prediction = model.predict(matchup).flatten()
+        try:
+            if model_type == "sav":
+                prediction = model.predict_proba(matchup).flatten()
+            else:
+                prediction = model.predict(matchup).flatten()
+        except ValueError:
+            prediction = (0.5, 0.5)
         submission_df = submission_df.append({'Id': id, 'Pred': prediction[0]}, ignore_index=True)
     
     submission_root = f"{SUBMISSIONS_ROOT}/{submission_id}"

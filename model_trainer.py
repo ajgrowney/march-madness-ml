@@ -16,7 +16,7 @@ default_grid_params = {
 }
 
 def train_basic_svc(x_train, x_test, y_train, y_test, sample_weight):
-    model = SVC(kernel="linear", probability=True, C=0.01, gamma=10)
+    model = SVC(kernel="linear", probability=True, C=0.1, gamma=1)
     print("Fitting LinearSVC")
     model.fit(x_train, y_train.ravel(), sample_weight=sample_weight)
     print("Fitted")
@@ -75,7 +75,9 @@ def train_xgb_grid(x_train, x_test, y_train, y_test, grid_params = default_grid_
     )
     _ = best_model.fit(x_train, y_train.ravel(), sample_weight=sample_weight)
     preds = best_model.predict(x_test)
+    print(preds)
     score = accuracy_score(y_test, preds)
+    print(score)
     return best_model, score, grid_cv.best_params_
 
 

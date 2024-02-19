@@ -3,7 +3,7 @@ import sys
 import pandas as pd
 import numpy as np
 import json
-from utilities import get_matchup_data
+from mm_analytics.utilities import get_matchup_data
 
 MODEL_SELECTED = "poly_model" if len(sys.argv) < 2 else sys.argv[1]
 year = 2021 if len(sys.argv) < 3 else int(sys.argv[2])

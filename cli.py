@@ -9,7 +9,7 @@ import shutil
 import keras
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split, GridSearchCV
-from utilities import DATA_ROOT, evaluate_model_on_tournament, f_importances, fetch_training_data, MODELS_ROOT, fill_submission, get_scaler, SUBMISSIONS_ROOT
+from march_madness_analytics.utilities import DATA_ROOT, evaluate_model_on_tournament, f_importances, fetch_training_data, MODELS_ROOT, fill_submission, get_scaler, SUBMISSIONS_ROOT
 from bracketeer import build_bracket
 
 CS_ALL_SEASONS = ",".join([str(i) for i in list(range(2003,2020)) + [2021]])
@@ -69,6 +69,8 @@ def train(models, save, scale, data, data_format, regular_season):
     for m in models.split(","):
         try:
             model_type = "sav"
+            print(m)
+            model,score = None, None
             if m == "basic_svc":
                 from model_trainer import train_basic_svc
                 model, score = train_basic_svc(x_train, x_test, y_train, y_test, sample_weights )
@@ -95,9 +97,12 @@ def train(models, save, scale, data, data_format, regular_season):
             elif m == "basic_xgb":
                 from model_trainer import train_xgb_basic
                 model, score = train_xgb_basic(x_train, x_test, y_train, y_test, sample_weight=sample_weights)
+                print(model)
+                print(score)
                 metadata["basic_xgb"] = {}
             elif m == "grid_xgb":
                 from model_trainer import train_xgb_grid
+                print("HERE")
                 model, score, selected_params = train_xgb_grid(x_train, x_test, y_train, y_test, sample_weight=sample_weights)
                 print(f"Grid XGB Params: {selected_params}")
                 metadata["grid_xgb"] = {"selected_params": selected_params}
@@ -157,6 +162,7 @@ def evaluate(run, models, seasons, data):
         model_path = os.path.join(run_root, f"{m}.sav")
         model = pickle.load(open(model_path,"rb"))
         for s in seasons:
+            print()
             results[m][s] = evaluate_model_on_tournament(model, scaler, s, data)
     
     # Display Results
@@ -180,7 +186,7 @@ def submit(run_id, model_ids, submission_id, run_folder, stage):
     submission_root = f"{SUBMISSIONS_ROOT}/{submission_id}"
     scaler_path = os.path.join(run_root, "scaler.pkl")
     metadata_path = os.path.join(run_root, "metadata.json")
-    scaler = pickle.load(open(scaler_path, "rb"))
+    scaler = None #pickle.load(open(scaler_path, "rb"))
     for m in model_ids.split(","):
         model_path = os.path.join(run_root, f"{m}.sav")
         if os.path.exists(model_path):

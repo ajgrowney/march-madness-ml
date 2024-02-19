@@ -1,0 +1,6 @@
+Metadata-Version: 2.1
+Name: mm_analytics
+Version: 0.1.0
+Summary: March Madness Analytics Tools: A collection of tools for analyzing March Madness data
+Author: Andrew Growney
+Requires-Python: >=3.6

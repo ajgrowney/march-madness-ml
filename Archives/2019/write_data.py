@@ -1,7 +1,7 @@
 import sys
 import pandas as pd
 import numpy as np
-from Teams import Team_Historical, TeamSeason
+from Teams import TeamHistorical, TeamSeason
 
 years = [2015,2016,2017,2018,2019]
 tourney_games = pd.read_csv("Data/MNCAATourneyDetailedResults.csv")
@@ -15,7 +15,7 @@ for yr in years:
     teams_data[yr] = []
 
 for tm in tourney_teams:
-    team = Team_Historical(tm, years)  
+    team = TeamHistorical(tm, years)  
     if df_columns == None: df_columns = ['TeamID'] + team.get_data_columns(years[0])
     # Fill rows of DataFrame
     for year in years:

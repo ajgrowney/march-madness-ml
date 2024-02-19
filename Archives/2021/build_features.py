@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from objects import TeamSeason, Team_Historical
+from mm_analytics.objects import TeamSeason, TeamHistorical
 DATA_ROOT = "/Users/andrewgrowney/Data/kaggle/marchmadness-2021"
 raw_data_dir = f"{DATA_ROOT}/Stage2/"
 season_res = pd.read_csv(raw_data_dir+"MRegularSeasonCompactResults.csv")
@@ -25,7 +25,7 @@ for yr in years:
 historical_teams = {}
 
 for tm in season_teams:
-    team = Team_Historical(tm, years)  
+    team = TeamHistorical(tm, years)  
     if df_columns == None: 
         df_columns = ['TeamID'] + team.get_data_columns(list(team.valid_years)[0])
     for y in team.valid_years:

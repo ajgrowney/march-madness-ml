@@ -1,1 +1,0 @@
-{"Data": {"TrainingSource": "ComputedV1", "Scale": "no", "TrainSplit": 0.9, "TrainingSize": [2362, 71]}, "TrainingData": "ComputedV1", "poly_svc": {"score": 0.9408033826638478}}
