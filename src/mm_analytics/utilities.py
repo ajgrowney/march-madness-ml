@@ -11,38 +11,12 @@ DATA_ROOT = os.getenv("MM_DATA_ROOT")
 MODELS_ROOT = os.getenv("MM_MODELS_ROOT")
 SUBMISSIONS_ROOT = os.getenv("MM_SUBMISSIONS_ROOT", "./Results/2023")
 
-class Datasets:
-    """Class for interacting with the kaggle datasets
-    through prefetching and/or cachiing
-    """
-    package_data = { "MTeams", "MNCAATourneyDetailedResults", "MRegularSeasonCompactResults", "MRegularSeasonDetailedResults", "MSeasons", "MGameCities", "MConferenceTourneyGames", "MConferenceTourneyGames", "MTeamCoaches" }
-    def __init__(self, root:str = None, load_package_datasets:List[str] = None) -> None:
-        self.data_root = root
-        self.datasets = {}
-        if load_package_datasets is not None:
-            for dataset in load_package_datasets:
-                self.load(dataset, dataset)
 
-    def load(self, path:str, from_root:bool = False) -> pd.DataFrame:
-        """Load a dataset
-        :param path { str }: path to the dataset
-        :param from_root { bool }: load from root or relative path
-        :return { pd.DataFrame }: the loaded dataset
-        """
-        if from_root:
-            path = os.path.join(self.data_root, path)
-        if name is None:
-            name = path.split("/")[-1]
-        return pd.read_csv(path)
-        
-
-def evaluate_model_on_tournament(model, scaler, year, data_version, datasets:Datasets):
+def evaluate_model_on_tournament(model, scaler, year, data_version, teams_df, tourney_df):
     correct, incorrect = [], []
 
     # Load auxillary data
     features = fetch_features(year, data_version)
-    teams_df = datasets.load('/MTeams.csv', from_root=True)
-    tourney_df = datasets.load('/MNCAATourneyCompactResults.csv', from_root=True)
     tourney_df = tourney_df[tourney_df["Season"] == year]
     tourney_df = tourney_df[["WTeamID", "LTeamID"]]
     for i, wt_id, lt_id in tourney_df.itertuples():
@@ -163,12 +137,11 @@ def get_matchup_data(team1, team2, feature_df, format:str = "diff"):
         raise Exception(f"Invalid get_matchup_data format: {format}")
     return results
 
-def get_scaler(run_id:str):
+def get_scaler(run_id:str, models_folder:str = MODELS_ROOT, scaler_name:str = "scaler.pkl"):
+    """Attempt to load the scaler that this model was trained with
     """
-    """
-    run_root = os.path.join(MODELS_ROOT, run_id)
-    scaler_path = os.path.join(run_root, "scaler.pkl")
-    
+    scaler_path = os.path.join(models_folder, run_id, "scaler.pkl")
+
     if os.path.exists(scaler_path):
         scaler = pickle.load(open(scaler_path, "rb"))
     else:

@@ -61,8 +61,7 @@ class TeamSeason:
         self.wins, self.losses, self.win_pct, self.opp_win_pct = [], [], None, None
         self.sos, self.sov = None, None
         self.tourney_seed = tournament_seed
-        # Ordinal Info
-        self.ordinal_data = TeamSeasonOrdinals(id, year)
+        
         self.conf, self.coach = None, None
         if teamsconf_df is not None:
             self.conf = teamsconf_df[(teamsconf_df['TeamID'] == self.id) & (teamsconf_df['Season'] == self.year)]['ConfAbbrev'].values[0]
@@ -78,17 +77,21 @@ class TeamSeason:
         # Fill the regular season stats
         for row in regular_season_df.itertuples():
             self.fill_game(row)
+        # Ordinal Info
+        self.ordinal_data = TeamSeasonOrdinals(id, year)
         self.calculate_season_stats(ordinals_df)
+        # Rankings that can be filled in after the season stats are calculated
+        self.rankings = {}
 
     def calculate_season_stats(self, ordinals_df):
         # Calculate Win Pct
         self.win_pct = len(self.wins) / (len(self.wins) + len(self.losses))
         # Calculate distributions for status
         for k, v in self.stats.items():
-            stat_vals = [val for (opp_id, val) in v]
-            self.means[k] = np.mean(stat_vals)
+            stat_vals        = [val for (_, val) in v]
+            self.means[k]    = np.mean(stat_vals)
             self.averages[k] = np.average(stat_vals)
-            self.stdev[k] = np.std(stat_vals)
+            self.stdev[k]    = np.std(stat_vals)
         
         # Calculate ordinals info
         if ordinals_df is not None:
@@ -128,16 +131,26 @@ class TeamSeason:
 
     def get_data(self, columns:list = None):
         if columns is None:
-            return np.array(
+            data = ( 
                 list(self.means.values()) + 
                 list(self.stdev.values()) + 
                 self.ordinal_data.get_data() +
                 [self.win_pct, self.sos, self.sov, self.tourney_seed]
             )
+            return np.array([round(v, 4) if v is not None else None for v in data])
         else:
             vals = []
             for c in columns:
-                vals.append(self.averages[c])
+                if c.endswith("_mean"):
+                    vals.append(self.means[c[:-5]])
+                elif c.endswith("_stdev"):
+                    vals.append(self.stdev[c[:-6]])
+                elif c.endswith("_avg"):
+                    vals.append(self.averages[c[:-4]])
+                elif c in {"WinPct", "SOS", "SOV" }:
+                    vals.append(getattr(self, c.lower()))
+                elif c == "Seed":
+                    vals.append(self.tourney_seed)
             return np.array(vals)
 
     def fill_game(self, game_row:Tuple):
@@ -208,50 +221,33 @@ def get_team_seasons(year, regular_season_df, seeds_df: pd.DataFrame = None, tea
     
     return team_seasons
 
+def calculate_season_rankings(team_seasons: Dict[int, TeamSeason], add_to_season:bool = True) -> Dict[int, Dict[str, int]]:
+    """Calculate the rankings in each statistic for each team in the season
+    from their season averages
+    :param team_seasons: Dict<int, TeamSeason> - Dictionary of TeamSeasons
+    :return: Dict<int, Dict<str, int>> - Dictionary of TeamID to Dictionary of Statistic Rankings
+    """
+    rankings = {}
+    for stat in list(team_seasons.values())[0].means.keys():
+        stat_vals = {}
+        for team_id, team_season in team_seasons.items():
+            stat_vals[team_id] = team_season.means[stat]
+        sorted_vals = sorted(stat_vals.items(), key=lambda x: x[1], reverse=True)
+        rankings[stat] = {}
+        for i, (team_id, _) in enumerate(sorted_vals):
+            rankings[stat][team_id] = i
+            if add_to_season:
+                team_seasons[team_id].rankings[stat] = i
+    return rankings
 
-class TeamHistorical:
-    def __init__(self, id:int, years_to_fill: list = []):
-        self.id = id
-        self.valid_years = set(years_to_fill)
-        self.name = teams_df.loc[teams_df['TeamID'] == self.id]['TeamName'].values[0]
-        self.conference, self.coaches = {}, {}
-        
-        # Dictionary: Key { int } - Year, Value { TeamSeason } - Season Stats
-        self.team_seasons = {}
-        for year in years_to_fill:
-            self.team_seasons[year] = self.fill_team_season(year)
-
-    def fill_team_season(self, year: int) -> TeamSeason:
-        """Fill the TeamSeason object of that year
-        :param int year: year to fill with data
-        :return: None
-        """
-        # Setup Team's Dataframes for: Regular Season (team_rs), Conference Tournament (team_ct), and March Madness (team_mm)
-        rs_df = regularseasonresults_df.loc[regularseasonresults_df['Season'] == year]
-        team_rs = rs_df[(rs_df['WTeamID'] == self.id) | (rs_df['LTeamID'] == self.id)]
-        raw_tournament_seed = tourney_seeds[(tourney_seeds['Season'] == year) & (tourney_seeds['TeamID'] == self.id)]['Seed'].values
-        seed = None if len(raw_tournament_seed) == 0 else int(re.sub("[^0-9^.]", "",raw_tournament_seed[0]).lstrip('0'))
-        try:
-            return TeamSeason(self.id, year, seed, team_rs)
-        except:
-            print(f"Unable to make season: {self.id}, {year}")
-            self.valid_years.remove(year)
-    
-    # Description: Get the ML data for that TeamSeason
-    def get_season_data(self, year):
-        return self.team_seasons[year].get_data()
-
-    def get_data_columns(self, year):
-        return self.team_seasons[year].get_data_columns()
-
-
-if __name__ == "__main__":
-    for year in [2021]:
-        year_reg_season = regularseasonresults_df[regularseasonresults_df["Season"] == year]
-        teams_conf_season = teamsconf_df[teamsconf_df["Season"] == year]
-        teams_coach_season = teamscoach_df[teamscoach_df["Season"] == year]
+# if __name__ == "__main__":
+#     for year in [2021]:
+#         year_reg_season = regularseasonresults_df[regularseasonresults_df["Season"] == year]
+#         teams_conf_season = teamsconf_df[teamsconf_df["Season"] == year]
+#         teams_coach_season = teamscoach_df[teamscoach_df["Season"] == year]
         
         
-        ts = get_team_seasons(year, year_reg_season, SEEDS_DF, teams_conf_season, teams_coach_season)
-        for k,v in ts.items():
-            print(year, k, v.get_data())
+#         ts = get_team_seasons(year, year_reg_season, SEEDS_DF, teams_conf_season, teams_coach_season)
+#         sr = calculate_season_rankings(ts)
+#         print(sr["OE"], sr["DE"])
+#         print(ts[1242].rankings)
