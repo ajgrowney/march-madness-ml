@@ -299,11 +299,11 @@ class TeamSeason:
             "tourney_seed": self.tourney_seed,
             "conf": self.conf,
             "stat_rankings": self.stat_rankings,
-            "stats": self.means, # Use means for the web app
+            "stats": {k:round(v, 3) for k,v in self.means.items() }, # Use means for the web app
             "coach": self.coach,
-            "win_pct": self.win_pct,
-            "sos": self.sos,
-            "sov": self.sov,
+            "win_pct": round(self.win_pct, 3),
+            "sos": round(self.sos, 3),
+            "sov": round(self.sov, 3),
             "ordinal_data": self.ordinal_data.to_json(statistics="last")
         }
 QUAD_THRESHOLDS = {
@@ -420,8 +420,6 @@ if __name__ == "__main__":
         so = get_season_ordinals(ORDINALS_DF[ORDINALS_DF["Season"] == year], ["NET"] if year >= 2019 else ["RPI"])
         ts = get_team_seasons(year, year_reg_season, SEEDS_DF, teams_conf_season, teams_coach_season, so)
         sr = calculate_season_rankings(ts)
-        print(sr["OE"], sr["DE"])
-        with open("data/web/ts/1242_2023_v2.json", "w") as f:
-            f.write(json.dumps(ts[1242].to_web_json(), cls=NpEncoder))
-        # print([(q, [(g.opponent_id, g.team_score, g.opp_score) for g in gs]) for q,gs in ts[1242].quad_wins.items()])
-        # print([(q, [(g.opponent_id, g.team_score, g.opp_score) for g in gs]) for q,gs in ts[1242].quad_losses.items()])
+        for tid, team_season in ts.items():
+            with open(f"data/web/ts/{tid}_{year}.json", "w") as f:
+                f.write(json.dumps(team_season.to_web_json(), cls=NpEncoder))
