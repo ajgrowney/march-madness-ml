@@ -1,4 +1,5 @@
 from typing import List
+import json
 import uuid
 import pandas as pd
 import numpy as np
@@ -11,6 +12,15 @@ DATA_ROOT = os.getenv("MM_DATA_ROOT")
 MODELS_ROOT = os.getenv("MM_MODELS_ROOT")
 SUBMISSIONS_ROOT = os.getenv("MM_SUBMISSIONS_ROOT", "./Results/2023")
 
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super(NpEncoder, self).default(obj)
 
 def evaluate_model_on_tournament(model, scaler, year, data_version, teams_df, tourney_df):
     correct, incorrect = [], []

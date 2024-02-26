@@ -26,5 +26,4 @@ for year in years:
     for tid, t in ts.items():
         team_row = np.array([tid] + t.get_data().tolist())
         df = pd.concat([df, pd.DataFrame([team_row], columns = df.columns)], ignore_index=True)
-    
     df.to_csv(f'./features_{year}.csv', index=False)

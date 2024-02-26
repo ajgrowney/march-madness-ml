@@ -6,6 +6,7 @@ from sklearn.cluster import KMeans
 
 # Load the data
 data = pd.read_csv("features_2021.csv")
+
 # Split the data into offense and defense
 offense_data = data[['Points_mean', 'Poss_mean', 'OE_mean', 'FGM_mean', 'FGA_mean', 'FGM3_mean', 'FGA3_mean', 'FTM_mean', 'FTA_mean', 'OR_mean', 'Ast_mean', 'TO_mean', 'Stl_mean', 'Blk_mean', 'Fouls_mean']]
 defense_data = data[['OppPoints_mean', 'OppFGM_mean', 'OppFGA_mean', 'OppFGM3_mean', 'OppFGA3_mean', 'OppFTM_mean', 'OppFTA_mean', 'OppOR_mean', 'OppAst_mean', 'OppTO_mean', 'OppStl_mean', 'OppBlk_mean', 'OppFouls_mean']]
@@ -13,6 +14,7 @@ defense_data = data[['OppPoints_mean', 'OppFGM_mean', 'OppFGA_mean', 'OppFGM3_me
 # Perform PCA on offense data
 pca_offense = PCA(n_components=2)
 offense_pca_result = pca_offense.fit_transform(offense_data)
+
 # Perform KMeans clustering
 kmeans = KMeans(n_clusters=3, random_state=42)
 offense_clusters = kmeans.fit_predict(offense_pca_result)
