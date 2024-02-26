@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from typing import Dict, List, Tuple, Union
 import json
 import re
@@ -10,8 +11,11 @@ from mm_analytics.utilities import DATA_ROOT, NpEncoder
 # Teams Data
 TEAM_CONF_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MTeamConferences.csv')
 TEAM_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MTeams.csv').drop(columns=['FirstD1Season', 'LastD1Season'])
+TEAM_NAMES = TEAM_DF.set_index('TeamID')['TeamName'].to_dict()
 TEAM_COACH_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MTeamCoaches.csv')
 ORDINALS_DF = pd.read_csv(f"{DATA_ROOT}/Stage2/MMasseyOrdinals_thru_Season2023_Day128.csv")
+SEASONS_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MSeasons.csv')
+SEASON_DAY_ZEROES = {k:date(*[int(i) for i in v.split("-")]) for k, v in SEASONS_DF.set_index('Season')['DayZero'].to_dict().items() }
 
 # Regular Season Data
 REGULAR_SZN_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MRegularSeasonDetailedResults.csv')
@@ -32,12 +36,14 @@ def to_pct(val1, val2) -> Union[float, None]:
     return val1 / val2 if val2 != 0 else None
 
 class TeamGame:
-    def __init__(self, opp_id: int, team_score: int, opp_score: int, team_loc: str, game_day:int = None, conf: bool = None) -> None:
+    def __init__(self, opp_id: int, opp_name:str, team_score: int, opp_score: int, team_loc: str, date_int:int = None, date_str:str = None, conf: bool = None) -> None:
         self.opponent_id = opp_id
+        self.opponent_name = opp_name
         self.team_score = team_score
         self.opp_score = opp_score
         self.team_loc = team_loc
-        self.game_day = game_day
+        self.date_int = date_int
+        self.date_str = date_str
         self.conf = conf
     
     def is_win(self) -> bool:
@@ -46,10 +52,12 @@ class TeamGame:
     def to_json(self) -> dict:
         return {
             "opp_id": self.opponent_id,
+            "opp_name": self.opponent_name,
             "team_score": self.team_score,
             "opp_score": self.opp_score,
             "team_loc": self.team_loc,
-            "game_day": self.game_day,
+            "date_int": self.date_int,
+            "date_str": self.date_str,
             "conf": self.conf
         }
 
@@ -154,7 +162,7 @@ class TeamSeason:
         # Fill the regular season stats
         conf_opponents = season_conf_df[season_conf_df['ConfAbbrev'] == self.conf]['TeamID'].unique().tolist()
         for row in regular_season_df.itertuples():
-            self.fill_game(row, conf_opponents)
+            self.fill_game(row, conf_opponents, TEAM_NAMES, SEASON_DAY_ZEROES[year])
         # Fill Ordinal Info in the calculate_post_season_stats method
         self.ordinal_data: TeamSeasonOrdinals = None
         self.quad_wins      = {1:[], 2:[], 3:[], 4:[]}
@@ -240,22 +248,23 @@ class TeamSeason:
                     vals.append(self.tourney_seed)
             return np.array(vals)
 
-    def fill_game(self, game_row:Tuple, conf_opponents:List[int]):
+    def fill_game(self, game_row:Tuple, conf_opponents:List[int], team_names:Dict[int, str], season_day_zero:date):
         """Take a dataframe row and fill in the stats for that game
         :param game_row: Tuple - Row of the Regular Season DataFrame
         """
-        game_day = game_row[1]
+        game_day = game_row[2]
+        game_day_str = (season_day_zero + timedelta(days=game_day)).strftime("%m/%d")
         if(game_row[3] == self.id):
             # Team Win Stats
             TeamPoints, OppID, OppPoints = game_row[4], game_row[5], game_row[6]
             WLoc, _, FGM, FGA, FGM3, FGA3, FTM, FTA, OR, DR, Ast, TO, Stl, Blk, Fouls, OppFGM, OppFGA, OppFGM3, OppFGA3, OppFTM, OppFTA, OppOR, OppDR, OppAst, OppTO, OppStl, OppBlk, OppFouls = game_row[7:]
-            self.wins.append(TeamGame(OppID, TeamPoints, OppPoints, WLoc, game_day, OppID in conf_opponents))
+            self.wins.append(TeamGame(OppID, team_names[OppID], TeamPoints, OppPoints, WLoc, game_day, game_day_str, OppID in conf_opponents))
         elif(game_row[5] == self.id):
             # Team Loss Stats
             OppID, OppPoints, TeamPoints = game_row[3], game_row[4], game_row[6]
             WLoc, _, OppFGM, OppFGA, OppFGM3, OppFGA3, OppFTM, OppFTA, OppOR, OppDR, OppAst, OppTO, OppStl, OppBlk, OppFouls, FGM, FGA, FGM3, FGA3, FTM, FTA, OR, DR, Ast, TO, Stl, Blk, Fouls = game_row[7:]
             team_loc = "H" if WLoc == "A" else "A" if WLoc == "H" else "N"
-            self.losses.append(TeamGame(OppID, TeamPoints, OppPoints, team_loc, game_day, OppID in conf_opponents))
+            self.losses.append(TeamGame(OppID, team_names[OppID], TeamPoints, OppPoints, team_loc, game_day, game_day_str, OppID in conf_opponents))
         else:
             print("Error: TeamID not in game row")
             exit(0)
@@ -353,6 +362,7 @@ def get_team_seasons(year, regular_season_df, seeds_df: pd.DataFrame = None, tea
     teams = set(regular_season_df['WTeamID'].values).union(set(regular_season_df['LTeamID'].values))
     seeds = get_season_seeds(year, seeds_df)
     season_conf_df = teams_conf_df[teams_conf_df['Season'] == year]
+    
     for team_id in teams:
         team_seed = seeds.get(team_id)
         print(f"Team: {team_id}, Seed: {team_seed}, Year: {year}")
@@ -411,7 +421,7 @@ if __name__ == "__main__":
         ts = get_team_seasons(year, year_reg_season, SEEDS_DF, teams_conf_season, teams_coach_season, so)
         sr = calculate_season_rankings(ts)
         print(sr["OE"], sr["DE"])
-        with open("data/web/ts/1242_2023.json", "w") as f:
+        with open("data/web/ts/1242_2023_v2.json", "w") as f:
             f.write(json.dumps(ts[1242].to_web_json(), cls=NpEncoder))
         # print([(q, [(g.opponent_id, g.team_score, g.opp_score) for g in gs]) for q,gs in ts[1242].quad_wins.items()])
         # print([(q, [(g.opponent_id, g.team_score, g.opp_score) for g in gs]) for q,gs in ts[1242].quad_losses.items()])
