@@ -6,12 +6,12 @@ import re
 import numpy as np
 import pandas as pd
 
-from mm_analytics.utilities import DATA_ROOT, NpEncoder
+from mm_analytics.utilities import DATA_ROOT, NpEncoder, ROUND_DAYS
 
 # Teams Data
 TEAM_CONF_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MTeamConferences.csv')
 TEAM_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MTeams.csv').drop(columns=['FirstD1Season', 'LastD1Season'])
-TEAM_NAMES = TEAM_DF.set_index('TeamID')['TeamName'].to_dict()
+TEAM_NAMES = { int(k):v for k,v in TEAM_DF.set_index('TeamID')['TeamName'].to_dict().items()}
 TEAM_COACH_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MTeamCoaches.csv')
 ORDINALS_DF = pd.read_csv(f"{DATA_ROOT}/Stage2/MMasseyOrdinals_thru_Season2023_Day128.csv")
 SEASONS_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MSeasons.csv')
@@ -25,7 +25,7 @@ conferencetourney_df = pd.read_csv(f'{DATA_ROOT}/Stage2/MConferenceTourneyGames.
 
 # NCAA Tourney Data
 SEEDS_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MNCAATourneySeeds.csv')
-ncaatourneyresults_df = pd.read_csv(f'{DATA_ROOT}/Stage2/MNCAATourneyDetailedResults.csv')
+TOURNEY_RESULTS_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MNCAATourneyDetailedResults.csv')
 
 def to_pct(val1, val2) -> Union[float, None]:
     """Calculate the percentage of two values
@@ -36,7 +36,9 @@ def to_pct(val1, val2) -> Union[float, None]:
     return val1 / val2 if val2 != 0 else None
 
 class TeamGame:
-    def __init__(self, opp_id: int, opp_name:str, team_score: int, opp_score: int, team_loc: str, date_int:int = None, date_str:str = None, conf: bool = None) -> None:
+    def __init__(self, opp_id: int, opp_name:str, team_score: int, opp_score: int,
+                 team_loc: str, date_int:int = None, date_str:str = None, conf: bool = None,
+                 poss: int = None) -> None:
         self.opponent_id = opp_id
         self.opponent_name = opp_name
         self.team_score = team_score
@@ -45,6 +47,12 @@ class TeamGame:
         self.date_int = date_int
         self.date_str = date_str
         self.conf = conf
+        self.poss = poss
+    
+    def get_efficiency(self) -> Tuple[float, float]:
+        """Get Offensive and Defensive Efficiency for the game
+        """
+        return (100 * (self.team_score / self.poss), 100 * (self.opp_score / self.poss))
     
     def is_win(self) -> bool:
         return self.team_score > self.opp_score
@@ -137,8 +145,9 @@ def get_season_ordinals(season_ordinals_df, systems:List[str] = None) -> Dict[in
 
 class TeamSeason:
     def __init__(self, id, year:int, name:str, tournament_seed:int, regular_season_df:pd.DataFrame = None,
-                 season_conf_df:pd.DataFrame = None, team_coach:str = None):
+                 season_conf_df:pd.DataFrame = None, team_coach:str = None, post_season_df:pd.DataFrame = None):
         self.id, self.year, self.name = id, year, name
+        self.games: List[TeamGame] = []
         self.wins: List[TeamGame] = []
         self.losses: List[TeamGame] = []
         self.win_pct, self.opp_win_pct = None, None
@@ -148,7 +157,7 @@ class TeamSeason:
         self.conf = season_conf_df[(season_conf_df['TeamID'] == self.id)]['ConfAbbrev'].values[0]
 
         self.stat_values = {
-            "Points": [], "Poss": [], "OE": [], "DE": [], "FGM": [], "FGA": [], "FGM3": [], "FGA3": [], "FTM": [], "FTA": [], "OR": [], "DR": [], "Ast": [], "TO": [], "Stl": [], "Blk": [], "Fouls": [],
+            "Points": [], "Poss": [], "OE": [], "DE": [], "NE": [], "FGM": [], "FGA": [], "FGM3": [], "FGA3": [], "FTM": [], "FTA": [], "OR": [], "DR": [], "Ast": [], "TO": [], "Stl": [], "Blk": [], "Fouls": [],
             "FG%": [], "FG3%": [], "FT%": [],
             "OppPoints": [], "OppFGM": [], "OppFGA": [], "OppFGM3": [], "OppFGA3": [], "OppFTM": [], "OppFTA": [], "OppOR": [], "OppDR": [], "OppAst": [], "OppTO": [], "OppStl": [], "OppBlk": [], "OppFouls": [],
             "OppFG%": [], "OppFG3%": [], "OppFT%": []
@@ -156,18 +165,34 @@ class TeamSeason:
 
         # Rankings that can be filled in after the season stats are calculated
         self.stat_rankings = {}
-
+        self.adjusted_stats = {}
         # Fill in the calculate_season_stats method
-        self.means, self.averages, self.stdev = {}, {}, {}
+        self.means, self.stdev = {}, {}
+
         # Fill the regular season stats
         conf_opponents = season_conf_df[season_conf_df['ConfAbbrev'] == self.conf]['TeamID'].unique().tolist()
         for row in regular_season_df.itertuples():
             self.fill_game(row, conf_opponents, TEAM_NAMES, SEASON_DAY_ZEROES[year])
+        self.wins = [g for g in self.games if g.is_win()]
+        self.losses = [g for g in self.games if not g.is_win()]
+        # Generate means, averages, and stdevs for each stat
+        self.calculate_season_stats()
+
         # Fill Ordinal Info in the calculate_post_season_stats method
         self.ordinal_data: TeamSeasonOrdinals = None
         self.quad_wins      = {1:[], 2:[], 3:[], 4:[]}
-        self.quad_losses    = {1:[], 2:[], 3:[], 4:[]}
-        self.calculate_season_stats()
+        self.quad_losses    = {1:[], 2:[], 3:[], 4:[]} 
+        # Tournament Stats / Results
+        self.tourney_games: List[TeamGame] = []
+        self.tourney_exit_round: str = None
+        if post_season_df is not None:
+            for row in post_season_df.itertuples():
+                self.fill_postseason_game(row)
+
+            for game in self.tourney_games:
+                if not game.is_win():
+                    self.tourney_exit_round = ROUND_DAYS[game.date_int]
+                    break
 
     def calculate_season_stats(self):
         # Calculate Win Pct
@@ -176,10 +201,35 @@ class TeamSeason:
         for k, v in self.stat_values.items():
             stat_vals        = [val for (_, val) in v]
             self.means[k]    = np.mean([x for x in stat_vals if x is not None])
-            self.averages[k] = np.average([x for x in stat_vals if x is not None])
             self.stdev[k]    = np.std([x for x in stat_vals if x is not None])
 
-    def calculate_post_season_stats(self, league_season_data, season_ordinals: Dict[int, TeamSeasonOrdinals] = None):
+    def calculate_post_season_adjusted_stats(self, league_season_data: Dict[int, 'TeamSeason'], season_averages: Dict[str, float]):
+        """
+        Calculate the adjusted stats by using the season averages
+        """
+        avg_sos, avg_oe, avg_de = season_averages["SOS"], season_averages["OE"], season_averages["DE"]
+        self.stat_values["AdjOE"], self.stat_values["AdjDE"], self.stat_values["AdjNE"] = [], [], []
+        for game in self.games:
+            game_oe, game_de = game.get_efficiency()
+            opp_season = league_season_data[game.opponent_id]
+            # Adjusted Offensive Efficiency = Raw OE * (Strength of OppDefense)
+            # Strength of OppDefense = (Opponent DE / Average DE) * (Opponent SOS / Average SOS)
+            adj_oe = (game_oe) * (opp_season.means["DE"] / avg_de) * (opp_season.sos / avg_sos)
+            self.stat_values["AdjOE"].append(adj_oe)
+            # Adjusted Defensive Efficiency = Raw DE * (Strength of OppOffense)
+            # Strength of OppOffense = (Opponent OE / Average OE) * (Opponent SOS / Average SOS)
+            adj_de = (game_de) * (opp_season.means["OE"] / avg_oe) * (opp_season.sos / avg_sos)
+            self.stat_values["AdjDE"].append(adj_de)
+            # Adjusted Net Efficiency = Adjusted OE - Adjusted DE
+            self.stat_values["AdjNE"].append(adj_oe - adj_de)
+        self.means["AdjOE"] = np.mean(self.stat_values["AdjOE"])
+        self.stdev["AdjOE"] = np.std(self.stat_values["AdjOE"])
+        self.means["AdjDE"] = np.mean(self.stat_values["AdjDE"])
+        self.stdev["AdjDE"] = np.std(self.stat_values["AdjDE"])
+        self.means["AdjNE"] = np.mean(self.stat_values["AdjNE"])
+        self.stdev["AdjNE"] = np.std(self.stat_values["AdjNE"])
+
+    def calculate_post_season_stats(self, league_season_data: Dict[int, 'TeamSeason'], season_ordinals: Dict[int, TeamSeasonOrdinals] = None):
         """ Calculate statistics that you need other teams info for 
         - statistical rankings for the season
         - strength of schedule, strength of victory
@@ -240,8 +290,6 @@ class TeamSeason:
                     vals.append(self.means[c[:-5]])
                 elif c.endswith("_stdev"):
                     vals.append(self.stdev[c[:-6]])
-                elif c.endswith("_avg"):
-                    vals.append(self.averages[c[:-4]])
                 elif c in {"WinPct", "SOS", "SOV" }:
                     vals.append(getattr(self, c.lower()))
                 elif c == "Seed":
@@ -258,21 +306,26 @@ class TeamSeason:
             # Team Win Stats
             TeamPoints, OppID, OppPoints = game_row[4], game_row[5], game_row[6]
             WLoc, _, FGM, FGA, FGM3, FGA3, FTM, FTA, OR, DR, Ast, TO, Stl, Blk, Fouls, OppFGM, OppFGA, OppFGM3, OppFGA3, OppFTM, OppFTA, OppOR, OppDR, OppAst, OppTO, OppStl, OppBlk, OppFouls = game_row[7:]
-            self.wins.append(TeamGame(OppID, team_names[OppID], TeamPoints, OppPoints, WLoc, game_day, game_day_str, OppID in conf_opponents))
+            team_loc = WLoc
         elif(game_row[5] == self.id):
             # Team Loss Stats
             OppID, OppPoints, TeamPoints = game_row[3], game_row[4], game_row[6]
             WLoc, _, OppFGM, OppFGA, OppFGM3, OppFGA3, OppFTM, OppFTA, OppOR, OppDR, OppAst, OppTO, OppStl, OppBlk, OppFouls, FGM, FGA, FGM3, FGA3, FTM, FTA, OR, DR, Ast, TO, Stl, Blk, Fouls = game_row[7:]
             team_loc = "H" if WLoc == "A" else "A" if WLoc == "H" else "N"
-            self.losses.append(TeamGame(OppID, team_names[OppID], TeamPoints, OppPoints, team_loc, game_day, game_day_str, OppID in conf_opponents))
         else:
             print("Error: TeamID not in game row")
             exit(0)
-
-        poss = (FGA - OR) + TO + (.475 * FTA)
-        self.stat_values["Poss"].append((OppID, poss))
-        self.stat_values["OE"].append((OppID, (TeamPoints*100)/poss))
-        self.stat_values["DE"].append((OppID, (OppPoints*100)/poss))
+        # KenPom: https://kenpom.com/blog/national-efficiency/
+        team_poss = (FGA - OR) + TO + (.475 * FTA)
+        opp_poss = (OppFGA - OppOR) + OppTO + (.475 * OppFTA)
+        game_poss = (team_poss + opp_poss) / 2
+        self.games.append(TeamGame(OppID, team_names[OppID], TeamPoints, OppPoints, team_loc, game_day, game_day_str, OppID in conf_opponents, game_poss))
+        self.stat_values["Poss"].append((OppID, game_poss))
+        game_oe = 100 * (TeamPoints/game_poss)
+        game_de = 100 * (OppPoints/game_poss)
+        self.stat_values["OE"].append((OppID, game_oe))
+        self.stat_values["DE"].append((OppID, game_de))
+        self.stat_values["NE"].append((OppID, (game_oe - game_de)))
 
         self.stat_values["Points"].append((OppID, TeamPoints))
         self.stat_values["FGM"].append((OppID, FGM)), self.stat_values["FGA"].append((OppID, FGA)), self.stat_values["FGM3"].append((OppID, FGM3)), self.stat_values["FGA3"].append((OppID, FGA3)), self.stat_values["FTM"].append((OppID, FTM)), self.stat_values["FTA"].append((OppID, FTA)), self.stat_values["OR"].append((OppID, OR)), self.stat_values["DR"].append((OppID, DR)), self.stat_values["Ast"].append((OppID, Ast)), self.stat_values["TO"].append((OppID, TO)), self.stat_values["Stl"].append((OppID, Stl)), self.stat_values["Blk"].append((OppID, Blk)), self.stat_values["Fouls"].append((OppID, Fouls))
@@ -282,29 +335,62 @@ class TeamSeason:
         self.stat_values["OppFGM"].append((OppID, OppFGM)), self.stat_values["OppFGA"].append((OppID, OppFGA)), self.stat_values["OppFGM3"].append((OppID, OppFGM3)), self.stat_values["OppFGA3"].append((OppID, OppFGA3)), self.stat_values["OppFTM"].append((OppID, OppFTM)), self.stat_values["OppFTA"].append((OppID, OppFTA)), self.stat_values["OppOR"].append((OppID, OppOR)), self.stat_values["OppDR"].append((OppID, OppDR)), self.stat_values["OppAst"].append((OppID, OppAst)), self.stat_values["OppTO"].append((OppID, OppTO)), self.stat_values["OppStl"].append((OppID, OppStl)), self.stat_values["OppBlk"].append((OppID, OppBlk)), self.stat_values["OppFouls"].append((OppID, OppFouls))
         self.stat_values["OppFG%"].append((OppID, to_pct(OppFGM,OppFGA))), self.stat_values["OppFG3%"].append((OppID, to_pct(OppFGM3, OppFGA3))), self.stat_values["OppFT%"].append((OppID, to_pct(OppFTM,OppFTA)))
 
+    def fill_postseason_game(self, game_row:Tuple):
+        """
+        """
+        game_day = game_row[2]
+        game_day_str = ROUND_DAYS[game_day]
+        if(game_row[3] == self.id):
+            # Team Win Stats
+            TeamPoints, OppID, OppPoints = game_row[4], game_row[5], game_row[6]
+        elif (game_row[5] == self.id):
+            # Team Loss Stats
+            OppID, OppPoints, TeamPoints = game_row[3], game_row[4], game_row[6]
+        else:
+            print("Error: TeamID not in game row")
+        t1_fga, t1_or, t1_to, t1_fta = game_row[10], game_row[15], game_row[18],  game_row[14]
+        t2_fga, t2_or, t2_to, t2_fta = game_row[23], game_row[28], game_row[31],  game_row[27]
+        game_poss = (((t1_fga - t1_or) + t1_to + (.475 * t1_fta)) + ((t2_fga - t2_or) + t2_to + (.475 * t2_fta))) / 2
+        self.tourney_games.append(TeamGame(OppID, TEAM_NAMES[OppID], TeamPoints, OppPoints, "N", game_day, game_day_str, poss = game_poss))
+        
+
+
     def to_web_json(self):
         """Return a JSON representation of the TeamSeason
         that can be used in the march madness web app
         """
+        tournament_data = {
+            "seed": self.tourney_seed,
+            "games": [g.to_json() for g in self.tourney_games],
+            "exit_round": self.tourney_exit_round
+        } if (len(self.tourney_games) > 0 or self.tourney_seed is not None) else None
         return {
             "id": self.id,
             "year": self.year,
             "name": self.name,
-            "record": (len(self.wins), len(self.losses)),
-            "record_conf": (len([g for g in self.wins if g.conf]), len([g for g in self.losses if g.conf])),
-            "record_home": (len([g for g in self.wins if g.team_loc == "H"]), len([g for g in self.losses if g.team_loc == "H"])),
-            "record_road": (len([g for g in self.wins if g.team_loc in {"A", "N"}]), len([g for g in self.losses if g.team_loc in {"A", "N"}])),
+            "record": {
+                "overall": (len(self.wins), len(self.losses)),
+                "conf": (len([g for g in self.wins if g.conf]), len([g for g in self.losses if g.conf])),
+                "home": (len([g for g in self.wins if g.team_loc == "H"]), len([g for g in self.losses if g.team_loc == "H"])),
+                "road": (len([g for g in self.wins if g.team_loc in {"A", "N"}]), len([g for g in self.losses if g.team_loc in {"A", "N"}])),
+                "quad_1": (len(self.quad_wins[1]), len(self.quad_losses[1])),
+                "quad_2": (len(self.quad_wins[2]), len(self.quad_losses[2])),
+                "quad_3": (len(self.quad_wins[3]), len(self.quad_losses[3])),
+                "quad_4": (len(self.quad_wins[4]), len(self.quad_losses[4]))
+            },
             "quad_wins": {q: [g.to_json() for g in games] for q,games in self.quad_wins.items()},
             "quad_losses": {q: [g.to_json() for g in games] for q,games in self.quad_losses.items()},
-            "tourney_seed": self.tourney_seed,
             "conf": self.conf,
             "stat_rankings": self.stat_rankings,
-            "stats": {k:round(v, 3) for k,v in self.means.items() }, # Use means for the web app
+            "stats": {
+                **{k:round(v, 3) for k,v in self.means.items() }
+            },
             "coach": self.coach,
             "win_pct": round(self.win_pct, 3),
             "sos": round(self.sos, 3),
             "sov": round(self.sov, 3),
-            "ordinal_data": self.ordinal_data.to_json(statistics="last")
+            "ordinal_data": self.ordinal_data.to_json(statistics="last"),
+            "tournament": tournament_data
         }
 QUAD_THRESHOLDS = {
     "H": [30, 75, 160],
@@ -345,8 +431,9 @@ def get_season_seeds(year, seeds_df) -> Dict[int, int]:
         team_seeds[team_id] = int(re.sub("[^0-9^.]", "",seed).lstrip('0'))
     return team_seeds
 
-def get_team_seasons(year, regular_season_df, seeds_df: pd.DataFrame = None, teams_conf_df = None,
-                teams_coach_df = None, season_ordinals:Dict[int, TeamSeasonOrdinals] = None) -> Dict[int, TeamSeason]:
+def get_team_seasons_and_rankings(year, regular_season_df, seeds_df: pd.DataFrame = None, teams_conf_df = None,
+                teams_coach_df = None, season_ordinals:Dict[int, TeamSeasonOrdinals] = None,
+                tourney_results_df = None) -> Tuple[Dict[int, TeamSeason], Dict[str, Tuple[int, float]]]:
     """From a set of regular season, conference tournament, and march madness games
     fill in all possible TeamSeasons
     :param int year: year to fill with data
@@ -365,61 +452,81 @@ def get_team_seasons(year, regular_season_df, seeds_df: pd.DataFrame = None, tea
     
     for team_id in teams:
         team_seed = seeds.get(team_id)
-        print(f"Team: {team_id}, Seed: {team_seed}, Year: {year}")
         team_games = regular_season_df[(regular_season_df['WTeamID'] == team_id) | (regular_season_df['LTeamID'] == team_id)]
         team_coach = teams_coach_df[(teams_coach_df['TeamID'] == team_id) & (teams_coach_df['Season'] == year)]['CoachName'].values[0]
         team_name = TEAM_DF[TEAM_DF['TeamID'] == team_id]['TeamName'].values[0]
-        team_seasons[team_id] = TeamSeason(team_id, year, team_name, team_seed, team_games, season_conf_df, team_coach)
+        team_tourney = tourney_results_df[(tourney_results_df['WTeamID'] == team_id) | (tourney_results_df['LTeamID'] == team_id)]
+        print(f"Team: {team_id}, Seed: {team_seed}, Year: {year}, Tourney Games: {len(team_tourney)}")
+        team_seasons[team_id] = TeamSeason(team_id, year, team_name, team_seed, team_games, season_conf_df, team_coach, team_tourney)
     
+    
+    # Fill in the post season stats
     for team_season in team_seasons.values():
         team_season.calculate_post_season_stats(team_seasons, season_ordinals)
+    (_, season_avgs) = calculate_season_rankings_and_averages(team_seasons, rank = False)
+    # Fill in the adjusted stats and rankings
+    for team_season in team_seasons.values():
+        team_season.calculate_post_season_adjusted_stats(team_seasons, season_avgs)
+    (season_ranks, season_avgs) = calculate_season_rankings_and_averages(team_seasons)
     
-    return team_seasons
+    return team_seasons, season_ranks
 
-def calculate_season_rankings(team_seasons: Dict[int, TeamSeason], add_to_season:bool = True) -> Dict[int, Dict[str, Tuple[int, float]]]:
+def calculate_season_rankings_and_averages(team_seasons: Dict[int, TeamSeason],
+        add_to_season:bool = True, rank:bool = True) -> Tuple[Dict[str, Tuple[int, float]], Dict[str, float]]:
     """Calculate the rankings in each statistic for each team in the season
     from their season averages
     :param team_seasons: Dict<int, TeamSeason> - Dictionary of TeamSeasons
+    :param season_averages: Dict<int, float> - Dictionary of Season Averages
     :param add_to_season: bool - Add the rankings to the TeamSeason object instances
-    :return: Dict<str, List<Tuple[int, float]>> 
+    :param rank: bool - Rank the statistics
+    :return: Tuple of Dict<str, List<Tuple<int, float>>, Dict<str, float>>
+        Index 0: Dict<str, List<Tuple[int, float]>> 
         Mapping of Statistic to ordered list of TeamID and Statistic Value
         ex: { "OE": [(1242, 91.2), (1234, 87.1), ...], ...}
+        Index 1: Dict<str, float>
+        Mapping of Statistic to average value
+        ex: { "OE": 89.2, "DE": 78.1, ...}
     """
-    rankings = {}
+    rankings, averages = {}, {}
     stats_to_rank = list(team_seasons.values())[0].means.keys()
     for stat in stats_to_rank:
         stat_vals = {}
         for team_id, team_season in team_seasons.items():
             stat_vals[team_id] = team_season.means[stat]
-        sorted_vals = sorted(stat_vals.items(), key=lambda x: x[1], reverse=True)
-        rankings[stat] = []
-        for i, (team_id, team_val) in enumerate(sorted_vals):
-            rankings[stat].append((team_id, team_val))
-            if add_to_season:
-                team_seasons[team_id].stat_rankings[stat] = i
+        averages[stat] = np.average(list(stat_vals.values()))
+        if rank:
+            sorted_vals = sorted(stat_vals.items(), key=lambda x: x[1], reverse=True)
+            rankings[stat] = []
+            for i, (team_id, team_val) in enumerate(sorted_vals):
+                rankings[stat].append((team_id, team_val))
+                if add_to_season:
+                    team_seasons[team_id].stat_rankings[stat] = i
     # Rank the sos and sov
     for stat in ["SOS", "SOV"]:
         stat_vals = {}
         for team_id, team_season in team_seasons.items():
             stat_vals[team_id] = getattr(team_season, stat.lower())
-        sorted_vals = sorted(stat_vals.items(), key=lambda x: x[1], reverse=True)
-        rankings[stat] = []
-        for i, (team_id, team_val) in enumerate(sorted_vals):
-            rankings[stat].append((team_id, team_val))
-            if add_to_season:
-                team_seasons[team_id].stat_rankings[stat] = i
-    return rankings
+        averages[stat] = np.average(list(stat_vals.values()))
+        if rank:
+            sorted_vals = sorted(stat_vals.items(), key=lambda x: x[1], reverse=True)
+            rankings[stat] = []
+            for i, (team_id, team_val) in enumerate(sorted_vals):
+                rankings[stat].append((team_id, team_val))
+                if add_to_season:
+                    team_seasons[team_id].stat_rankings[stat] = i
+    return rankings, averages
 
 if __name__ == "__main__":
 
-    for year in [2023]:
+    for year in [2022]:
         year_reg_season = REGULAR_SZN_DF[REGULAR_SZN_DF["Season"] == year]
         teams_conf_season = TEAM_CONF_DF[TEAM_CONF_DF["Season"] == year]
         teams_coach_season = TEAM_COACH_DF[TEAM_COACH_DF["Season"] == year]
+        year_tourney = TOURNEY_RESULTS_DF[TOURNEY_RESULTS_DF["Season"] == year]
 
         so = get_season_ordinals(ORDINALS_DF[ORDINALS_DF["Season"] == year], ["NET"] if year >= 2019 else ["RPI"])
-        ts = get_team_seasons(year, year_reg_season, SEEDS_DF, teams_conf_season, teams_coach_season, so)
-        sr = calculate_season_rankings(ts)
+        ts, sr = get_team_seasons_and_rankings(year, year_reg_season, SEEDS_DF, teams_conf_season, teams_coach_season, so, year_tourney)
+        
         for tid, team_season in ts.items():
-            with open(f"data/web/ts/{tid}_{year}.json", "w") as f:
+            with open(f"data/web/ts/v2/{tid}_{year}.json", "w") as f:
                 f.write(json.dumps(team_season.to_web_json(), cls=NpEncoder))

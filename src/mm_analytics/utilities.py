@@ -22,6 +22,21 @@ class NpEncoder(json.JSONEncoder):
             return obj.tolist()
         return super(NpEncoder, self).default(obj)
 
+ROUND_DAYS = {
+    134: "Play In",
+    135: "Play In",
+    136: "First Round",
+    137: "First Round",
+    138: "Second Round",
+    139: "Second Round",
+    143: "Sweet Sixteen",
+    144: "Sweet Sixteen",
+    145: "Elite Eight",
+    146: "Elite Eight",
+    152: "Final Four",
+    154: "Championship"
+}
+
 def evaluate_model_on_tournament(model, scaler, year, data_version, teams_df, tourney_df):
     correct, incorrect = [], []
 
