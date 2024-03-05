@@ -60,7 +60,6 @@ class TeamGame:
     def to_json(self) -> dict:
         return {
             "opp_id": self.opponent_id,
-            "opp_name": self.opponent_name,
             "team_score": self.team_score,
             "opp_score": self.opp_score,
             "team_loc": self.team_loc,
@@ -528,5 +527,5 @@ if __name__ == "__main__":
         ts, sr = get_team_seasons_and_rankings(year, year_reg_season, SEEDS_DF, teams_conf_season, teams_coach_season, so, year_tourney)
         
         for tid, team_season in ts.items():
-            with open(f"data/web/ts/v2/{tid}_{year}.json", "w") as f:
+            with open(f"data/web/ts/{tid}_{year}.json", "w") as f:
                 f.write(json.dumps(team_season.to_web_json(), cls=NpEncoder))
