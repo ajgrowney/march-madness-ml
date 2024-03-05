@@ -430,6 +430,8 @@ def get_game_quad(game: TeamGame, season_ordinals: Dict[int, TeamSeasonOrdinals]
     if not opp_ordinals.valid_system(quad_ordinal):
         raise ValueError(f"System {quad_ordinal} not in opponent's ordinal data")
     opp_rank = opp_ordinals._data[quad_ordinal]["last"]
+    if opp_rank is None:
+        return 4
     game_thresholds = QUAD_THRESHOLDS[game.team_loc]
     if opp_rank <= game_thresholds[0]:
         return 1
