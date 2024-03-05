@@ -101,6 +101,12 @@ class TeamSeasonOrdinals:
     def list_systems(self):
         return list(self._data.keys())
 
+    def get_system_data(self, system_id:str, stat:str = None):
+        if stat is not None:
+            self.valid_statistic(stat)
+            return self._data[system_id][stat]
+        return self._data[system_id]
+
     def get_data(self, statistics:List[str] = None):
         if statistics is not None:
             for stat in statistics:
@@ -143,6 +149,13 @@ def get_season_ordinals(season_ordinals_df, systems:List[str] = None) -> Dict[in
 
 
 class TeamSeason:
+    data_col_attrs = {
+        "WinPct": "win_pct",
+        "SOS": "sos",
+        "SOV": "sov",
+        "Seed": "tourney_seed",
+        "ExitRound": "tourney_exit_round"
+    }
     def __init__(self, id, year:int, name:str, tournament_seed:int, regular_season_df:pd.DataFrame = None,
                  season_conf_df:pd.DataFrame = None, team_coach:str = None, post_season_df:pd.DataFrame = None):
         self.id, self.year, self.name = id, year, name
@@ -192,6 +205,8 @@ class TeamSeason:
                 if not game.is_win():
                     self.tourney_exit_round = ROUND_DAYS[game.date_int]
                     break
+            if len(self.tourney_games) > 0 and self.tourney_exit_round is None:
+                self.tourney_exit_round = "Champion"
 
     def calculate_season_stats(self):
         # Calculate Win Pct
@@ -270,16 +285,21 @@ class TeamSeason:
     def get_data_columns(self):
         return list([k+"_mean" for k in self.means.keys()]) + \
             list([k+"_stdev" for k in self.stdev.keys()]) + \
-             self.ordinal_data.get_data_columns() + \
-             ["WinPct", "SOS", "SOV", "Seed"]
+            self.ordinal_data.get_data_columns(["last"]) + \
+            list(self.data_col_attrs.keys())
 
     def get_data(self, columns:list = None):
+        """Return the data for the team season
+        :param columns: List[str] - List of columns to return
+            accepted values: "WinPct", "SOS", "SOV", "Seed",
+            "{system}_{stat}", "{stat}_mean", "{stat}_stdev"
+        """
         if columns is None:
             data = ( 
                 list(self.means.values()) + 
                 list(self.stdev.values()) + 
-                self.ordinal_data.get_data() +
-                [self.win_pct, self.sos, self.sov, self.tourney_seed]
+                self.ordinal_data.get_data(["last"]) +
+                [getattr(self, self.data_col_attrs[k]) for k in self.data_col_attrs.keys()]
             )
             return np.array([round(v, 4) if v is not None else None for v in data])
         else:
@@ -289,10 +309,11 @@ class TeamSeason:
                     vals.append(self.means[c[:-5]])
                 elif c.endswith("_stdev"):
                     vals.append(self.stdev[c[:-6]])
-                elif c in {"WinPct", "SOS", "SOV" }:
-                    vals.append(getattr(self, c.lower()))
-                elif c == "Seed":
-                    vals.append(self.tourney_seed)
+                elif c in self.data_col_attrs.keys():
+                    vals.append(getattr(self, self.data_col_attrs[c]))
+                elif c in self.ordinal_data.get_data_columns():
+                    sys, stat = c.split("_")
+                    vals.append(self.ordinal_data.get_system_data(sys, stat))
             return np.array(vals)
 
     def fill_game(self, game_row:Tuple, conf_opponents:List[int], team_names:Dict[int, str], season_day_zero:date):
@@ -445,11 +466,11 @@ def get_team_seasons_and_rankings(year, regular_season_df, seeds_df: pd.DataFram
     """
     team_seasons: Dict[int, TeamSeason] = {}
     # Fetch Team IDs to Evaluate for the Season
-    teams = set(regular_season_df['WTeamID'].values).union(set(regular_season_df['LTeamID'].values))
-    seeds = get_season_seeds(year, seeds_df)
+    team_ids_in_season = set(regular_season_df['WTeamID'].values).union(set(regular_season_df['LTeamID'].values))
+    seeds: Dict[int, int] = get_season_seeds(year, seeds_df)
     season_conf_df = teams_conf_df[teams_conf_df['Season'] == year]
     
-    for team_id in teams:
+    for team_id in team_ids_in_season:
         team_seed = seeds.get(team_id)
         team_games = regular_season_df[(regular_season_df['WTeamID'] == team_id) | (regular_season_df['LTeamID'] == team_id)]
         team_coach = teams_coach_df[(teams_coach_df['TeamID'] == team_id) & (teams_coach_df['Season'] == year)]['CoachName'].values[0]
@@ -515,17 +536,31 @@ def calculate_season_rankings_and_averages(team_seasons: Dict[int, TeamSeason],
                     team_seasons[team_id].stat_rankings[stat] = i
     return rankings, averages
 
+def team_seasons_to_df(team_seasons:Dict[int, TeamSeason], columns:List[str] = None) -> pd.DataFrame:
+    """Convert a dictionary of TeamSeasons to a DataFrame
+    :param team_seasons: Dict<int, TeamSeason> - Dictionary of TeamSeasons
+    :param columns: List<str> - List of columns to include in the DataFrame
+    :return: pd.DataFrame - DataFrame of TeamSeasons
+    """
+    if columns is None:
+        columns = list(team_seasons.values())[0].get_data_columns()
+
+    team_seasons_df = pd.DataFrame(columns = ["TeamID", "Season"] + columns)
+    for team_id, team in team_seasons.items():
+        team_row = np.array([team_id, team.year] + team.get_data(columns=columns).tolist())
+        team_seasons_df = pd.concat([team_seasons_df, pd.DataFrame([team_row], columns = team_seasons_df.columns)], ignore_index=True)
+    return team_seasons_df
+
 if __name__ == "__main__":
 
     for year in [2022]:
-        year_reg_season = REGULAR_SZN_DF[REGULAR_SZN_DF["Season"] == year]
-        teams_conf_season = TEAM_CONF_DF[TEAM_CONF_DF["Season"] == year]
-        teams_coach_season = TEAM_COACH_DF[TEAM_COACH_DF["Season"] == year]
-        year_tourney = TOURNEY_RESULTS_DF[TOURNEY_RESULTS_DF["Season"] == year]
+        year_reg_season     = REGULAR_SZN_DF[REGULAR_SZN_DF["Season"] == year]
+        teams_conf_season   = TEAM_CONF_DF[TEAM_CONF_DF["Season"] == year]
+        teams_coach_season  = TEAM_COACH_DF[TEAM_COACH_DF["Season"] == year]
+        year_tourney        = TOURNEY_RESULTS_DF[TOURNEY_RESULTS_DF["Season"] == year]
 
         so = get_season_ordinals(ORDINALS_DF[ORDINALS_DF["Season"] == year], ["NET"] if year >= 2019 else ["RPI"])
-        ts, sr = get_team_seasons_and_rankings(year, year_reg_season, SEEDS_DF, teams_conf_season, teams_coach_season, so, year_tourney)
+        (ts, sr) = get_team_seasons_and_rankings(year, year_reg_season, SEEDS_DF, teams_conf_season, teams_coach_season, so, year_tourney)
         
-        for tid, team_season in ts.items():
-            with open(f"data/web/ts/{tid}_{year}.json", "w") as f:
-                f.write(json.dumps(team_season.to_web_json(), cls=NpEncoder))
+        ts_df = team_seasons_to_df(ts)
+        ts_df.to_csv(f"TeamSeasons_{year}.csv", index=False)
