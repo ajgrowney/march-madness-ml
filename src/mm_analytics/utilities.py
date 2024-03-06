@@ -1,12 +1,14 @@
-from typing import List
+from typing import List, Tuple, Dict
 import json
 import uuid
+import os
+import sys
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics.pairwise import cosine_similarity
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
-import os
-import sys
 
 DATA_ROOT = os.getenv("MM_DATA_ROOT")
 MODELS_ROOT = os.getenv("MM_MODELS_ROOT")
@@ -36,6 +38,47 @@ ROUND_DAYS = {
     152: "Final Four",
     154: "Championship"
 }
+
+# ---- Similarity Metrics ----
+def get_historical_resume_stats_similarity(df, num_teams:int = 3) -> Dict[Tuple[int, int], List[Tuple[Tuple[int, int], float]]]:
+    """Using resume and stats data
+    calculate the similarity between teams
+    and return the top n most similar teams
+    :param df { DataFrame }: The dataframe containing the team data
+    :param num_teams { int }: The number of similar teams to return
+    :return { Dict[Tuple[int, int], List[Tuple[Tuple[int, int], float]]] }: A dictionary of (team id, season)
+        mapped to and their most similar (team id, season) with similarity score
+    """
+    # Build Resume Similarity
+    resume_cols = ["Q1_WinPct", "Q2_WinPct", "Q3_WinPct", "Q4_WinPct", "SOS", "SOV", "NET_last"]
+    resume_df = df[resume_cols]
+    resume_df.fillna(0, inplace=True)
+    resume_scaler = MinMaxScaler()
+    resume_df = resume_scaler.fit_transform(resume_df)
+    resume_similarity = cosine_similarity(resume_df)
+
+    # Build Stat Similarity
+    stat_cols = ["AdjOE_mean", "AdjDE_mean", "Poss_mean", "FGA3_mean", "FTA_mean", "FG%_mean","FG3%_mean","FT%_mean","Ast_mean","TO_mean","OR_mean", "OppFGA3_mean", "OppFTA_mean", "OppFG%_mean","OppFG3%_mean","OppFT%_mean","OppAst_mean","OppTO_mean","OppOR_mean"]
+    stat_df = df[stat_cols]
+    stat_scaler = MinMaxScaler()
+    stat_df = stat_scaler.fit_transform(stat_df)
+    stat_similarity = cosine_similarity(stat_df)
+
+    # Average the two similarities
+    avg_similarity = (resume_similarity + stat_similarity) / 2
+
+    similar_teams = {}
+    for i in range(len(avg_similarity)):
+        avg_similarity[i][i] = 0
+
+        arr = avg_similarity[i]
+        # Get the indices of the most similar n values
+        top_n_indices = arr.argsort()[-num_teams:][::-1]
+
+        # Set the most similar teams
+        similar_teams[df.iloc[i]['TeamID']] = [
+            (df.iloc[j]['TeamID'], avg_similarity[i][j]) for j in top_n_indices]
+    return similar_teams
 
 def evaluate_model_on_tournament(model, scaler, year, data_version, teams_df, tourney_df):
     correct, incorrect = [], []
