@@ -286,6 +286,7 @@ class TeamSeason:
         return list([k+"_mean" for k in self.means.keys()]) + \
             list([k+"_stdev" for k in self.stdev.keys()]) + \
             self.ordinal_data.get_data_columns(["last"]) + \
+            ["Q1_WinPct", "Q2_WinPct", "Q3_WinPct", "Q4_WinPct"] + \
             list(self.data_col_attrs.keys())
 
     def get_data(self, columns:list = None):
@@ -294,11 +295,14 @@ class TeamSeason:
             accepted values: "WinPct", "SOS", "SOV", "Seed",
             "{system}_{stat}", "{stat}_mean", "{stat}_stdev"
         """
+        qpct = lambda qw, ql: (len(qw) / (len(qw) + len(ql))) if len(qw) + len(ql) > 0 else None
+        q_winpct = [qpct(self.quad_wins[q], self.quad_losses[q]) for q in range(1,5)]
         if columns is None:
             data = ( 
                 list(self.means.values()) + 
                 list(self.stdev.values()) + 
                 self.ordinal_data.get_data(["last"]) +
+                q_winpct,
                 [getattr(self, self.data_col_attrs[k]) for k in self.data_col_attrs.keys()]
             )
             return np.array([round(v, 4) if v is not None else None for v in data])
@@ -314,6 +318,9 @@ class TeamSeason:
                 elif c in self.ordinal_data.get_data_columns():
                     sys, stat = c.split("_")
                     vals.append(self.ordinal_data.get_system_data(sys, stat))
+                elif c in ["Q1_WinPct", "Q2_WinPct", "Q3_WinPct", "Q4_WinPct"]:
+                    q = int(re.sub(r"\D", "", c))
+                    vals.append(q_winpct[q-1])
             return np.array(vals)
 
     def fill_game(self, game_row:Tuple, conf_opponents:List[int], team_names:Dict[int, str], season_day_zero:date):
@@ -372,8 +379,6 @@ class TeamSeason:
         t2_fga, t2_or, t2_to, t2_fta = game_row[23], game_row[28], game_row[31],  game_row[27]
         game_poss = (((t1_fga - t1_or) + t1_to + (.475 * t1_fta)) + ((t2_fga - t2_or) + t2_to + (.475 * t2_fta))) / 2
         self.tourney_games.append(TeamGame(OppID, TEAM_NAMES[OppID], TeamPoints, OppPoints, "N", game_day, game_day_str, poss = game_poss))
-        
-
 
     def to_web_json(self):
         """Return a JSON representation of the TeamSeason
