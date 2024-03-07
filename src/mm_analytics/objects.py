@@ -6,7 +6,7 @@ import re
 import numpy as np
 import pandas as pd
 
-from mm_analytics.utilities import DATA_ROOT, NpEncoder, ROUND_DAYS
+from mm_analytics.utilities import get_historical_similarity, DATA_ROOT, NpEncoder, ROUND_DAYS
 
 # Teams Data
 TEAM_CONF_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MTeamConferences.csv')
@@ -133,7 +133,6 @@ class TeamSeasonOrdinals:
 def get_year_system(year):
     return "NET" if year > 2018 else "RPI"
 
-
 def get_season_ordinals(season_ordinals_df, systems:List[str] = None) -> Dict[int, TeamSeasonOrdinals]:
     """Get the ordinal data for each team in a season
     :param season_ordinals_df: Pandas DataFrame - Ordinals Data for a Season
@@ -194,6 +193,8 @@ class TeamSeason:
         self.ordinal_data: TeamSeasonOrdinals = None
         self.quad_wins      = {1:[], 2:[], 3:[], 4:[]}
         self.quad_losses    = {1:[], 2:[], 3:[], 4:[]} 
+        # Similarity Data
+        self.similar_teams = []
         # Tournament Stats / Results
         self.tourney_games: List[TeamGame] = []
         self.tourney_exit_round: str = None
@@ -415,8 +416,12 @@ class TeamSeason:
             "sos": round(self.sos, 3),
             "sov": round(self.sov, 3),
             "ordinal_data": self.ordinal_data.to_json(statistics="last"),
-            "tournament": tournament_data
+            "tournament": tournament_data,
+            "similar_teams": [{
+                "id": tid, "year": ty, "avg": avgs, "res": rs, "st": ss, "er": er
+            } for (tid, ty, avgs, rs, ss, er) in self.similar_teams]
         }
+
 QUAD_THRESHOLDS = {
     "H": [30, 75, 160],
     "N": [50, 100, 200],
@@ -543,18 +548,20 @@ def calculate_season_rankings_and_averages(team_seasons: Dict[int, TeamSeason],
                     team_seasons[team_id].stat_rankings[stat] = i
     return rankings, averages
 
-def team_seasons_to_df(team_seasons:Dict[int, TeamSeason], columns:List[str] = None) -> pd.DataFrame:
+def team_seasons_to_df(team_seasons:Dict[int, TeamSeason], columns:List[str],
+                       add_season_ordinal:bool = True) -> pd.DataFrame:
     """Convert a dictionary of TeamSeasons to a DataFrame
     :param team_seasons: Dict<int, TeamSeason> - Dictionary of TeamSeasons
     :param columns: List<str> - List of columns to include in the DataFrame
+    :param add_season_ordinal: bool - Add the season ordinal to the DataFrame
     :return: pd.DataFrame - DataFrame of TeamSeasons
     """
-    if columns is None:
-        columns = list(team_seasons.values())[0].get_data_columns()
-
-    team_seasons_df = pd.DataFrame(columns = ["TeamID", "Season"] + columns)
+    # Configure columns to use
+    result_columns = columns + ["NET_last"] if add_season_ordinal else columns
+    team_seasons_df = pd.DataFrame(columns = ["TeamID", "Season"] + result_columns)
     for team_id, team in team_seasons.items():
-        team_row = np.array([team_id, team.year] + team.get_data(columns=columns).tolist())
+        season_columns = columns + [f"{get_year_system(team.year)}_last"] if add_season_ordinal else columns
+        team_row = np.array([team_id, team.year] + team.get_data(columns=season_columns).tolist())
         team_seasons_df = pd.concat([team_seasons_df, pd.DataFrame([team_row], columns = team_seasons_df.columns)], ignore_index=True)
     return team_seasons_df
 
@@ -571,3 +578,4 @@ if __name__ == "__main__":
         
         ts_df = team_seasons_to_df(ts)
         ts_df.to_csv(f"TeamSeasons_{year}.csv", index=False)
+

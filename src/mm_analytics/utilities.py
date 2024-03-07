@@ -40,7 +40,7 @@ ROUND_DAYS = {
 }
 
 # ---- Similarity Metrics ----
-def get_historical_resume_stats_similarity(df, num_teams:int = 3) -> Dict[Tuple[int, int], List[Tuple[Tuple[int, int], float]]]:
+def get_historical_similarity(df, num_teams:int = 3, precision:int = 5) -> Dict[Tuple[int, int], List[Tuple[Tuple[int, int], float]]]:
     """Using resume and stats data
     calculate the similarity between teams
     and return the top n most similar teams
@@ -76,8 +76,12 @@ def get_historical_resume_stats_similarity(df, num_teams:int = 3) -> Dict[Tuple[
         top_n_indices = arr.argsort()[-num_teams:][::-1]
 
         # Set the most similar teams
-        similar_teams[df.iloc[i]['TeamID']] = [
-            (df.iloc[j]['TeamID'], avg_similarity[i][j]) for j in top_n_indices]
+        similar_teams[(int(df.iloc[i]['TeamID']), int(df.iloc[i]['Season']))] = [(
+            int(df.iloc[j]['TeamID']), int(df.iloc[j]['Season']),
+            round(avg_similarity[i][j], precision),
+            round(resume_similarity[i][j], precision),
+            round(stat_similarity[i][j], precision)
+        ) for j in top_n_indices]
     return similar_teams
 
 def evaluate_model_on_tournament(model, scaler, year, data_version, teams_df, tourney_df):
