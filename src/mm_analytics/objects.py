@@ -548,7 +548,7 @@ def calculate_season_rankings_and_averages(team_seasons: Dict[int, TeamSeason],
                     team_seasons[team_id].stat_rankings[stat] = i
     return rankings, averages
 
-def team_seasons_to_df(team_seasons:Dict[int, TeamSeason], columns:List[str],
+def team_seasons_to_df(team_seasons:Dict[Tuple[int, int], TeamSeason], columns:List[str],
                        add_season_ordinal:bool = True) -> pd.DataFrame:
     """Convert a dictionary of TeamSeasons to a DataFrame
     :param team_seasons: Dict<int, TeamSeason> - Dictionary of TeamSeasons
@@ -559,7 +559,7 @@ def team_seasons_to_df(team_seasons:Dict[int, TeamSeason], columns:List[str],
     # Configure columns to use
     result_columns = columns + ["NET_last"] if add_season_ordinal else columns
     team_seasons_df = pd.DataFrame(columns = ["TeamID", "Season"] + result_columns)
-    for team_id, team in team_seasons.items():
+    for (team_id, _), team in team_seasons.items():
         season_columns = columns + [f"{get_year_system(team.year)}_last"] if add_season_ordinal else columns
         team_row = np.array([team_id, team.year] + team.get_data(columns=season_columns).tolist())
         team_seasons_df = pd.concat([team_seasons_df, pd.DataFrame([team_row], columns = team_seasons_df.columns)], ignore_index=True)
