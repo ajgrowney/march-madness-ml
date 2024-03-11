@@ -1,0 +1,546 @@
+{
+    "regions": {
+        "W": "East",
+        "X": "South",
+        "Y": "Midwest",
+        "Z": "West"
+    },
+    "slots": {
+        "R1W1": {
+            "round_start": 136,
+            "strong_seed": 1438,
+            "weak_seed": 1157,
+            "winner": 1438,
+            "wscore": 70,
+            "lscore": 59
+        },
+        "R1W2": {
+            "round_start": 136,
+            "strong_seed": 1437,
+            "weak_seed": 1454,
+            "winner": 1437,
+            "wscore": 73,
+            "lscore": 53
+        },
+        "R1W3": {
+            "round_start": 136,
+            "strong_seed": 1235,
+            "weak_seed": 1300,
+            "winner": 1235,
+            "wscore": 93,
+            "lscore": 75
+        },
+        "R1W4": {
+            "round_start": 136,
+            "strong_seed": 1277,
+            "weak_seed": 1174,
+            "winner": 1277,
+            "wscore": 93,
+            "lscore": 78
+        },
+        "R1W5": {
+            "round_start": 136,
+            "strong_seed": 1153,
+            "weak_seed": 1217,
+            "winner": 1217,
+            "wscore": 61,
+            "lscore": 57
+        },
+        "R1W6": {
+            "round_start": 136,
+            "strong_seed": 1314,
+            "weak_seed": 1344,
+            "winner": 1314,
+            "wscore": 79,
+            "lscore": 77
+        },
+        "R1W7": {
+            "round_start": 136,
+            "strong_seed": 1163,
+            "weak_seed": 1386,
+            "winner": 1163,
+            "wscore": 89,
+            "lscore": 81
+        },
+        "R1W8": {
+            "round_start": 136,
+            "strong_seed": 1272,
+            "weak_seed": 1203,
+            "winner": 1272,
+            "wscore": 71,
+            "lscore": 66
+        },
+        "R1X1": {
+            "round_start": 136,
+            "strong_seed": 1196,
+            "weak_seed": 1107,
+            "winner": 1196,
+            "wscore": 67,
+            "lscore": 55
+        },
+        "R1X2": {
+            "round_start": 136,
+            "strong_seed": 1242,
+            "weak_seed": 1184,
+            "winner": 1242,
+            "wscore": 80,
+            "lscore": 69
+        },
+        "R1X3": {
+            "round_start": 136,
+            "strong_seed": 1393,
+            "weak_seed": 1444,
+            "winner": 1393,
+            "wscore": 77,
+            "lscore": 53
+        },
+        "R1X4": {
+            "round_start": 136,
+            "strong_seed": 1417,
+            "weak_seed": 1409,
+            "winner": 1417,
+            "wscore": 76,
+            "lscore": 59
+        },
+        "R1X5": {
+            "round_start": 136,
+            "strong_seed": 1433,
+            "weak_seed": 1372,
+            "winner": 1372,
+            "wscore": 77,
+            "lscore": 75
+        },
+        "R1X6": {
+            "round_start": 136,
+            "strong_seed": 1326,
+            "weak_seed": 1173,
+            "winner": 1173,
+            "wscore": 60,
+            "lscore": 59
+        },
+        "R1X7": {
+            "round_start": 136,
+            "strong_seed": 1307,
+            "weak_seed": 1390,
+            "winner": 1390,
+            "wscore": 58,
+            "lscore": 53
+        },
+        "R1X8": {
+            "round_start": 136,
+            "strong_seed": 1160,
+            "weak_seed": 1338,
+            "winner": 1338,
+            "wscore": 77,
+            "lscore": 48
+        },
+        "R1Y1": {
+            "round_start": 136,
+            "strong_seed": 1455,
+            "weak_seed": 1142,
+            "winner": 1455,
+            "wscore": 64,
+            "lscore": 37
+        },
+        "R1Y2": {
+            "round_start": 136,
+            "strong_seed": 1276,
+            "weak_seed": 1459,
+            "winner": 1276,
+            "wscore": 57,
+            "lscore": 40
+        },
+        "R1Y3": {
+            "round_start": 136,
+            "strong_seed": 1181,
+            "weak_seed": 1273,
+            "winner": 1273,
+            "wscore": 78,
+            "lscore": 71
+        },
+        "R1Y4": {
+            "round_start": 136,
+            "strong_seed": 1257,
+            "weak_seed": 1264,
+            "winner": 1257,
+            "wscore": 71,
+            "lscore": 64
+        },
+        "R1Y5": {
+            "round_start": 136,
+            "strong_seed": 1387,
+            "weak_seed": 1301,
+            "winner": 1387,
+            "wscore": 83,
+            "lscore": 80
+        },
+        "R1Y6": {
+            "round_start": 136,
+            "strong_seed": 1269,
+            "weak_seed": 1397,
+            "winner": 1397,
+            "wscore": 86,
+            "lscore": 67
+        },
+        "R1Y7": {
+            "round_start": 136,
+            "strong_seed": 1400,
+            "weak_seed": 1113,
+            "winner": 1400,
+            "wscore": 87,
+            "lscore": 85
+        },
+        "R1Y8": {
+            "round_start": 136,
+            "strong_seed": 1246,
+            "weak_seed": 1243,
+            "winner": 1246,
+            "wscore": 56,
+            "lscore": 49
+        },
+        "R1Z1": {
+            "round_start": 136,
+            "strong_seed": 1112,
+            "weak_seed": 1451,
+            "winner": 1112,
+            "wscore": 68,
+            "lscore": 59
+        },
+        "R1Z2": {
+            "round_start": 136,
+            "strong_seed": 1458,
+            "weak_seed": 1110,
+            "winner": 1458,
+            "wscore": 75,
+            "lscore": 35
+        },
+        "R1Z3": {
+            "round_start": 136,
+            "strong_seed": 1166,
+            "weak_seed": 1418,
+            "winner": 1166,
+            "wscore": 76,
+            "lscore": 66
+        },
+        "R1Z4": {
+            "round_start": 136,
+            "strong_seed": 1361,
+            "weak_seed": 1308,
+            "winner": 1361,
+            "wscore": 73,
+            "lscore": 69
+        },
+        "R1Z5": {
+            "round_start": 136,
+            "strong_seed": 1328,
+            "weak_seed": 1295,
+            "winner": 1295,
+            "wscore": 80,
+            "lscore": 75
+        },
+        "R1Z6": {
+            "round_start": 136,
+            "strong_seed": 1124,
+            "weak_seed": 1304,
+            "winner": 1124,
+            "wscore": 74,
+            "lscore": 60
+        },
+        "R1Z7": {
+            "round_start": 136,
+            "strong_seed": 1332,
+            "weak_seed": 1140,
+            "winner": 1332,
+            "wscore": 87,
+            "lscore": 68
+        },
+        "R1Z8": {
+            "round_start": 136,
+            "strong_seed": 1211,
+            "weak_seed": 1329,
+            "winner": 1211,
+            "wscore": 85,
+            "lscore": 77
+        },
+        "R2W1": {
+            "round_start": 138,
+            "strong_seed": 1438,
+            "weak_seed": 1272,
+            "winner": 1438,
+            "wscore": 78,
+            "lscore": 60
+        },
+        "R2W2": {
+            "round_start": 138,
+            "strong_seed": 1437,
+            "weak_seed": 1163,
+            "winner": 1163,
+            "wscore": 77,
+            "lscore": 65
+        },
+        "R2W3": {
+            "round_start": 138,
+            "strong_seed": 1235,
+            "weak_seed": 1314,
+            "winner": 1235,
+            "wscore": 85,
+            "lscore": 83
+        },
+        "R2W4": {
+            "round_start": 138,
+            "strong_seed": 1277,
+            "weak_seed": 1217,
+            "winner": 1277,
+            "wscore": 80,
+            "lscore": 73
+        },
+        "R2X1": {
+            "round_start": 138,
+            "strong_seed": 1196,
+            "weak_seed": 1338,
+            "winner": 1196,
+            "wscore": 61,
+            "lscore": 45
+        },
+        "R2X2": {
+            "round_start": 138,
+            "strong_seed": 1242,
+            "weak_seed": 1390,
+            "winner": 1390,
+            "wscore": 60,
+            "lscore": 57
+        },
+        "R2X3": {
+            "round_start": 138,
+            "strong_seed": 1393,
+            "weak_seed": 1173,
+            "winner": 1173,
+            "wscore": 55,
+            "lscore": 53
+        },
+        "R2X4": {
+            "round_start": 138,
+            "strong_seed": 1417,
+            "weak_seed": 1372,
+            "winner": 1417,
+            "wscore": 77,
+            "lscore": 60
+        },
+        "R2Y1": {
+            "round_start": 138,
+            "strong_seed": 1455,
+            "weak_seed": 1246,
+            "winner": 1246,
+            "wscore": 78,
+            "lscore": 76
+        },
+        "R2Y2": {
+            "round_start": 138,
+            "strong_seed": 1276,
+            "weak_seed": 1400,
+            "winner": 1276,
+            "wscore": 79,
+            "lscore": 65
+        },
+        "R2Y3": {
+            "round_start": 138,
+            "strong_seed": 1273,
+            "weak_seed": 1397,
+            "winner": 1397,
+            "wscore": 83,
+            "lscore": 63
+        },
+        "R2Y4": {
+            "round_start": 138,
+            "strong_seed": 1257,
+            "weak_seed": 1387,
+            "winner": 1257,
+            "wscore": 66,
+            "lscore": 51
+        },
+        "R2Z1": {
+            "round_start": 138,
+            "strong_seed": 1112,
+            "weak_seed": 1211,
+            "winner": 1112,
+            "wscore": 84,
+            "lscore": 61
+        },
+        "R2Z2": {
+            "round_start": 138,
+            "strong_seed": 1458,
+            "weak_seed": 1332,
+            "winner": 1458,
+            "wscore": 85,
+            "lscore": 77
+        },
+        "R2Z3": {
+            "round_start": 138,
+            "strong_seed": 1166,
+            "weak_seed": 1124,
+            "winner": 1124,
+            "wscore": 85,
+            "lscore": 55
+        },
+        "R2Z4": {
+            "round_start": 138,
+            "strong_seed": 1361,
+            "weak_seed": 1295,
+            "winner": 1361,
+            "wscore": 63,
+            "lscore": 44
+        },
+        "R3W1": {
+            "round_start": 143,
+            "strong_seed": 1438,
+            "weak_seed": 1277,
+            "winner": 1277,
+            "wscore": 61,
+            "lscore": 59
+        },
+        "R3W2": {
+            "round_start": 143,
+            "strong_seed": 1163,
+            "weak_seed": 1235,
+            "winner": 1163,
+            "wscore": 81,
+            "lscore": 76
+        },
+        "R3X1": {
+            "round_start": 143,
+            "strong_seed": 1196,
+            "weak_seed": 1417,
+            "winner": 1196,
+            "wscore": 79,
+            "lscore": 68
+        },
+        "R3X2": {
+            "round_start": 143,
+            "strong_seed": 1390,
+            "weak_seed": 1173,
+            "winner": 1173,
+            "wscore": 82,
+            "lscore": 72
+        },
+        "R3Y1": {
+            "round_start": 143,
+            "strong_seed": 1246,
+            "weak_seed": 1257,
+            "winner": 1246,
+            "wscore": 74,
+            "lscore": 69
+        },
+        "R3Y2": {
+            "round_start": 143,
+            "strong_seed": 1276,
+            "weak_seed": 1397,
+            "winner": 1276,
+            "wscore": 73,
+            "lscore": 71
+        },
+        "R3Z1": {
+            "round_start": 143,
+            "strong_seed": 1112,
+            "weak_seed": 1361,
+            "winner": 1112,
+            "wscore": 70,
+            "lscore": 64
+        },
+        "R3Z2": {
+            "round_start": 143,
+            "strong_seed": 1458,
+            "weak_seed": 1124,
+            "winner": 1458,
+            "wscore": 69,
+            "lscore": 52
+        },
+        "R4W1": {
+            "round_start": 145,
+            "strong_seed": 1277,
+            "weak_seed": 1163,
+            "winner": 1163,
+            "wscore": 60,
+            "lscore": 54
+        },
+        "R4X1": {
+            "round_start": 145,
+            "strong_seed": 1196,
+            "weak_seed": 1173,
+            "winner": 1196,
+            "wscore": 62,
+            "lscore": 52
+        },
+        "R4Y1": {
+            "round_start": 145,
+            "strong_seed": 1246,
+            "weak_seed": 1276,
+            "winner": 1246,
+            "wscore": 75,
+            "lscore": 72
+        },
+        "R4Z1": {
+            "round_start": 145,
+            "strong_seed": 1112,
+            "weak_seed": 1458,
+            "winner": 1458,
+            "wscore": 64,
+            "lscore": 63
+        },
+        "R5WX": {
+            "round_start": 152,
+            "strong_seed": 1163,
+            "weak_seed": 1196,
+            "winner": 1163,
+            "wscore": 63,
+            "lscore": 53
+        },
+        "R5YZ": {
+            "round_start": 152,
+            "strong_seed": 1246,
+            "weak_seed": 1458,
+            "winner": 1246,
+            "wscore": 74,
+            "lscore": 73
+        },
+        "R6CH": {
+            "round_start": 154,
+            "strong_seed": 1163,
+            "weak_seed": 1246,
+            "winner": 1163,
+            "wscore": 60,
+            "lscore": 54
+        },
+        "X16": {
+            "round_start": 134,
+            "strong_seed": 1107,
+            "weak_seed": 1291,
+            "winner": 1107,
+            "wscore": 71,
+            "lscore": 64
+        },
+        "Y11": {
+            "round_start": 134,
+            "strong_seed": 1234,
+            "weak_seed": 1397,
+            "winner": 1397,
+            "wscore": 78,
+            "lscore": 65
+        },
+        "Y12": {
+            "round_start": 134,
+            "strong_seed": 1301,
+            "weak_seed": 1462,
+            "winner": 1301,
+            "wscore": 74,
+            "lscore": 59
+        },
+        "Y16": {
+            "round_start": 134,
+            "strong_seed": 1142,
+            "weak_seed": 1411,
+            "winner": 1142,
+            "wscore": 81,
+            "lscore": 69
+        }
+    }
+}
