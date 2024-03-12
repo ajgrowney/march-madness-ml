@@ -1,9 +1,1 @@
-{
-    "regions": {
-        "W": "NA1",
-        "X": "NA2",
-        "Y": "NA3",
-        "Z": "NA4"
-    },
-    "slots": {}
-}
+{"regions": {"W": "NA1", "X": "NA2", "Y": "NA3", "Z": "NA4"}, "slots": {}, "teams": {}}
