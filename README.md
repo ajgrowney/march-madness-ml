@@ -2,6 +2,11 @@
 Year by year progression of my attempt to let data try to beat my fanaticism for NCAA basketball <br />
 <i>Hint: haven't beat it yet</i>
 
+## 2024
+
+- Data Cleaning
+    - 2021 tournamnet: manually adjust dates to match other tournaments
+
 ## 2022
 Currently building models based on last tournaments. This year I built a CLI around the model training, exploring, and submission process.
 Submitted grid_xgb_2 to kaggle
