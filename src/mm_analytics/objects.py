@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from typing import Dict, List, Tuple, Union
 import json
 import re
@@ -9,23 +9,23 @@ import pandas as pd
 from mm_analytics.utilities import get_historical_similarity, DATA_ROOT, NpEncoder, ROUND_DAYS
 
 # Teams Data
-TEAM_CONF_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MTeamConferences.csv')
-TEAM_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MTeams.csv').drop(columns=['FirstD1Season', 'LastD1Season'])
+TEAM_CONF_DF = pd.read_csv(f'{DATA_ROOT}/MTeamConferences.csv')
+TEAM_DF = pd.read_csv(f'{DATA_ROOT}/MTeams.csv').drop(columns=['FirstD1Season', 'LastD1Season'])
 TEAM_NAMES = { int(k):v for k,v in TEAM_DF.set_index('TeamID')['TeamName'].to_dict().items()}
-TEAM_COACH_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MTeamCoaches.csv')
-ORDINALS_DF = pd.read_csv(f"{DATA_ROOT}/Stage2/MMasseyOrdinals_thru_Season2023_Day128.csv")
-SEASONS_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MSeasons.csv')
-SEASON_DAY_ZEROES = {k:date(*[int(i) for i in v.split("-")]) for k, v in SEASONS_DF.set_index('Season')['DayZero'].to_dict().items() }
-
+TEAM_COACH_DF = pd.read_csv(f'{DATA_ROOT}/MTeamCoaches.csv')
+ORDINALS_DF = pd.read_csv(f"{DATA_ROOT}/MMasseyOrdinals.csv")
+SEASONS_DF = pd.read_csv(f'{DATA_ROOT}/MSeasons.csv')
+# Load v from m/d/yyyy to date
+SEASON_DAY_ZEROES = {k:datetime.strptime(v, '%m/%d/%Y').date() for k, v in SEASONS_DF.set_index('Season')['DayZero'].to_dict().items() }
 # Regular Season Data
-REGULAR_SZN_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MRegularSeasonDetailedResults.csv')
+REGULAR_SZN_DF = pd.read_csv(f'{DATA_ROOT}/MRegularSeasonDetailedResults.csv')
 
 # Conference Tourney Data
-conferencetourney_df = pd.read_csv(f'{DATA_ROOT}/Stage2/MConferenceTourneyGames.csv')
+conferencetourney_df = pd.read_csv(f'{DATA_ROOT}/MConferenceTourneyGames.csv')
 
 # NCAA Tourney Data
-SEEDS_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MNCAATourneySeeds.csv')
-TOURNEY_RESULTS_DF = pd.read_csv(f'{DATA_ROOT}/Stage2/MNCAATourneyDetailedResults.csv')
+SEEDS_DF = pd.read_csv(f'{DATA_ROOT}/MNCAATourneySeeds.csv')
+TOURNEY_RESULTS_DF = pd.read_csv(f'{DATA_ROOT}/MNCAATourneyDetailedResults.csv')
 
 def to_pct(val1, val2) -> Union[float, None]:
     """Calculate the percentage of two values
@@ -169,9 +169,9 @@ class TeamSeason:
 
         self.stat_values = {
             "Points": [], "Poss": [], "OE": [], "DE": [], "NE": [], "FGM": [], "FGA": [], "FGM3": [], "FGA3": [], "FTM": [], "FTA": [], "OR": [], "DR": [], "Ast": [], "TO": [], "Stl": [], "Blk": [], "Fouls": [],
-            "FG%": [], "FG3%": [], "FT%": [],
+            "FG%": [], "FG3%": [], "EFG%": [], "FT%": [],
             "OppPoints": [], "OppFGM": [], "OppFGA": [], "OppFGM3": [], "OppFGA3": [], "OppFTM": [], "OppFTA": [], "OppOR": [], "OppDR": [], "OppAst": [], "OppTO": [], "OppStl": [], "OppBlk": [], "OppFouls": [],
-            "OppFG%": [], "OppFG3%": [], "OppFT%": []
+            "OppFG%": [], "OppFG3%": [], "OppEFG%": [], "OppFT%": []
         }
 
         # Rankings that can be filled in after the season stats are calculated
@@ -343,25 +343,28 @@ class TeamSeason:
         else:
             print("Error: TeamID not in game row")
             exit(0)
-        # KenPom: https://kenpom.com/blog/national-efficiency/
-        team_poss = (FGA - OR) + TO + (.475 * FTA)
-        opp_poss = (OppFGA - OppOR) + OppTO + (.475 * OppFTA)
+        # ---- Computed Statistics ----
+        team_poss = (FGA - OR) + TO + (.475 * FTA) # KenPom: https://kenpom.com/blog/national-efficiency/
+        opp_poss = (OppFGA - OppOR) + OppTO + (.475 * OppFTA) # KenPom: https://kenpom.com/blog/national-efficiency/
         game_poss = (team_poss + opp_poss) / 2
         self.games.append(TeamGame(OppID, team_names[OppID], TeamPoints, OppPoints, team_loc, game_day, game_day_str, OppID in conf_opponents, game_poss))
-        self.stat_values["Poss"].append((OppID, game_poss))
         game_oe = 100 * (TeamPoints/game_poss)
         game_de = 100 * (OppPoints/game_poss)
+        eff_fgpct = (FGM + 0.5 * FGM3) / FGA
+        opp_eff_fgpct = (OppFGM + 0.5 * OppFGM3) / OppFGA
+
         self.stat_values["OE"].append((OppID, game_oe))
         self.stat_values["DE"].append((OppID, game_de))
         self.stat_values["NE"].append((OppID, (game_oe - game_de)))
-
+        self.stat_values["Poss"].append((OppID, game_poss))
         self.stat_values["Points"].append((OppID, TeamPoints))
         self.stat_values["FGM"].append((OppID, FGM)), self.stat_values["FGA"].append((OppID, FGA)), self.stat_values["FGM3"].append((OppID, FGM3)), self.stat_values["FGA3"].append((OppID, FGA3)), self.stat_values["FTM"].append((OppID, FTM)), self.stat_values["FTA"].append((OppID, FTA)), self.stat_values["OR"].append((OppID, OR)), self.stat_values["DR"].append((OppID, DR)), self.stat_values["Ast"].append((OppID, Ast)), self.stat_values["TO"].append((OppID, TO)), self.stat_values["Stl"].append((OppID, Stl)), self.stat_values["Blk"].append((OppID, Blk)), self.stat_values["Fouls"].append((OppID, Fouls))
         self.stat_values["FG%"].append((OppID, to_pct(FGM,FGA))), self.stat_values["FG3%"].append((OppID, to_pct(FGM3,FGA3))), self.stat_values["FT%"].append((OppID, to_pct(FTM, FTA)))
-
+        self.stat_values["EFG%"].append((OppID, eff_fgpct))
         self.stat_values["OppPoints"].append((OppID, OppPoints))
         self.stat_values["OppFGM"].append((OppID, OppFGM)), self.stat_values["OppFGA"].append((OppID, OppFGA)), self.stat_values["OppFGM3"].append((OppID, OppFGM3)), self.stat_values["OppFGA3"].append((OppID, OppFGA3)), self.stat_values["OppFTM"].append((OppID, OppFTM)), self.stat_values["OppFTA"].append((OppID, OppFTA)), self.stat_values["OppOR"].append((OppID, OppOR)), self.stat_values["OppDR"].append((OppID, OppDR)), self.stat_values["OppAst"].append((OppID, OppAst)), self.stat_values["OppTO"].append((OppID, OppTO)), self.stat_values["OppStl"].append((OppID, OppStl)), self.stat_values["OppBlk"].append((OppID, OppBlk)), self.stat_values["OppFouls"].append((OppID, OppFouls))
         self.stat_values["OppFG%"].append((OppID, to_pct(OppFGM,OppFGA))), self.stat_values["OppFG3%"].append((OppID, to_pct(OppFGM3, OppFGA3))), self.stat_values["OppFT%"].append((OppID, to_pct(OppFTM,OppFTA)))
+        self.stat_values["OppEFG%"].append((OppID, opp_eff_fgpct))
 
     def fill_postseason_game(self, game_row:Tuple):
         """
@@ -578,4 +581,3 @@ if __name__ == "__main__":
         
         ts_df = team_seasons_to_df(ts)
         ts_df.to_csv(f"TeamSeasons_{year}.csv", index=False)
-

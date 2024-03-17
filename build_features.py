@@ -18,7 +18,7 @@ teams_df = pd.read_csv(f'{DATA_ROOT}/MTeams.csv').drop(columns=['FirstD1Season',
 TEAM_CONF_DF = pd.read_csv(f'{DATA_ROOT}/MTeamConferences.csv') 
 RS_DF = pd.read_csv(f'{DATA_ROOT}/MRegularSeasonDetailedResults.csv')
 
-FEATURE_COLUMNS = ["Points_mean","Poss_mean","OE_mean","DE_mean","NE_mean","FGM_mean","FGA_mean","FGM3_mean","FGA3_mean","FTM_mean","FTA_mean","OR_mean","DR_mean","Ast_mean","TO_mean","Stl_mean","Blk_mean","Fouls_mean","FG%_mean","FG3%_mean","FT%_mean","OppPoints_mean","OppFGM_mean","OppFGA_mean","OppFGM3_mean","OppFGA3_mean","OppFTM_mean","OppFTA_mean","OppOR_mean","OppDR_mean","OppAst_mean","OppTO_mean","OppStl_mean","OppBlk_mean","OppFouls_mean","OppFG%_mean","OppFG3%_mean","OppFT%_mean","AdjOE_mean","AdjDE_mean","AdjNE_mean","Points_stdev","Poss_stdev","OE_stdev","DE_stdev","NE_stdev","FGM_stdev","FGA_stdev","FGM3_stdev","FGA3_stdev","FTM_stdev","FTA_stdev","OR_stdev","DR_stdev","Ast_stdev","TO_stdev","Stl_stdev","Blk_stdev","Fouls_stdev","FG%_stdev","FG3%_stdev","FT%_stdev","OppPoints_stdev","OppFGM_stdev","OppFGA_stdev","OppFGM3_stdev","OppFGA3_stdev","OppFTM_stdev","OppFTA_stdev","OppOR_stdev","OppDR_stdev","OppAst_stdev","OppTO_stdev","OppStl_stdev","OppBlk_stdev","OppFouls_stdev","OppFG%_stdev","OppFG3%_stdev","OppFT%_stdev","AdjOE_stdev","AdjDE_stdev","AdjNE_stdev","Q1_WinPct","Q2_WinPct","Q3_WinPct","Q4_WinPct","WinPct","SOS","SOV","Seed", "ExitRound"]
+FEATURE_COLUMNS = ["Points_mean","Poss_mean","OE_mean","DE_mean","NE_mean","FGM_mean","FGA_mean","FGM3_mean","FGA3_mean","FTM_mean","FTA_mean","OR_mean","DR_mean","Ast_mean","TO_mean","Stl_mean","Blk_mean","Fouls_mean","FG%_mean","FG3%_mean", "EFG%_mean", "FT%_mean","OppPoints_mean","OppFGM_mean","OppFGA_mean","OppFGM3_mean","OppFGA3_mean","OppFTM_mean","OppFTA_mean","OppOR_mean","OppDR_mean","OppAst_mean","OppTO_mean","OppStl_mean","OppBlk_mean","OppFouls_mean","OppFG%_mean","OppFG3%_mean", "OppEFG%_mean", "OppFT%_mean","AdjOE_mean","AdjDE_mean","AdjNE_mean","Points_stdev","Poss_stdev","OE_stdev","DE_stdev","NE_stdev","FGM_stdev","FGA_stdev","FGM3_stdev","FGA3_stdev","FTM_stdev","FTA_stdev","OR_stdev","DR_stdev","Ast_stdev","TO_stdev","Stl_stdev","Blk_stdev","Fouls_stdev","FG%_stdev","FG3%_stdev","EFG%_stdev","FT%_stdev","OppPoints_stdev","OppFGM_stdev","OppFGA_stdev","OppFGM3_stdev","OppFGA3_stdev","OppFTM_stdev","OppFTA_stdev","OppOR_stdev","OppDR_stdev","OppAst_stdev","OppTO_stdev","OppStl_stdev","OppBlk_stdev","OppFouls_stdev","OppFG%_stdev","OppFG3%_stdev","OppEFG%_stdev","OppFT%_stdev","AdjOE_stdev","AdjDE_stdev","AdjNE_stdev","Q1_WinPct","Q2_WinPct","Q3_WinPct","Q4_WinPct","WinPct","SOS","SOV","Seed", "ExitRound"]
     
 
 def year_team_seasons(year:int):
@@ -34,7 +34,7 @@ def year_team_seasons(year:int):
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("--start-year", type=int, default=2023)
-    parser.add_argument("--end-year", type=int, default=2023)
+    parser.add_argument("--end-year", type=int, default=2024)
     parser.add_argument("--export", type=str, default="csv")
     args = parser.parse_args()
 
