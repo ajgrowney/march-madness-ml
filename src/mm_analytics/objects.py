@@ -506,6 +506,7 @@ def get_team_seasons_and_rankings(year, regular_season_df, seeds_df: pd.DataFram
     
     return team_seasons, season_ranks
 
+STATS_WITH_INVERTED_RANKS = ["DE", "AdjDE", "TO", "Fouls"]
 def calculate_season_rankings_and_averages(team_seasons: Dict[int, TeamSeason],
         add_to_season:bool = True, rank:bool = True) -> Tuple[Dict[str, Tuple[int, float]], Dict[str, float]]:
     """Calculate the rankings in each statistic for each team in the season
