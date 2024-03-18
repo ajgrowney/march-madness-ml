@@ -233,7 +233,8 @@ class TeamSeason:
             self.stat_values["AdjOE"].append(adj_oe)
             # Adjusted Defensive Efficiency = Raw DE * (Strength of OppOffense)
             # Strength of OppOffense = (Opponent OE / Average OE) * (Opponent SOS / Average SOS)
-            adj_de = (game_de) * (opp_season.means["OE"] / avg_oe) * (opp_season.sos / avg_sos)
+            de_adjustment = (opp_season.means["OE"] / avg_oe) * (opp_season.sos / avg_sos)
+            adj_de = (game_de) * (1 / de_adjustment)
             self.stat_values["AdjDE"].append(adj_de)
             # Adjusted Net Efficiency = Adjusted OE - Adjusted DE
             self.stat_values["AdjNE"].append(adj_oe - adj_de)
@@ -506,7 +507,7 @@ def get_team_seasons_and_rankings(year, regular_season_df, seeds_df: pd.DataFram
     
     return team_seasons, season_ranks
 
-STATS_WITH_INVERTED_RANKS = ["DE", "AdjDE", "TO", "Fouls"]
+STATS_WITH_INVERTED_RANKS = ["DE", "AdjDE"]
 def calculate_season_rankings_and_averages(team_seasons: Dict[int, TeamSeason],
         add_to_season:bool = True, rank:bool = True) -> Tuple[Dict[str, Tuple[int, float]], Dict[str, float]]:
     """Calculate the rankings in each statistic for each team in the season
@@ -531,7 +532,8 @@ def calculate_season_rankings_and_averages(team_seasons: Dict[int, TeamSeason],
             stat_vals[team_id] = team_season.means[stat]
         averages[stat] = np.average(list(stat_vals.values()))
         if rank:
-            sorted_vals = sorted(stat_vals.items(), key=lambda x: x[1], reverse=True)
+            rev_ranks = False if stat in STATS_WITH_INVERTED_RANKS else True
+            sorted_vals = sorted(stat_vals.items(), key=lambda x: x[1], reverse=rev_ranks)
             rankings[stat] = []
             for i, (team_id, team_val) in enumerate(sorted_vals):
                 rankings[stat].append((team_id, team_val))

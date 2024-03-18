@@ -59,5 +59,5 @@ if __name__ == "__main__":
             team_seasons[(int(tid), int(tyear))].similar_teams = [s + (team_seasons[(s[0], s[1])].tourney_exit_round, ) for s in sim]
         # Dump as json files to data/web/ts
         for (tid, tyear), team_season in team_seasons.items():
-            with open(f"data/web/ts/{tid}_{tyear}.json", "w") as f:
+            with open(f"data/web/ts_v2/{tid}_{tyear}.json", "w") as f:
                 f.write(json.dumps(team_season.to_web_json(), cls=NpEncoder))
