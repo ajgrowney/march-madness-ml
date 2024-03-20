@@ -52,9 +52,8 @@ if __name__ == "__main__":
         ts_df.to_csv("TeamSeasons_cust.csv", index=False)
     else:
         ts_df.to_csv("tsdf.csv")
-        similar = get_historical_similarity(ts_df, num_teams=3, precision=3)
+        similar = get_historical_similarity(ts_df, num_teams=10, precision=3)
         print(len(similar))
-        print(len(ts_df))
         for (tid, tyear), sim in similar.items():
             team_seasons[(int(tid), int(tyear))].similar_teams = [s + (team_seasons[(s[0], s[1])].tourney_exit_round, ) for s in sim]
         # Dump as json files to data/web/ts
