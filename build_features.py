@@ -8,7 +8,7 @@ import pandas as pd
 from mm_analytics.objects import TeamSeason, get_team_seasons_and_rankings, team_seasons_to_df, get_season_ordinals
 from mm_analytics.utilities import NpEncoder, get_historical_similarity
 
-DATA_ROOT = "/Users/andrewgrowney/data/kaggle/marchmadness-2024"
+DATA_ROOT = "/Users/andrewgrowney/data/kaggle/marchmadness-2025"
 TOURNEY_RESULTS_DF = pd.read_csv(f"{DATA_ROOT}/MNCAATourneyDetailedResults.csv")
 SEEDS_DF = pd.read_csv(f'{DATA_ROOT}/MNCAATourneySeeds.csv')
 ORDINALS_DF = pd.read_csv(f'{DATA_ROOT}/MMasseyOrdinals.csv')
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     # ---- Export ----
     if args.export == "csv":
-        ts_df.to_csv("TeamSeasons_cust.csv", index=False)
+        ts_df.to_csv("TeamSeasons_2025.csv", index=False)
     else:
         ts_df.to_csv("tsdf.csv")
         similar = get_historical_similarity(ts_df, num_teams=10, precision=3)
@@ -58,5 +58,5 @@ if __name__ == "__main__":
             team_seasons[(int(tid), int(tyear))].similar_teams = [s + (team_seasons[(s[0], s[1])].tourney_exit_round, ) for s in sim]
         # Dump as json files to data/web/ts
         for (tid, tyear), team_season in team_seasons.items():
-            with open(f"data/web/ts_v2/{tid}_{tyear}.json", "w") as f:
+            with open(f"data/web/ts_v4/{tid}_{tyear}.json", "w") as f:
                 f.write(json.dumps(team_season.to_web_json(), cls=NpEncoder))

@@ -9,8 +9,7 @@ import shutil
 import keras
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split, GridSearchCV
-from march_madness_analytics.utilities import DATA_ROOT, evaluate_model_on_tournament, f_importances, fetch_training_data, MODELS_ROOT, fill_submission, get_scaler, SUBMISSIONS_ROOT
-from bracketeer import build_bracket
+from mm_analytics.utilities import DATA_ROOT, evaluate_model_on_tournament, f_importances, fetch_training_data, MODELS_ROOT, fill_submission, get_scaler, SUBMISSIONS_ROOT
 
 CS_ALL_SEASONS = ",".join([str(i) for i in list(range(2003,2020)) + [2021]])
 
@@ -210,6 +209,7 @@ def submit(run_id, model_ids, submission_id, run_folder, stage):
 def bracket(submission_id, model_id, year, sub_dir = "2022"):
     """Display bracket
     """
+    from bracketeer import build_bracket
     year = int(year)
     if year == 2022:
         subPath = f'Results/{sub_dir}/{submission_id}/{model_id}_2.csv'

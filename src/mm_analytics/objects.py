@@ -573,7 +573,7 @@ def team_seasons_to_df(team_seasons:Dict[Tuple[int, int], TeamSeason], columns:L
 
 if __name__ == "__main__":
 
-    for year in [2022]:
+    for year in [2021]:
         year_reg_season     = REGULAR_SZN_DF[REGULAR_SZN_DF["Season"] == year]
         teams_conf_season   = TEAM_CONF_DF[TEAM_CONF_DF["Season"] == year]
         teams_coach_season  = TEAM_COACH_DF[TEAM_COACH_DF["Season"] == year]
