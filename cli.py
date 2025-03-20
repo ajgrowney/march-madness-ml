@@ -217,10 +217,10 @@ def bracket(submission_id, model_id, year, sub_dir = "2022"):
         subPath = f'Results/{sub_dir}/{submission_id}/{model_id}_1.csv'
     b = build_bracket(
         outputPath=f'Results/{sub_dir}/{submission_id}/{model_id}_{year}.png',
-        teamsPath=f'{DATA_ROOT}/Stage2/MTeams.csv',
-        seedsPath=f'{DATA_ROOT}/Stage2/MNCAATourneySeeds.csv',
+        teamsPath=f'{DATA_ROOT}/MTeams.csv',
+        seedsPath=f'{DATA_ROOT}/MNCAATourneySeeds.csv',
         submissionPath=subPath,
-        slotsPath=f'{DATA_ROOT}/Stage2/MNCAATourneySlots.csv',
+        slotsPath=f'{DATA_ROOT}/MNCAATourneySlots.csv',
         year=int(year)
     )
 
