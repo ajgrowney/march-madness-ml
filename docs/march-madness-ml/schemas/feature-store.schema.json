@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://andrewgrowney.com/schemas/march-madness-ml/feature-store.schema.json",
+  "title": "March Madness Feature Store",
+  "description": "Compact, inference-ready feature vectors keyed by TeamID. This artifact is optimized for bracket prediction and model-aware comparisons in the browser.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "season",
+    "feature_set",
+    "feature_order",
+    "teams"
+  ],
+  "properties": {
+    "season": {
+      "type": "integer",
+      "minimum": 1985,
+      "description": "Season represented by this feature store."
+    },
+    "feature_set": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Named feature set, for example `base_2026`, referenced by the model manifest and the website."
+    },
+    "feature_order": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Ordered list of feature keys. This is the canonical vector order for runtime inference.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "teams": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "Map from TeamID string to a compact feature object. Keys are strings so they serialize cleanly as JSON object properties.",
+      "propertyNames": {
+        "pattern": "^[0-9]+$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/teamFeatureVector"
+      }
+    }
+  },
+  "$defs": {
+    "teamFeatureVector": {
+      "title": "Team Feature Vector",
+      "description": "Named feature values for a single team-season. All values are numeric so they can be converted to vectors without further parsing.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "type": "number"
+      }
+    }
+  }
+}

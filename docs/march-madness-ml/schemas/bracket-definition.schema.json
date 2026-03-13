@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://andrewgrowney.com/schemas/march-madness-ml/bracket-definition.schema.json",
+  "title": "March Madness Bracket Definition",
+  "description": "Data-driven bracket graph used by the website to render regions, resolve slot dependencies, and fill through later rounds without hardcoded UI logic.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "season",
+    "regions",
+    "slots",
+    "final_slots"
+  ],
+  "properties": {
+    "season": {
+      "type": "integer",
+      "minimum": 1985,
+      "description": "Tournament season represented by this bracket graph."
+    },
+    "regions": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Ordered list of region labels used by the bracket UI.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "slots": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Every bracket slot, including play-ins, regionals, Final Four, and championship nodes.",
+      "items": {
+        "$ref": "#/$defs/slot"
+      }
+    },
+    "final_slots": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "Named references for the late-round slots that the web app highlights specially.",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "$defs": {
+    "seedReference": {
+      "title": "Seed Reference",
+      "description": "A slot side that starts from a seeded team rather than an upstream winner.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "team_id",
+        "seed"
+      ],
+      "properties": {
+        "source": {
+          "type": "string",
+          "const": "seed"
+        },
+        "team_id": {
+          "type": "integer",
+          "description": "TeamID placed into this slot at bracket initialization."
+        },
+        "seed": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 16,
+          "description": "Seed value associated with the opening slot, or null for nonstandard cases."
+        }
+      }
+    },
+    "winnerReference": {
+      "title": "Winner Reference",
+      "description": "A slot side that is fed by the winner of an earlier slot.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "source_slot"
+      ],
+      "properties": {
+        "source": {
+          "type": "string",
+          "const": "winner"
+        },
+        "source_slot": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Slot identifier that supplies the winner for this side of the matchup."
+        }
+      }
+    },
+    "slotSide": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/seedReference"
+        },
+        {
+          "$ref": "#/$defs/winnerReference"
+        }
+      ]
+    },
+    "slot": {
+      "title": "Bracket Slot",
+      "description": "A single node in the tournament dependency graph.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slot",
+        "label",
+        "region",
+        "round",
+        "team_1",
+        "team_2",
+        "next_slot"
+      ],
+      "properties": {
+        "slot": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique slot identifier used throughout the UI and fill-through logic."
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable round label for this slot."
+        },
+        "region": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Region or stage name for display grouping."
+        },
+        "round": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Numeric round order used for rendering and dependency traversal."
+        },
+        "team_1": {
+          "$ref": "#/$defs/slotSide"
+        },
+        "team_2": {
+          "$ref": "#/$defs/slotSide"
+        },
+        "next_slot": {
+          "type": ["string", "null"],
+          "description": "Downstream slot that receives the winner of this matchup, or null for the championship node."
+        }
+      }
+    }
+  }
+}

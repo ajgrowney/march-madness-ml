@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://andrewgrowney.com/schemas/march-madness-ml/model-manifest.schema.json",
+  "title": "March Madness Model Manifest",
+  "description": "Manifest describing which reference models or runtime configs the website can load, which feature set they require, and how predictions should be resolved.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "default_model_id",
+    "models"
+  ],
+  "properties": {
+    "default_model_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Model identifier the website should load by default for the bracket and team pages."
+    },
+    "models": {
+      "type": "array",
+      "minItems": 1,
+      "description": "List of website-visible models or runtime strategies.",
+      "items": {
+        "$ref": "#/$defs/modelEntry"
+      }
+    }
+  },
+  "$defs": {
+    "modelEntry": {
+      "title": "Model Manifest Entry",
+      "description": "A model option presented to the website user. This may be heuristic, precomputed, runtime-config, or TensorFlow.js in the future.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "type",
+        "seasons",
+        "feature_set",
+        "prediction_format",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable model identifier used by the website and downstream artifacts."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable name displayed in model selection UIs."
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "heuristic",
+            "runtime-config",
+            "precomputed-predictions",
+            "tfjs",
+            "sklearn-reference"
+          ],
+          "description": "High-level implementation class for the model."
+        },
+        "seasons": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Seasons this model can legally be used against in the website.",
+          "items": {
+            "type": "integer",
+            "minimum": 1985
+          }
+        },
+        "feature_set": {
+          "type": ["string", "null"],
+          "description": "Feature set required by the model. Null is acceptable for models like coin flip that use no team features."
+        },
+        "prediction_format": {
+          "type": "string",
+          "enum": [
+            "runtime",
+            "runtime-config",
+            "precomputed",
+            "tfjs"
+          ],
+          "description": "How the website should resolve matchup predictions for this model."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Explanation shown in the UI to set user expectations."
+        },
+        "model_url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "Optional URL to a TensorFlow.js model.json or other hosted model artifact."
+        },
+        "config_url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "Optional URL to a runtime-config JSON artifact."
+        },
+        "predictions_url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "Optional URL to a precomputed season-specific matchup prediction table."
+        }
+      }
+    }
+  }
+}

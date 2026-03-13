@@ -2,6 +2,10 @@
 Year by year progression of my attempt to let data try to beat my fanaticism for NCAA basketball <br />
 <i>Hint: haven't beat it yet</i>
 
+## 2026
+
+- Goal: interactive website for model building and hosting
+
 ## 2024
 
 - Data Cleaning

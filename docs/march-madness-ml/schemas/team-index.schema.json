@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://andrewgrowney.com/schemas/march-madness-ml/team-index.schema.json",
+  "title": "March Madness Team Index",
+  "description": "Lightweight per-season team index used by the website for search, routing, filters, and bracket label resolution.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "season",
+    "updated_at",
+    "teams"
+  ],
+  "properties": {
+    "season": {
+      "type": "integer",
+      "minimum": 1985,
+      "description": "Tournament season represented by the index payload."
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp showing when this artifact was generated."
+    },
+    "teams": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Minimal website-facing team records for one season.",
+      "items": {
+        "$ref": "#/$defs/teamIndexEntry"
+      }
+    }
+  },
+  "$defs": {
+    "teamIndexEntry": {
+      "title": "Team Index Entry",
+      "description": "A single team-season record used for autocomplete, routing, bracket placement, and filter chips.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "team_id",
+        "name",
+        "short_name",
+        "conference",
+        "seed",
+        "region",
+        "slot",
+        "tournament_team",
+        "team_page_path"
+      ],
+      "properties": {
+        "team_id": {
+          "type": "integer",
+          "description": "Kaggle TeamID for the school."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Full team name for display and search."
+        },
+        "short_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Compact display name used when bracket nodes need shorter labels."
+        },
+        "conference": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Conference identifier for filtering and context displays."
+        },
+        "seed": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 16,
+          "description": "Tournament seed if the team made the field; null otherwise."
+        },
+        "region": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "description": "Bracket region label for tournament teams."
+        },
+        "slot": {
+          "type": ["string", "null"],
+          "description": "Seed slot or play-in slot identifier used by the bracket definition."
+        },
+        "tournament_team": {
+          "type": "boolean",
+          "description": "Whether the team is in the NCAA tournament field for this season."
+        },
+        "team_page_path": {
+          "type": "string",
+          "pattern": "^data/web/ts/[0-9]+_[0-9]{4}\\.json$",
+          "description": "Relative artifact path to the rich Team Insights payload for this team-season."
+        }
+      }
+    }
+  }
+}

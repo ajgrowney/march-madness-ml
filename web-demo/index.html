@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>March Madness ML — TF.js Linear Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.12.0/dist/tf.min.js"></script>
+  </head>
+  <body>
+    <main>
+      <h1>TF.js Linear Regression Demo</h1>
+      <p id="status">Loading model status: <strong id="model-status">not loaded</strong></p>
+
+      <section class="controls">
+        <label>Feature 1: <input id="f1" type="number" step="any" value="0.1" /></label>
+        <label>Feature 2: <input id="f2" type="number" step="any" value="-0.2" /></label>
+        <label>Feature 3: <input id="f3" type="number" step="any" value="0.3" /></label>
+        <div class="actions">
+          <button id="predict" disabled>Predict</button>
+          <button id="random" disabled>Random Example</button>
+        </div>
+      </section>
+
+      <section class="output">
+        <h2>Prediction</h2>
+        <div id="prediction">—</div>
+      </section>
+
+      <section class="in-browser">
+        <h2>In-Browser Model (train & compare)</h2>
+        <p id="in-model-status">In-browser model: <strong id="inModelStatus">not created</strong></p>
+        <div class="controls">
+          <label>Model Type:
+            <select id="model-type">
+              <option value="logistic">Matchup: Logistic Regression</option>
+              <option value="linear">Strength: Linear Regression</option>
+            </select>
+          </label>
+          <label>Input Dim: <input id="input-dim" type="number" value="3" min="1" /></label>
+          <label>Epochs: <input id="epochs" type="number" value="30" min="1" /></label>
+          <label>Batch: <input id="batch" type="number" value="64" min="1" /></label>
+          <div class="actions">
+            <button id="instantiate" title="Create model in-browser">Instantiate Model</button>
+            <button id="train-in" disabled>Train In-Browser Model</button>
+            <button id="compare" disabled>Compare Models</button>
+            <button id="export" disabled>Export In-Browser Model</button>
+          </div>
+        </div>
+
+        <div class="compare-grid">
+          <div>
+            <h3>Saved model</h3>
+            <div>Test MSE: <span id="mse-saved">—</span></div>
+            <div>Sample pred: <span id="pred-saved">—</span></div>
+          </div>
+          <div>
+            <h3>In-browser model</h3>
+            <div>Test MSE: <span id="mse-in">—</span></div>
+            <div>Sample pred: <span id="pred-in">—</span></div>
+          </div>
+        </div>
+
+        <div class="train-log">
+          <h3>Training Progress</h3>
+          <table id="training-log">
+            <thead>
+              <tr><th>Epoch</th><th>Loss</th><th>MAE</th></tr>
+            </thead>
+            <tbody id="training-log-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="notes">
+        <h3>Instructions</h3>
+        <ul>
+          <li>Place your TF.js model folder (containing <code>model.json</code>) at <code>web/models/saved_linear_tfjs/</code>.</li>
+          <li>Serve this folder with a static server (e.g., <code>python -m http.server</code>), then open this page.</li>
+          <li>The demo uses the browser TF.js CDN and calls <code>tf.loadLayersModel</code>.</li>
+        </ul>
+      </section>
+    </main>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

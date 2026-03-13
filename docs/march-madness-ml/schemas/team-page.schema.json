@@ -1,0 +1,300 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://andrewgrowney.com/schemas/march-madness-ml/team-page.schema.json",
+  "title": "March Madness Team Page Payload",
+  "description": "Rich team-season payload used by Team Insights. This is fetched on demand and can include deeper resume and similarity detail than the lightweight team index.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "year",
+    "name",
+    "record",
+    "quad_wins",
+    "quad_losses",
+    "conf",
+    "stat_rankings",
+    "stats",
+    "coach",
+    "win_pct",
+    "sos",
+    "sov",
+    "ordinal_data",
+    "tournament",
+    "similar_teams"
+  ],
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "Kaggle TeamID."
+    },
+    "year": {
+      "type": "integer",
+      "minimum": 1985,
+      "description": "Season represented by this team payload."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Full display name for the team."
+    },
+    "record": {
+      "$ref": "#/$defs/recordSummary"
+    },
+    "quad_wins": {
+      "$ref": "#/$defs/quadBucketMap"
+    },
+    "quad_losses": {
+      "$ref": "#/$defs/quadBucketMap"
+    },
+    "conf": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Conference identifier used by the website."
+    },
+    "stat_rankings": {
+      "$ref": "#/$defs/numericMap"
+    },
+    "stats": {
+      "$ref": "#/$defs/numericMap"
+    },
+    "coach": {
+      "type": ["string", "null"],
+      "description": "Coach identifier or normalized name if available."
+    },
+    "win_pct": {
+      "type": "number",
+      "description": "Season win percentage."
+    },
+    "sos": {
+      "type": "number",
+      "description": "Strength of schedule metric used in the web experience."
+    },
+    "sov": {
+      "type": "number",
+      "description": "Strength of victory metric used in the web experience."
+    },
+    "ordinal_data": {
+      "$ref": "#/$defs/numericMap"
+    },
+    "tournament": {
+      "description": "Tournament summary if the team made the field; null if it did not.",
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/tournamentSummary"
+        }
+      ]
+    },
+    "similar_teams": {
+      "type": "array",
+      "description": "Ordered similarity matches used in Team Insights.",
+      "items": {
+        "$ref": "#/$defs/similarTeam"
+      }
+    }
+  },
+  "$defs": {
+    "winLossPair": {
+      "title": "Win Loss Pair",
+      "type": "array",
+      "description": "A two-element tuple of wins and losses.",
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "type": "integer",
+          "minimum": 0
+        }
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "recordSummary": {
+      "title": "Record Summary",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "overall",
+        "conf",
+        "home",
+        "road",
+        "quad_1",
+        "quad_2",
+        "quad_3",
+        "quad_4"
+      ],
+      "properties": {
+        "overall": { "$ref": "#/$defs/winLossPair" },
+        "conf": { "$ref": "#/$defs/winLossPair" },
+        "home": { "$ref": "#/$defs/winLossPair" },
+        "road": { "$ref": "#/$defs/winLossPair" },
+        "quad_1": { "$ref": "#/$defs/winLossPair" },
+        "quad_2": { "$ref": "#/$defs/winLossPair" },
+        "quad_3": { "$ref": "#/$defs/winLossPair" },
+        "quad_4": { "$ref": "#/$defs/winLossPair" }
+      }
+    },
+    "quadGame": {
+      "title": "Quadrant Game Entry",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "opp_id",
+        "team_score",
+        "opp_score",
+        "team_loc",
+        "date_int",
+        "date_str",
+        "conf"
+      ],
+      "properties": {
+        "opp_id": {
+          "type": "integer",
+          "description": "Opponent TeamID."
+        },
+        "team_score": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "opp_score": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "team_loc": {
+          "type": "string",
+          "enum": ["H", "A", "N"],
+          "description": "Home, away, or neutral location code."
+        },
+        "date_int": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Integer day offset within the season."
+        },
+        "date_str": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable game date for the website."
+        },
+        "conf": {
+          "type": "boolean",
+          "description": "Whether this was a conference game."
+        }
+      }
+    },
+    "quadBucketMap": {
+      "title": "Quadrant Bucket Map",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["1", "2", "3", "4"],
+      "properties": {
+        "1": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/quadGame" }
+        },
+        "2": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/quadGame" }
+        },
+        "3": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/quadGame" }
+        },
+        "4": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/quadGame" }
+        }
+      }
+    },
+    "numericMap": {
+      "title": "Numeric Metric Map",
+      "description": "Map of metric names to numeric values. Used for stats, rankings, and ordinals.",
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "tournamentGame": {
+      "title": "Tournament Game",
+      "type": "object",
+      "description": "Optional per-game tournament record if the exporter includes historical tournament games.",
+      "additionalProperties": true
+    },
+    "tournamentSummary": {
+      "title": "Tournament Summary",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "seed",
+        "games",
+        "exit_round"
+      ],
+      "properties": {
+        "seed": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 16,
+          "description": "NCAA tournament seed."
+        },
+        "games": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/tournamentGame" },
+          "description": "Optional tournament game summaries."
+        },
+        "exit_round": {
+          "type": ["string", "null"],
+          "description": "Round name where the team exited, or null if the tournament has not been played yet."
+        }
+      }
+    },
+    "similarTeam": {
+      "title": "Similar Team",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "year",
+        "avg",
+        "res",
+        "st",
+        "er"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Matched historical TeamID."
+        },
+        "year": {
+          "type": "integer",
+          "minimum": 1985,
+          "description": "Season of the historical similarity match."
+        },
+        "avg": {
+          "type": "number",
+          "description": "Aggregate similarity score used by the website narrative."
+        },
+        "res": {
+          "type": "number",
+          "description": "Resume similarity component."
+        },
+        "st": {
+          "type": "number",
+          "description": "Stat profile similarity component."
+        },
+        "er": {
+          "type": ["string", "null"],
+          "description": "Historical tournament exit round for the similar team."
+        }
+      }
+    }
+  }
+}

@@ -24,6 +24,7 @@ REGULAR_SZN_DF = pd.read_csv(f'{DATA_ROOT}/MRegularSeasonDetailedResults.csv')
 conferencetourney_df = pd.read_csv(f'{DATA_ROOT}/MConferenceTourneyGames.csv')
 
 # NCAA Tourney Data
+SLOTS_DF = pd.read_csv(f'{DATA_ROOT}/MNCAATourneySlots.csv')
 SEEDS_DF = pd.read_csv(f'{DATA_ROOT}/MNCAATourneySeeds.csv')
 TOURNEY_RESULTS_DF = pd.read_csv(f'{DATA_ROOT}/MNCAATourneyDetailedResults.csv')
 
@@ -469,7 +470,7 @@ def get_season_seeds(year, seeds_df) -> Dict[int, int]:
 
 def get_team_seasons_and_rankings(year, regular_season_df, seeds_df: pd.DataFrame = None, teams_conf_df = None,
                 teams_coach_df = None, season_ordinals:Dict[int, TeamSeasonOrdinals] = None,
-                tourney_results_df = None) -> Tuple[Dict[int, TeamSeason], Dict[str, Tuple[int, float]]]:
+                tourney_results_df = None, verbose: bool = False) -> Tuple[Dict[int, TeamSeason], Dict[str, Tuple[int, float]]]:
     """From a set of regular season, conference tournament, and march madness games
     fill in all possible TeamSeasons
     :param int year: year to fill with data
@@ -492,7 +493,8 @@ def get_team_seasons_and_rankings(year, regular_season_df, seeds_df: pd.DataFram
         team_coach = teams_coach_df[(teams_coach_df['TeamID'] == team_id) & (teams_coach_df['Season'] == year)]['CoachName'].values[0]
         team_name = TEAM_DF[TEAM_DF['TeamID'] == team_id]['TeamName'].values[0]
         team_tourney = tourney_results_df[(tourney_results_df['WTeamID'] == team_id) | (tourney_results_df['LTeamID'] == team_id)]
-        print(f"Team: {team_id}, Seed: {team_seed}, Year: {year}, Tourney Games: {len(team_tourney)}")
+        if verbose:
+            print(f"Team: {team_id}, Seed: {team_seed}, Year: {year}, Tourney Games: {len(team_tourney)}")
         team_seasons[team_id] = TeamSeason(team_id, year, team_name, team_seed, team_games, season_conf_df, team_coach, team_tourney)
     
     

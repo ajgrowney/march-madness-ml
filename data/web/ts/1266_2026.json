@@ -1,0 +1,424 @@
+{
+  "id": 1266,
+  "year": 2026,
+  "name": "Marquette",
+  "record": {
+    "overall": [
+      10,
+      19
+    ],
+    "conf": [
+      5,
+      13
+    ],
+    "home": [
+      9,
+      7
+    ],
+    "road": [
+      1,
+      12
+    ],
+    "quad_1": [
+      0,
+      9
+    ],
+    "quad_2": [
+      1,
+      6
+    ],
+    "quad_3": [
+      5,
+      4
+    ],
+    "quad_4": [
+      4,
+      0
+    ]
+  },
+  "quad_wins": {
+    "1": [],
+    "2": [
+      {
+        "opp_id": 1207,
+        "team_score": 76,
+        "opp_score": 60,
+        "team_loc": "A",
+        "date_int": 113,
+        "date_str": "02/24",
+        "conf": true
+      }
+    ],
+    "3": [
+      {
+        "opp_id": 1434,
+        "team_score": 75,
+        "opp_score": 72,
+        "team_loc": "H",
+        "date_int": 29,
+        "date_str": "12/02",
+        "conf": false
+      },
+      {
+        "opp_id": 1462,
+        "team_score": 66,
+        "opp_score": 65,
+        "team_loc": "H",
+        "date_int": 65,
+        "date_str": "01/07",
+        "conf": true
+      },
+      {
+        "opp_id": 1344,
+        "team_score": 105,
+        "opp_score": 104,
+        "team_loc": "H",
+        "date_int": 77,
+        "date_str": "01/19",
+        "conf": true
+      },
+      {
+        "opp_id": 1166,
+        "team_score": 86,
+        "opp_score": 62,
+        "team_loc": "H",
+        "date_int": 85,
+        "date_str": "01/27",
+        "conf": true
+      },
+      {
+        "opp_id": 1139,
+        "team_score": 70,
+        "opp_score": 55,
+        "team_loc": "H",
+        "date_int": 96,
+        "date_str": "02/07",
+        "conf": true
+      }
+    ],
+    "4": [
+      {
+        "opp_id": 1107,
+        "team_score": 80,
+        "opp_score": 53,
+        "team_loc": "H",
+        "date_int": 0,
+        "date_str": "11/03",
+        "conf": false
+      },
+      {
+        "opp_id": 1380,
+        "team_score": 100,
+        "opp_score": 82,
+        "team_loc": "H",
+        "date_int": 2,
+        "date_str": "11/05",
+        "conf": false
+      },
+      {
+        "opp_id": 1114,
+        "team_score": 89,
+        "opp_score": 49,
+        "team_loc": "H",
+        "date_int": 9,
+        "date_str": "11/12",
+        "conf": false
+      },
+      {
+        "opp_id": 1141,
+        "team_score": 85,
+        "opp_score": 71,
+        "team_loc": "H",
+        "date_int": 19,
+        "date_str": "11/22",
+        "conf": false
+      }
+    ]
+  },
+  "quad_losses": {
+    "1": [
+      {
+        "opp_id": 1231,
+        "team_score": 77,
+        "opp_score": 100,
+        "team_loc": "N",
+        "date_int": 6,
+        "date_str": "11/09",
+        "conf": false
+      },
+      {
+        "opp_id": 1458,
+        "team_score": 76,
+        "opp_score": 96,
+        "team_loc": "A",
+        "date_int": 33,
+        "date_str": "12/06",
+        "conf": false
+      },
+      {
+        "opp_id": 1345,
+        "team_score": 59,
+        "opp_score": 79,
+        "team_loc": "A",
+        "date_int": 40,
+        "date_str": "12/13",
+        "conf": false
+      },
+      {
+        "opp_id": 1163,
+        "team_score": 57,
+        "opp_score": 73,
+        "team_loc": "A",
+        "date_int": 62,
+        "date_str": "01/04",
+        "conf": true
+      },
+      {
+        "opp_id": 1437,
+        "team_score": 73,
+        "opp_score": 76,
+        "team_loc": "H",
+        "date_int": 68,
+        "date_str": "01/10",
+        "conf": true
+      },
+      {
+        "opp_id": 1385,
+        "team_score": 68,
+        "opp_score": 92,
+        "team_loc": "A",
+        "date_int": 71,
+        "date_str": "01/13",
+        "conf": true
+      },
+      {
+        "opp_id": 1371,
+        "team_score": 64,
+        "opp_score": 69,
+        "team_loc": "A",
+        "date_int": 89,
+        "date_str": "01/31",
+        "conf": true
+      },
+      {
+        "opp_id": 1437,
+        "team_score": 74,
+        "opp_score": 77,
+        "team_loc": "A",
+        "date_int": 99,
+        "date_str": "02/10",
+        "conf": true
+      },
+      {
+        "opp_id": 1385,
+        "team_score": 70,
+        "opp_score": 76,
+        "team_loc": "H",
+        "date_int": 107,
+        "date_str": "02/18",
+        "conf": true
+      }
+    ],
+    "2": [
+      {
+        "opp_id": 1328,
+        "team_score": 74,
+        "opp_score": 75,
+        "team_loc": "N",
+        "date_int": 25,
+        "date_str": "11/28",
+        "conf": false
+      },
+      {
+        "opp_id": 1166,
+        "team_score": 63,
+        "opp_score": 84,
+        "team_loc": "A",
+        "date_int": 47,
+        "date_str": "12/20",
+        "conf": true
+      },
+      {
+        "opp_id": 1371,
+        "team_score": 73,
+        "opp_score": 79,
+        "team_loc": "H",
+        "date_int": 57,
+        "date_str": "12/30",
+        "conf": true
+      },
+      {
+        "opp_id": 1177,
+        "team_score": 75,
+        "opp_score": 80,
+        "team_loc": "A",
+        "date_int": 74,
+        "date_str": "01/16",
+        "conf": true
+      },
+      {
+        "opp_id": 1139,
+        "team_score": 76,
+        "opp_score": 87,
+        "team_loc": "A",
+        "date_int": 81,
+        "date_str": "01/23",
+        "conf": true
+      },
+      {
+        "opp_id": 1462,
+        "team_score": 88,
+        "opp_score": 96,
+        "team_loc": "A",
+        "date_int": 103,
+        "date_str": "02/14",
+        "conf": true
+      }
+    ],
+    "3": [
+      {
+        "opp_id": 1268,
+        "team_score": 82,
+        "opp_score": 89,
+        "team_loc": "H",
+        "date_int": 12,
+        "date_str": "11/15",
+        "conf": false
+      },
+      {
+        "opp_id": 1173,
+        "team_score": 71,
+        "opp_score": 77,
+        "team_loc": "H",
+        "date_int": 16,
+        "date_str": "11/19",
+        "conf": false
+      },
+      {
+        "opp_id": 1207,
+        "team_score": 69,
+        "opp_score": 78,
+        "team_loc": "H",
+        "date_int": 44,
+        "date_str": "12/17",
+        "conf": true
+      },
+      {
+        "opp_id": 1177,
+        "team_score": 51,
+        "opp_score": 62,
+        "team_loc": "H",
+        "date_int": 118,
+        "date_str": "03/01",
+        "conf": true
+      }
+    ],
+    "4": []
+  },
+  "conf": "big_east",
+  "stat_rankings": {
+    "Points": 171,
+    "Poss": 61,
+    "OE": 256,
+    "DE": 136,
+    "NE": 213,
+    "FGM": 127,
+    "FGA": 51,
+    "FGM3": 149,
+    "FGA3": 97,
+    "FTM": 254,
+    "FTA": 202,
+    "OR": 138,
+    "DR": 248,
+    "Ast": 73,
+    "TO": 114,
+    "Stl": 6,
+    "Blk": 197,
+    "Fouls": 226,
+    "FG%": 242,
+    "FG3%": 282,
+    "EFG%": 231,
+    "FT%": 348,
+    "OppPoints": 136,
+    "OppFGM": 117,
+    "OppFGA": 76,
+    "OppFGM3": 147,
+    "OppFGA3": 145,
+    "OppFTM": 194,
+    "OppFTA": 243,
+    "OppOR": 40,
+    "OppDR": 36,
+    "OppAst": 31,
+    "OppTO": 42,
+    "OppStl": 162,
+    "OppBlk": 106,
+    "OppFouls": 210,
+    "OppFG%": 204,
+    "OppFG3%": 211,
+    "OppEFG%": 204,
+    "OppFT%": 57,
+    "AdjOE": 148,
+    "AdjDE": 54,
+    "AdjNE": 91,
+    "SOS": 52,
+    "SOV": 171
+  },
+  "stats": {
+    "Points": 74.897,
+    "Poss": 71.509,
+    "OE": 104.905,
+    "DE": 106.866,
+    "NE": -1.961,
+    "FGM": 26.759,
+    "FGA": 61.207,
+    "FGM3": 8.034,
+    "FGA3": 25.345,
+    "FTM": 13.345,
+    "FTA": 19.897,
+    "OR": 9.31,
+    "DR": 21.552,
+    "Ast": 15.345,
+    "TO": 10.552,
+    "Stl": 8.172,
+    "Blk": 4.897,
+    "Fouls": 17.172,
+    "FG%": 0.438,
+    "FG3%": 0.317,
+    "EFG%": 0.504,
+    "FT%": 0.658,
+    "OppPoints": 76.483,
+    "OppFGM": 26.931,
+    "OppFGA": 60.483,
+    "OppFGM3": 8.0,
+    "OppFGA3": 23.69,
+    "OppFTM": 14.621,
+    "OppFTA": 19.414,
+    "OppOR": 10.138,
+    "OppDR": 24.552,
+    "OppAst": 16.172,
+    "OppTO": 11.552,
+    "OppStl": 5.897,
+    "OppBlk": 5.414,
+    "OppFouls": 17.207,
+    "OppFG%": 0.446,
+    "OppFG3%": 0.336,
+    "OppEFG%": 0.513,
+    "OppFT%": 0.747,
+    "AdjOE": 110.747,
+    "AdjDE": 97.476,
+    "AdjNE": 13.271
+  },
+  "coach": "shaka_smart",
+  "win_pct": 0.345,
+  "sos": 0.552,
+  "sov": 0.425,
+  "ordinal_data": {
+    "NET": 108
+  },
+  "tournament": {
+    "seed": 7,
+    "games": [],
+    "exit_round": null
+  },
+  "similar_teams": []
+}

@@ -1,4 +1,3 @@
-from email.policy import default
 import click
 import os
 import numpy as np
@@ -6,9 +5,6 @@ import json
 import pickle
 import uuid
 import shutil
-import keras
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from sklearn.model_selection import train_test_split, GridSearchCV
 from mm_analytics.utilities import DATA_ROOT, evaluate_model_on_tournament, f_importances, fetch_training_data, MODELS_ROOT, fill_submission, get_scaler, SUBMISSIONS_ROOT
 
 CS_ALL_SEASONS = ",".join([str(i) for i in list(range(2003,2020)) + [2021]])
@@ -28,6 +24,9 @@ def cli():
 def train(models, save, scale, data, data_format, regular_season):
     """Train a set of models by their architecture identifier
     """
+    from sklearn.model_selection import train_test_split
+    from sklearn.preprocessing import MinMaxScaler, StandardScaler
+
     train_size = 0.90
     metadata = {"Data": {"TrainingSource": data, "Scale": scale, "TrainSplit": train_size}} 
     
@@ -192,6 +191,8 @@ def submit(run_id, model_ids, submission_id, run_folder, stage):
             model_type = "sav"
             model = pickle.load(open(model_path,"rb"))
         elif(os.path.exists(model_path.replace("sav","h5"))):
+            import keras
+
             model_type = "h5"
             model_path = model_path.replace("sav","h5")
             model = keras.models.load_model(model_path)
@@ -224,9 +225,26 @@ def bracket(submission_id, model_id, year, sub_dir = "2022"):
         year=int(year)
     )
 
+
+@click.command(name="export-web")
+@click.option("--season", default=2026, type=int, show_default=True)
+@click.option("--output-root", default="data/web", show_default=True)
+@click.option("--feature-set", default="2026_initial", show_default=True)
+def export_web(season, output_root, feature_set):
+    """Bootstrap the website export layout and load the season context."""
+    from mm_analytics.web_export import bootstrap_web_export
+
+    summary = bootstrap_web_export(
+        season=season,
+        output_root=output_root,
+        feature_set_name=feature_set,
+    )
+    click.echo(json.dumps(summary, indent=2))
+
 cli.add_command(train)
 cli.add_command(evaluate)
 cli.add_command(submit)
 cli.add_command(bracket)
+cli.add_command(export_web)
 if __name__ == "__main__":
     cli()
