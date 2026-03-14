@@ -3,8 +3,15 @@ import os
 import numpy as np
 import json
 import pickle
+import sys
 import uuid
 import shutil
+
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+SRC_ROOT = os.path.join(PROJECT_ROOT, "src")
+if SRC_ROOT not in sys.path:
+    sys.path.insert(0, SRC_ROOT)
+
 from mm_analytics.utilities import DATA_ROOT, evaluate_model_on_tournament, f_importances, fetch_training_data, MODELS_ROOT, fill_submission, get_scaler, SUBMISSIONS_ROOT
 
 CS_ALL_SEASONS = ",".join([str(i) for i in list(range(2003,2020)) + [2021]])
@@ -241,10 +248,29 @@ def export_web(season, output_root, feature_set):
     )
     click.echo(json.dumps(summary, indent=2))
 
+
+@click.command(name="export-web-history")
+@click.option("--start-season", default=2003, type=int, show_default=True)
+@click.option("--end-season", default=2025, type=int, show_default=True)
+@click.option("--output-root", default="data/web", show_default=True)
+@click.option("--feature-set", default="historical_v1", show_default=True)
+def export_web_history(start_season, end_season, output_root, feature_set):
+    """Export historical feature stores and matchup training datasets for the website."""
+    from mm_analytics.web_export import bootstrap_historical_training_export
+
+    summary = bootstrap_historical_training_export(
+        start_season=start_season,
+        end_season=end_season,
+        output_root=output_root,
+        feature_set_name=feature_set,
+    )
+    click.echo(json.dumps(summary, indent=2))
+
 cli.add_command(train)
 cli.add_command(evaluate)
 cli.add_command(submit)
 cli.add_command(bracket)
 cli.add_command(export_web)
+cli.add_command(export_web_history)
 if __name__ == "__main__":
     cli()

@@ -8,6 +8,22 @@ import pandas as pd
 
 from mm_analytics.utilities import get_historical_similarity, DATA_ROOT, NpEncoder, ROUND_DAYS
 
+SEASON_ROUND_DAY_OVERRIDES = {
+    2021: {
+        136: "Play In",
+        137: "First Round",
+        138: "First Round",
+        139: "Second Round",
+        140: "Second Round",
+        145: "Sweet Sixteen",
+        146: "Sweet Sixteen",
+        147: "Elite Eight",
+        148: "Elite Eight",
+        152: "Final Four",
+        154: "Championship",
+    }
+}
+
 # Teams Data
 TEAM_CONF_DF = pd.read_csv(f'{DATA_ROOT}/MTeamConferences.csv')
 TEAM_DF = pd.read_csv(f'{DATA_ROOT}/MTeams.csv').drop(columns=['FirstD1Season', 'LastD1Season'])
@@ -134,6 +150,13 @@ class TeamSeasonOrdinals:
 def get_year_system(year):
     return "NET" if year > 2018 else "RPI"
 
+
+def get_tourney_round_name(season: int, game_day: int) -> str:
+    season_round_days = SEASON_ROUND_DAY_OVERRIDES.get(season)
+    if season_round_days is not None and game_day in season_round_days:
+        return season_round_days[game_day]
+    return ROUND_DAYS.get(game_day, f"Tournament Day {game_day}")
+
 def get_season_ordinals(season_ordinals_df, systems:List[str] = None) -> Dict[int, TeamSeasonOrdinals]:
     """Get the ordinal data for each team in a season
     :param season_ordinals_df: Pandas DataFrame - Ordinals Data for a Season
@@ -205,7 +228,7 @@ class TeamSeason:
 
             for game in self.tourney_games:
                 if not game.is_win():
-                    self.tourney_exit_round = ROUND_DAYS[game.date_int]
+                    self.tourney_exit_round = get_tourney_round_name(self.year, game.date_int)
                     break
             if len(self.tourney_games) > 0 and self.tourney_exit_round is None:
                 self.tourney_exit_round = "Champion"
@@ -372,7 +395,7 @@ class TeamSeason:
         """
         """
         game_day = game_row[2]
-        game_day_str = ROUND_DAYS[game_day]
+        game_day_str = get_tourney_round_name(self.year, game_day)
         if(game_row[3] == self.id):
             # Team Win Stats
             TeamPoints, OppID, OppPoints = game_row[4], game_row[5], game_row[6]

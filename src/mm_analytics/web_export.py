@@ -7,6 +7,8 @@ import math
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+import numpy as np
+
 from mm_analytics.objects import (
     ORDINALS_DF,
     REGULAR_SZN_DF,
@@ -23,6 +25,7 @@ from mm_analytics.objects import (
 from mm_analytics.utilities import NpEncoder
 
 INITIAL_FEATURE_SET_NAME = "2026_initial"
+HISTORICAL_FEATURE_SET_NAME = "historical_v1"
 PLACEHOLDER_BRACKET_SOURCE_SEASON = 2025
 REGION_DETAILS = {
     "W": {"friendly_name": "West", "abbrev": "West"},
@@ -38,6 +41,19 @@ INITIAL_FEATURE_COLUMNS = [
     "SOS",
     "SOV",
     "NET_last",
+    "AdjOE_mean",
+    "AdjDE_mean",
+    "AdjNE_mean",
+    "FG%_mean",
+    "FG3%_mean",
+    "FT%_mean",
+]
+HISTORICAL_FEATURE_COLUMNS = [
+    "Seed",
+    "WinPct",
+    "SOS",
+    "SOV",
+    "selection_ordinal_last",
     "AdjOE_mean",
     "AdjDE_mean",
     "AdjNE_mean",
@@ -73,6 +89,20 @@ class SmokeCheckResults:
     seeded_teams_in_feature_store: int
 
 
+@dataclass(frozen=True)
+class HistoricalSeasonCheckResults:
+    team_count: int
+    example_count: int
+    regular_season_examples: int
+    tournament_examples: int
+
+
+@dataclass(frozen=True)
+class HistoricalExportPaths:
+    output_root: Path
+    training_manifest_path: Path
+
+
 def build_export_paths(season: int, output_root: str = "data/web") -> ExportPaths:
     root = Path(output_root)
     return ExportPaths(
@@ -85,12 +115,32 @@ def build_export_paths(season: int, output_root: str = "data/web") -> ExportPath
     )
 
 
+def build_historical_export_paths(output_root: str = "data/web") -> HistoricalExportPaths:
+    root = Path(output_root)
+    return HistoricalExportPaths(
+        output_root=root,
+        training_manifest_path=root / "training" / "manifest.json",
+    )
+
+
 def ensure_export_directories(paths: ExportPaths) -> None:
     paths.team_index_path.parent.mkdir(parents=True, exist_ok=True)
     paths.feature_store_path.parent.mkdir(parents=True, exist_ok=True)
     paths.bracket_path.parent.mkdir(parents=True, exist_ok=True)
     paths.model_manifest_path.parent.mkdir(parents=True, exist_ok=True)
     paths.team_pages_dir.mkdir(parents=True, exist_ok=True)
+
+
+def ensure_historical_export_directories(
+    paths: HistoricalExportPaths,
+    start_season: int,
+    end_season: int,
+    feature_set_name: str,
+) -> None:
+    paths.training_manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    for season in range(start_season, end_season + 1):
+        (paths.output_root / "features" / str(season)).mkdir(parents=True, exist_ok=True)
+        (paths.output_root / "training" / feature_set_name).mkdir(parents=True, exist_ok=True)
 
 
 def load_team_seasons_for_export(
@@ -155,9 +205,31 @@ def feature_default_value(feature_name: str, observed_values: List[float]) -> fl
 def is_missing_value(value: object) -> bool:
     if value is None:
         return True
-    if isinstance(value, float):
+    if isinstance(value, (float, np.floating)):
         return math.isnan(value)
     return False
+
+
+def get_feature_value(
+    team_season: TeamSeason,
+    feature_name: str,
+    seed_by_team_id: Dict[int, dict],
+) -> object:
+    if feature_name == "Seed":
+        seed_info = seed_by_team_id.get(team_season.id)
+        return None if seed_info is None else seed_info["seed"]
+    if feature_name == "selection_ordinal_last":
+        return team_season.ordinal_data.get_system_data(get_year_system(team_season.year), "last")
+    return team_season.get_data(columns=[feature_name])[0]
+
+
+def build_feature_store_path(output_root: Path, season: int, feature_set_name: str) -> Path:
+    file_name = "base.json" if feature_set_name == INITIAL_FEATURE_SET_NAME else f"{feature_set_name}.json"
+    return output_root / "features" / str(season) / file_name
+
+
+def build_training_file_path(output_root: Path, season: int, feature_set_name: str) -> Path:
+    return output_root / "training" / feature_set_name / f"{season}.json"
 
 
 def build_feature_defaults(
@@ -169,11 +241,8 @@ def build_feature_defaults(
     missing_counts = {feature_name: 0 for feature_name in feature_columns}
 
     for team_id, team_season in team_seasons.items():
-        values = team_season.get_data(columns=feature_columns)
-        for feature_name, value in zip(feature_columns, values):
-            if feature_name == "Seed":
-                seed_info = seed_by_team_id.get(team_id)
-                value = None if seed_info is None else seed_info["seed"]
+        for feature_name in feature_columns:
+            value = get_feature_value(team_season, feature_name, seed_by_team_id)
             if is_missing_value(value):
                 missing_counts[feature_name] += 1
                 continue
@@ -256,12 +325,9 @@ def build_feature_store(
     teams = {}
 
     for team_id, team_season in sorted(team_seasons.items()):
-        raw_values = team_season.get_data(columns=feature_columns)
         feature_values = {}
-        for feature_name, value in zip(feature_columns, raw_values):
-            if feature_name == "Seed":
-                seed_info = seed_by_team_id.get(team_id)
-                value = None if seed_info is None else seed_info["seed"]
+        for feature_name in feature_columns:
+            value = get_feature_value(team_season, feature_name, seed_by_team_id)
             feature_values[feature_name] = (
                 defaults.values[feature_name]
                 if is_missing_value(value)
@@ -403,6 +469,162 @@ def write_json(output_path: Path, payload: dict) -> None:
     output_path.write_text(json.dumps(payload, indent=2, cls=NpEncoder), encoding="utf-8")
 
 
+def build_matchup_vector(
+    feature_store_payload: dict,
+    team_1_id: int,
+    team_2_id: int,
+) -> List[float]:
+    team_1_features = feature_store_payload["teams"][str(team_1_id)]
+    team_2_features = feature_store_payload["teams"][str(team_2_id)]
+    return [
+        round(team_1_features[feature_name] - team_2_features[feature_name], 6)
+        for feature_name in feature_store_payload["feature_order"]
+    ]
+
+
+def append_training_examples(
+    examples: List[dict],
+    feature_store_payload: dict,
+    season: int,
+    source: str,
+    day_num: int,
+    winner_id: int,
+    loser_id: int,
+) -> None:
+    examples.append(
+        {
+            "season": season,
+            "source": source,
+            "day_num": day_num,
+            "team_1_id": loser_id,
+            "team_2_id": winner_id,
+            "x": build_matchup_vector(feature_store_payload, loser_id, winner_id),
+            "y": 1,
+        }
+    )
+    examples.append(
+        {
+            "season": season,
+            "source": source,
+            "day_num": day_num,
+            "team_1_id": winner_id,
+            "team_2_id": loser_id,
+            "x": build_matchup_vector(feature_store_payload, winner_id, loser_id),
+            "y": 0,
+        }
+    )
+
+
+def build_historical_training_payload(
+    season: int,
+    feature_store_payload: dict,
+) -> dict:
+    examples: List[dict] = []
+    regular_season_games = REGULAR_SZN_DF[REGULAR_SZN_DF["Season"] == season]
+    tournament_games = TOURNEY_RESULTS_DF[TOURNEY_RESULTS_DF["Season"] == season]
+
+    for row in regular_season_games[["DayNum", "WTeamID", "LTeamID"]].itertuples(index=False):
+        append_training_examples(
+            examples,
+            feature_store_payload,
+            season,
+            "regular_season",
+            int(row.DayNum),
+            int(row.WTeamID),
+            int(row.LTeamID),
+        )
+
+    for row in tournament_games[["DayNum", "WTeamID", "LTeamID"]].itertuples(index=False):
+        append_training_examples(
+            examples,
+            feature_store_payload,
+            season,
+            "tournament",
+            int(row.DayNum),
+            int(row.WTeamID),
+            int(row.LTeamID),
+        )
+
+    return {
+        "season": season,
+        "feature_set": feature_store_payload["feature_set"],
+        "feature_order": feature_store_payload["feature_order"],
+        "format": "diff",
+        "include_regular_season": True,
+        "include_tournament": True,
+        "label_definition": {
+            "0": "team_1_win",
+            "1": "team_2_win",
+        },
+        "examples": examples,
+    }
+
+
+def build_training_manifest(
+    feature_set_name: str,
+    feature_columns: List[str],
+    seasons: List[int],
+    output_root: Path,
+) -> dict:
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "feature_set": feature_set_name,
+        "feature_order": feature_columns,
+        "format": "diff",
+        "include_regular_season": True,
+        "include_tournament": True,
+        "label_definition": {
+            "0": "team_1_win",
+            "1": "team_2_win",
+        },
+        "seasons": seasons,
+        "feature_files": {
+            str(season): str(build_feature_store_path(output_root, season, feature_set_name))
+            for season in seasons
+        },
+        "training_files": {
+            str(season): str(build_training_file_path(output_root, season, feature_set_name))
+            for season in seasons
+        },
+    }
+
+
+def run_historical_smoke_checks(
+    feature_store_payload: dict,
+    training_payload: dict,
+) -> HistoricalSeasonCheckResults:
+    feature_team_ids = {int(team_id) for team_id in feature_store_payload["teams"].keys()}
+    feature_length = len(feature_store_payload["feature_order"])
+    regular_season_examples = 0
+    tournament_examples = 0
+
+    for example in training_payload["examples"]:
+        if example["team_1_id"] not in feature_team_ids or example["team_2_id"] not in feature_team_ids:
+            raise ValueError(
+                "Training example references unknown team ids: "
+                f"team_1_id={example['team_1_id']}, team_2_id={example['team_2_id']}"
+            )
+        if len(example["x"]) != feature_length:
+            raise ValueError(
+                f"Training example has incorrect feature length: expected={feature_length}, actual={len(example['x'])}"
+            )
+        if example["y"] not in (0, 1):
+            raise ValueError(f"Training example has invalid label: {example['y']}")
+        if example["source"] == "regular_season":
+            regular_season_examples += 1
+        elif example["source"] == "tournament":
+            tournament_examples += 1
+        else:
+            raise ValueError(f"Training example has invalid source: {example['source']}")
+
+    return HistoricalSeasonCheckResults(
+        team_count=len(feature_team_ids),
+        example_count=len(training_payload["examples"]),
+        regular_season_examples=regular_season_examples,
+        tournament_examples=tournament_examples,
+    )
+
+
 def run_smoke_checks(
     paths: ExportPaths,
     team_index_payload: dict,
@@ -542,4 +764,83 @@ def bootstrap_web_export(
             "model_manifest": str(paths.model_manifest_path),
             "team_pages_dir": str(paths.team_pages_dir),
         },
+    }
+
+
+def bootstrap_historical_training_export(
+    start_season: int = 2003,
+    end_season: int = 2025,
+    output_root: str = "data/web",
+    feature_set_name: str = HISTORICAL_FEATURE_SET_NAME,
+) -> dict:
+    if start_season > end_season:
+        raise ValueError(
+            f"Invalid season range: start_season={start_season}, end_season={end_season}"
+        )
+
+    paths = build_historical_export_paths(output_root=output_root)
+    ensure_historical_export_directories(
+        paths,
+        start_season=start_season,
+        end_season=end_season,
+        feature_set_name=feature_set_name,
+    )
+
+    seasons = list(range(start_season, end_season + 1))
+    season_summaries = []
+
+    for season in seasons:
+        team_seasons, _ = load_team_seasons_for_export(season)
+        seed_by_team_id, _, _ = build_placeholder_seed_maps(season)
+        feature_store_payload, _ = build_feature_store(
+            season=season,
+            team_seasons=team_seasons,
+            feature_set_name=feature_set_name,
+            feature_columns=HISTORICAL_FEATURE_COLUMNS,
+            seed_by_team_id=seed_by_team_id,
+        )
+        training_payload = build_historical_training_payload(
+            season=season,
+            feature_store_payload=feature_store_payload,
+        )
+        checks = run_historical_smoke_checks(feature_store_payload, training_payload)
+
+        write_json(
+            build_feature_store_path(paths.output_root, season, feature_set_name),
+            feature_store_payload,
+        )
+        write_json(
+            build_training_file_path(paths.output_root, season, feature_set_name),
+            training_payload,
+        )
+
+        season_summaries.append(
+            {
+                "season": season,
+                "team_count": checks.team_count,
+                "example_count": checks.example_count,
+                "regular_season_examples": checks.regular_season_examples,
+                "tournament_examples": checks.tournament_examples,
+            }
+        )
+
+    manifest_payload = build_training_manifest(
+        feature_set_name=feature_set_name,
+        feature_columns=HISTORICAL_FEATURE_COLUMNS,
+        seasons=seasons,
+        output_root=paths.output_root,
+    )
+    write_json(paths.training_manifest_path, manifest_payload)
+
+    return {
+        "status": "ok",
+        "output_root": str(paths.output_root),
+        "feature_set": feature_set_name,
+        "season_range": {
+            "start": start_season,
+            "end": end_season,
+            "count": len(seasons),
+        },
+        "manifest_path": str(paths.training_manifest_path),
+        "season_summaries": season_summaries,
     }
