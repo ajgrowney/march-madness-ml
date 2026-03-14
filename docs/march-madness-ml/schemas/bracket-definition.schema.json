@@ -8,6 +8,7 @@
   "required": [
     "season",
     "regions",
+    "region_details",
     "slots",
     "final_slots"
   ],
@@ -24,6 +25,18 @@
       "items": {
         "type": "string",
         "minLength": 1
+      }
+    },
+    "region_details": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "Display metadata for each region key used in the ordered regions array.",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/regionDetail"
       }
     },
     "slots": {
@@ -49,6 +62,27 @@
     }
   },
   "$defs": {
+    "regionDetail": {
+      "title": "Region Detail",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "friendly_name",
+        "abbrev"
+      ],
+      "properties": {
+        "friendly_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-friendly label for the region or stage."
+        },
+        "abbrev": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Short display abbreviation used in compact UI elements."
+        }
+      }
+    },
     "seedReference": {
       "title": "Seed Reference",
       "description": "A slot side that starts from a seeded team rather than an upstream winner.",

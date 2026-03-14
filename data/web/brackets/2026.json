@@ -8,6 +8,32 @@
     "Final Four",
     "Championship"
   ],
+  "region_details": {
+    "W": {
+      "friendly_name": "West",
+      "abbrev": "West"
+    },
+    "X": {
+      "friendly_name": "East",
+      "abbrev": "East"
+    },
+    "Y": {
+      "friendly_name": "South",
+      "abbrev": "South"
+    },
+    "Z": {
+      "friendly_name": "Midwest",
+      "abbrev": "MW"
+    },
+    "Final Four": {
+      "friendly_name": "Final Four",
+      "abbrev": "FF"
+    },
+    "Championship": {
+      "friendly_name": "Championship",
+      "abbrev": "CH"
+    }
+  },
   "slots": [
     {
       "slot": "W16",

@@ -24,6 +24,14 @@ from mm_analytics.utilities import NpEncoder
 
 INITIAL_FEATURE_SET_NAME = "2026_initial"
 PLACEHOLDER_BRACKET_SOURCE_SEASON = 2025
+REGION_DETAILS = {
+    "W": {"friendly_name": "West", "abbrev": "West"},
+    "X": {"friendly_name": "East", "abbrev": "East"},
+    "Y": {"friendly_name": "South", "abbrev": "South"},
+    "Z": {"friendly_name": "Midwest", "abbrev": "MW"},
+    "Final Four": {"friendly_name": "Final Four", "abbrev": "FF"},
+    "Championship": {"friendly_name": "Championship", "abbrev": "CH"},
+}
 INITIAL_FEATURE_COLUMNS = [
     "Seed",
     "WinPct",
@@ -309,6 +317,14 @@ def build_region_order(slots: List[dict]) -> List[str]:
     return ordered_regions
 
 
+def build_region_details(region_order: List[str]) -> dict:
+    return {
+        region_name: REGION_DETAILS[region_name]
+        for region_name in region_order
+        if region_name in REGION_DETAILS
+    }
+
+
 def resolve_slot_side(reference: str, slot_names: set[str], seed_by_label: Dict[str, dict]) -> dict:
     if reference in slot_names:
         return {"source": "winner", "source_slot": reference}
@@ -348,10 +364,12 @@ def build_bracket_definition(season: int, seed_by_label: Dict[str, dict], source
         )
 
     slots = sorted(slots, key=slot_sort_key)
+    region_order = build_region_order(slots)
 
     return {
         "season": season,
-        "regions": build_region_order(slots),
+        "regions": region_order,
+        "region_details": build_region_details(region_order),
         "slots": slots,
         "final_slots": {
             "left_semifinal": "R5WX",
@@ -429,6 +447,11 @@ def run_smoke_checks(
     for final_slot_name, slot_name in bracket_payload["final_slots"].items():
         if slot_name not in slot_names:
             raise ValueError(f"Final slot reference missing: {final_slot_name} -> {slot_name}")
+
+    region_details = bracket_payload.get("region_details", {})
+    missing_region_details = [region_name for region_name in bracket_payload["regions"] if region_name not in region_details]
+    if missing_region_details:
+        raise ValueError(f"Missing region metadata for: {missing_region_details}")
 
     feature_set_name = feature_store_payload["feature_set"]
     manifest_feature_sets = {model["feature_set"] for model in manifest_payload["models"]}
