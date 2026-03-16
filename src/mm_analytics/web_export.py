@@ -28,10 +28,10 @@ INITIAL_FEATURE_SET_NAME = "2026_initial"
 HISTORICAL_FEATURE_SET_NAME = "historical_v1"
 PLACEHOLDER_BRACKET_SOURCE_SEASON = 2025
 REGION_DETAILS = {
-    "W": {"friendly_name": "West", "abbrev": "West"},
-    "X": {"friendly_name": "East", "abbrev": "East"},
-    "Y": {"friendly_name": "South", "abbrev": "South"},
-    "Z": {"friendly_name": "Midwest", "abbrev": "MW"},
+    "W": {"friendly_name": "East", "abbrev": "East"},
+    "X": {"friendly_name": "South", "abbrev": "South"},
+    "Y": {"friendly_name": "Midwest", "abbrev": "MW"},
+    "Z": {"friendly_name": "West", "abbrev": "West"},
     "Final Four": {"friendly_name": "Final Four", "abbrev": "FF"},
     "Championship": {"friendly_name": "Championship", "abbrev": "CH"},
 }
@@ -171,8 +171,18 @@ def parse_seed_label(seed_label: str) -> Tuple[str, int]:
     return region, int(seed_digits)
 
 
+def resolve_bracket_source_season(season: int) -> int:
+    has_seed_rows = not SEEDS_DF[SEEDS_DF["Season"] == season].empty
+    has_slot_rows = not SLOTS_DF[SLOTS_DF["Season"] == season].empty
+    if has_seed_rows and has_slot_rows:
+        return season
+    if season == 2026:
+        return PLACEHOLDER_BRACKET_SOURCE_SEASON
+    return season
+
+
 def build_placeholder_seed_maps(season: int) -> Tuple[Dict[int, dict], Dict[str, dict], int]:
-    source_season = PLACEHOLDER_BRACKET_SOURCE_SEASON if season == 2026 else season
+    source_season = resolve_bracket_source_season(season)
     season_seed_df = SEEDS_DF[SEEDS_DF["Season"] == source_season]
 
     by_team_id: Dict[int, dict] = {}

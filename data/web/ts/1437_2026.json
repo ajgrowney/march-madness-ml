@@ -415,6 +415,10 @@
   "ordinal_data": {
     "NET": 30
   },
-  "tournament": null,
+  "tournament": {
+    "seed": 8,
+    "games": [],
+    "exit_round": null
+  },
   "similar_teams": []
 }

@@ -10,20 +10,20 @@
   ],
   "region_details": {
     "W": {
-      "friendly_name": "West",
-      "abbrev": "West"
-    },
-    "X": {
       "friendly_name": "East",
       "abbrev": "East"
     },
-    "Y": {
+    "X": {
       "friendly_name": "South",
       "abbrev": "South"
     },
-    "Z": {
+    "Y": {
       "friendly_name": "Midwest",
       "abbrev": "MW"
+    },
+    "Z": {
+      "friendly_name": "West",
+      "abbrev": "West"
     },
     "Final Four": {
       "friendly_name": "Final Four",
@@ -36,38 +36,21 @@
   },
   "slots": [
     {
-      "slot": "W16",
-      "label": "Play In",
-      "region": "W",
-      "round": 1,
-      "team_1": {
-        "source": "seed",
-        "team_id": 1110,
-        "seed": 16
-      },
-      "team_2": {
-        "source": "seed",
-        "team_id": 1291,
-        "seed": 16
-      },
-      "next_slot": "R1W1"
-    },
-    {
-      "slot": "X11",
+      "slot": "X16",
       "label": "Play In",
       "region": "X",
       "round": 1,
       "team_1": {
         "source": "seed",
-        "team_id": 1400,
-        "seed": 11
+        "team_id": 1341,
+        "seed": 16
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1462,
-        "seed": 11
+        "team_id": 1250,
+        "seed": 16
       },
-      "next_slot": "R1X6"
+      "next_slot": "R1X1"
     },
     {
       "slot": "Y11",
@@ -76,12 +59,12 @@
       "round": 1,
       "team_1": {
         "source": "seed",
-        "team_id": 1314,
+        "team_id": 1275,
         "seed": 11
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1361,
+        "team_id": 1374,
         "seed": 11
       },
       "next_slot": "R1Y6"
@@ -93,15 +76,32 @@
       "round": 1,
       "team_1": {
         "source": "seed",
-        "team_id": 1106,
+        "team_id": 1420,
         "seed": 16
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1384,
+        "team_id": 1224,
         "seed": 16
       },
       "next_slot": "R1Y1"
+    },
+    {
+      "slot": "Z11",
+      "label": "Play In",
+      "region": "Z",
+      "round": 1,
+      "team_1": {
+        "source": "seed",
+        "team_id": 1400,
+        "seed": 11
+      },
+      "team_2": {
+        "source": "seed",
+        "team_id": 1301,
+        "seed": 11
+      },
+      "next_slot": "R1Z6"
     },
     {
       "slot": "R1W1",
@@ -114,8 +114,9 @@
         "seed": 1
       },
       "team_2": {
-        "source": "winner",
-        "source_slot": "W16"
+        "source": "seed",
+        "team_id": 1373,
+        "seed": 16
       },
       "next_slot": "R2W1"
     },
@@ -126,12 +127,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1104,
+        "team_id": 1163,
         "seed": 2
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1352,
+        "team_id": 1202,
         "seed": 15
       },
       "next_slot": "R2W2"
@@ -143,12 +144,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1458,
+        "team_id": 1277,
         "seed": 3
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1285,
+        "team_id": 1295,
         "seed": 14
       },
       "next_slot": "R2W3"
@@ -160,12 +161,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1112,
+        "team_id": 1242,
         "seed": 4
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1103,
+        "team_id": 1465,
         "seed": 13
       },
       "next_slot": "R2W4"
@@ -177,12 +178,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1332,
+        "team_id": 1385,
         "seed": 5
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1251,
+        "team_id": 1320,
         "seed": 12
       },
       "next_slot": "R2W4"
@@ -194,12 +195,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1140,
+        "team_id": 1257,
         "seed": 6
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1433,
+        "team_id": 1378,
         "seed": 11
       },
       "next_slot": "R2W3"
@@ -211,12 +212,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1388,
+        "team_id": 1417,
         "seed": 7
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1435,
+        "team_id": 1416,
         "seed": 10
       },
       "next_slot": "R2W2"
@@ -228,12 +229,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1280,
+        "team_id": 1326,
         "seed": 8
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1124,
+        "team_id": 1395,
         "seed": 9
       },
       "next_slot": "R2W1"
@@ -245,13 +246,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1222,
+        "team_id": 1196,
         "seed": 1
       },
       "team_2": {
-        "source": "seed",
-        "team_id": 1188,
-        "seed": 16
+        "source": "winner",
+        "source_slot": "X16"
       },
       "next_slot": "R2X1"
     },
@@ -262,12 +262,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1397,
+        "team_id": 1222,
         "seed": 2
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1459,
+        "team_id": 1225,
         "seed": 15
       },
       "next_slot": "R2X2"
@@ -279,12 +279,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1246,
+        "team_id": 1228,
         "seed": 3
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1407,
+        "team_id": 1335,
         "seed": 14
       },
       "next_slot": "R2X3"
@@ -296,12 +296,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1345,
+        "team_id": 1304,
         "seed": 4
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1219,
+        "team_id": 1407,
         "seed": 13
       },
       "next_slot": "R2X4"
@@ -313,7 +313,7 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1155,
+        "team_id": 1435,
         "seed": 5
       },
       "team_2": {
@@ -330,12 +330,13 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1228,
+        "team_id": 1314,
         "seed": 6
       },
       "team_2": {
-        "source": "winner",
-        "source_slot": "X11"
+        "source": "seed",
+        "team_id": 1433,
+        "seed": 11
       },
       "next_slot": "R2X3"
     },
@@ -346,12 +347,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1417,
+        "team_id": 1388,
         "seed": 7
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1429,
+        "team_id": 1401,
         "seed": 10
       },
       "next_slot": "R2X2"
@@ -363,12 +364,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1211,
+        "team_id": 1155,
         "seed": 8
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1208,
+        "team_id": 1234,
         "seed": 9
       },
       "next_slot": "R2X1"
@@ -380,7 +381,7 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1120,
+        "team_id": 1276,
         "seed": 1
       },
       "team_2": {
@@ -396,12 +397,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1277,
+        "team_id": 1235,
         "seed": 2
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1136,
+        "team_id": 1398,
         "seed": 15
       },
       "next_slot": "R2Y2"
@@ -413,12 +414,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1235,
+        "team_id": 1438,
         "seed": 3
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1252,
+        "team_id": 1460,
         "seed": 14
       },
       "next_slot": "R2Y3"
@@ -430,12 +431,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1401,
+        "team_id": 1104,
         "seed": 4
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1463,
+        "team_id": 1220,
         "seed": 13
       },
       "next_slot": "R2Y4"
@@ -447,12 +448,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1276,
+        "team_id": 1403,
         "seed": 5
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1471,
+        "team_id": 1103,
         "seed": 12
       },
       "next_slot": "R2Y4"
@@ -464,7 +465,7 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1279,
+        "team_id": 1397,
         "seed": 6
       },
       "team_2": {
@@ -480,12 +481,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1266,
+        "team_id": 1246,
         "seed": 7
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1307,
+        "team_id": 1365,
         "seed": 10
       },
       "next_slot": "R2Y2"
@@ -497,12 +498,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1257,
+        "team_id": 1208,
         "seed": 8
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1166,
+        "team_id": 1387,
         "seed": 9
       },
       "next_slot": "R2Y1"
@@ -514,12 +515,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1196,
+        "team_id": 1112,
         "seed": 1
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1313,
+        "team_id": 1254,
         "seed": 16
       },
       "next_slot": "R2Z1"
@@ -531,12 +532,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1385,
+        "team_id": 1345,
         "seed": 2
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1303,
+        "team_id": 1474,
         "seed": 15
       },
       "next_slot": "R2Z2"
@@ -548,12 +549,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1403,
+        "team_id": 1211,
         "seed": 3
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1423,
+        "team_id": 1244,
         "seed": 14
       },
       "next_slot": "R2Z3"
@@ -565,12 +566,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1268,
+        "team_id": 1116,
         "seed": 4
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1213,
+        "team_id": 1218,
         "seed": 13
       },
       "next_slot": "R2Z4"
@@ -582,12 +583,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1272,
+        "team_id": 1458,
         "seed": 5
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1161,
+        "team_id": 1219,
         "seed": 12
       },
       "next_slot": "R2Z4"
@@ -599,13 +600,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1281,
+        "team_id": 1140,
         "seed": 6
       },
       "team_2": {
-        "source": "seed",
-        "team_id": 1179,
-        "seed": 11
+        "source": "winner",
+        "source_slot": "Z11"
       },
       "next_slot": "R2Z3"
     },
@@ -616,12 +616,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1242,
+        "team_id": 1274,
         "seed": 7
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1116,
+        "team_id": 1281,
         "seed": 10
       },
       "next_slot": "R2Z2"
@@ -633,12 +633,12 @@
       "round": 2,
       "team_1": {
         "source": "seed",
-        "team_id": 1163,
+        "team_id": 1437,
         "seed": 8
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1328,
+        "team_id": 1429,
         "seed": 9
       },
       "next_slot": "R2Z1"

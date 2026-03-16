@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-14T07:21:28.554738+00:00",
+  "generated_at": "2026-03-16T07:00:36.254058+00:00",
   "feature_set": "historical_v1",
   "feature_order": [
     "Seed",
@@ -44,7 +44,8 @@
     2022,
     2023,
     2024,
-    2025
+    2025,
+    2026
   ],
   "feature_files": {
     "2003": "data/web/features/2003/historical_v1.json",
@@ -69,7 +70,8 @@
     "2022": "data/web/features/2022/historical_v1.json",
     "2023": "data/web/features/2023/historical_v1.json",
     "2024": "data/web/features/2024/historical_v1.json",
-    "2025": "data/web/features/2025/historical_v1.json"
+    "2025": "data/web/features/2025/historical_v1.json",
+    "2026": "data/web/features/2026/historical_v1.json"
   },
   "training_files": {
     "2003": "data/web/training/historical_v1/2003.json",
@@ -94,6 +96,7 @@
     "2022": "data/web/training/historical_v1/2022.json",
     "2023": "data/web/training/historical_v1/2023.json",
     "2024": "data/web/training/historical_v1/2024.json",
-    "2025": "data/web/training/historical_v1/2025.json"
+    "2025": "data/web/training/historical_v1/2025.json",
+    "2026": "data/web/training/historical_v1/2026.json"
   }
 }
