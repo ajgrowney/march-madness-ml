@@ -22,20 +22,21 @@
         2022,
         2023,
         2024,
-        2025
+        2025,
+        2026
       ],
       "feature_set": "2026_initial",
       "prediction_format": "precomputed",
       "mirrored_prediction_strategy": "average-forward-reverse",
       "description": "RandomForest model trained offline and exported as pairwise 2026 tournament probabilities.",
       "artifact_version": "0.1.0",
-      "exported_at": "2026-03-16T06:12:27.068946+00:00",
+      "exported_at": "2026-03-16T08:01:12.774800+00:00",
       "predictions_url": "data/web/models/predictions/rf-2026-v1_2026.json",
       "feature_importance_url": "data/web/models/predictions/rf-2026-v1_importance.json",
       "training_feature_aliases": {
         "NET_last": "selection_ordinal_last"
       },
-      "oob_score": 0.69626
+      "oob_score": 0.695766
     }
   ]
 }

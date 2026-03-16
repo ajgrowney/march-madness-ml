@@ -136,13 +136,7 @@ def build_matchup_vector(team_a_features: Dict[str, float], team_b_features: Dic
     return [round(float(team_a_features[name]) - float(team_b_features[name]), 6) for name in feature_order]
 
 
-def load_field_team_ids(teams_index_path: Path, bracket_path: Path) -> List[int]:
-    teams_index = load_json(teams_index_path)
-    team_ids = sorted(int(team["team_id"]) for team in teams_index["teams"] if team["tournament_team"])
-    if team_ids:
-        return team_ids
-
-    bracket_payload = load_json(bracket_path)
+def build_bracket_field_team_ids(bracket_payload: dict) -> List[int]:
     field_ids = set()
     for slot in bracket_payload["slots"]:
         for side in ("team_1", "team_2"):
@@ -151,6 +145,39 @@ def load_field_team_ids(teams_index_path: Path, bracket_path: Path) -> List[int]
             if team_id is not None:
                 field_ids.add(int(team_id))
     return sorted(field_ids)
+
+
+def load_field_team_ids(teams_index_path: Path, bracket_path: Path, feature_store_payload: dict) -> List[int]:
+    teams_index = load_json(teams_index_path)
+    bracket_payload = load_json(bracket_path)
+    bracket_team_ids = build_bracket_field_team_ids(bracket_payload)
+    index_team_ids = sorted(int(team["team_id"]) for team in teams_index["teams"] if team["tournament_team"])
+    feature_store_team_ids = sorted(
+        int(team_id)
+        for team_id, team_values in feature_store_payload["teams"].items()
+        if float(team_values["Seed"]) != 17.0
+    )
+
+    if not bracket_team_ids:
+        raise ValueError("No tournament teams were found in the published bracket artifact.")
+
+    if index_team_ids != bracket_team_ids:
+        missing_in_predictions = sorted(set(bracket_team_ids) - set(index_team_ids))
+        extra_in_predictions = sorted(set(index_team_ids) - set(bracket_team_ids))
+        raise ValueError(
+            "Team index tournament field does not match published bracket field: "
+            f"missing_in_index={missing_in_predictions}, extra_in_index={extra_in_predictions}"
+        )
+
+    if feature_store_team_ids != bracket_team_ids:
+        missing_in_features = sorted(set(bracket_team_ids) - set(feature_store_team_ids))
+        extra_in_features = sorted(set(feature_store_team_ids) - set(bracket_team_ids))
+        raise ValueError(
+            "Feature store seeded teams do not match published bracket field: "
+            f"missing_in_feature_store={missing_in_features}, extra_in_feature_store={extra_in_features}"
+        )
+
+    return bracket_team_ids
 
 
 def build_feature_importance_payload(feature_order: Sequence[str], importances: Sequence[float]) -> List[dict]:
@@ -333,7 +360,11 @@ def main() -> None:
     model.fit(dataset.x_rows, dataset.y_rows, sample_weight=dataset.sample_weights)
     print("[debug]fit model")
 
-    field_team_ids = load_field_team_ids(args.teams_index, args.bracket_path)
+    field_team_ids = load_field_team_ids(
+        args.teams_index,
+        args.bracket_path,
+        browser_feature_store,
+    )
     if not field_team_ids:
         raise ValueError("No 2026 tournament teams were found in the team index or bracket artifact.")
 
