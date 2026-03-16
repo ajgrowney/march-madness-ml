@@ -455,24 +455,26 @@ def build_bracket_definition(season: int, seed_by_label: Dict[str, dict], source
     }
 
 
-def build_model_manifest(season: int, feature_set_name: str) -> dict:
-    return {
-        "default_model_id": f"baseline_{season}",
-        "models": [
-            {
-                "id": f"baseline_{season}",
-                "name": f"Baseline {season}",
-                "type": "runtime-config",
-                "seasons": [season],
-                "feature_set": feature_set_name,
-                "prediction_format": "runtime-config",
-                "description": "Placeholder manifest entry for the 2026 website export flow.",
-                "model_url": None,
-                "config_url": None,
-                "predictions_url": None,
-            }
-        ],
-    }
+def load_model_manifest(manifest_path: Path) -> dict:
+    if not manifest_path.exists():
+        raise ValueError(
+            "Model manifest is missing. Create a real website model manifest before running export-web."
+        )
+
+    manifest_payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    models = manifest_payload.get("models", [])
+    if not models:
+        raise ValueError(
+            "Model manifest has no models. Add a real model entry before running export-web."
+        )
+
+    default_model_id = manifest_payload.get("default_model_id")
+    if not any(entry.get("id") == default_model_id for entry in models):
+        raise ValueError(
+            "Model manifest default_model_id does not reference an existing model entry."
+        )
+
+    return manifest_payload
 
 
 def write_json(output_path: Path, payload: dict) -> None:
@@ -734,12 +736,11 @@ def bootstrap_web_export(
         seed_by_team_id,
     )
     bracket_payload = build_bracket_definition(season, seed_by_label, source_season)
-    manifest_payload = build_model_manifest(season, feature_set_name)
+    manifest_payload = load_model_manifest(paths.model_manifest_path)
 
     write_json(paths.team_index_path, team_index_payload)
     write_json(paths.feature_store_path, feature_store_payload)
     write_json(paths.bracket_path, bracket_payload)
-    write_json(paths.model_manifest_path, manifest_payload)
     team_pages_written = write_team_pages(season, paths, team_seasons, seed_by_team_id)
     smoke_checks = run_smoke_checks(
         paths,
