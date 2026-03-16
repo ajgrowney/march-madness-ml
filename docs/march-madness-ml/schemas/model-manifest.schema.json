@@ -61,6 +61,19 @@
           ],
           "description": "High-level implementation class for the model."
         },
+        "model_family": {
+          "type": "string",
+          "enum": [
+            "heuristic",
+            "logistic-regression",
+            "random-forest",
+            "mlp",
+            "keras-dnn",
+            "xgboost",
+            "other"
+          ],
+          "description": "Optional training-family label used to describe the underlying model implementation for precomputed or runtime-backed models."
+        },
         "seasons": {
           "type": "array",
           "minItems": 1,
@@ -89,6 +102,34 @@
           "minLength": 1,
           "description": "Explanation shown in the UI to set user expectations."
         },
+        "artifact_version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional semver or pipeline version string for the exported model artifact."
+        },
+        "training_seasons": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Historical seasons used to fit the model offline.",
+          "items": {
+            "type": "integer",
+            "minimum": 1985
+          }
+        },
+        "mirrored_prediction_strategy": {
+          "type": "string",
+          "enum": [
+            "none",
+            "average-forward-reverse",
+            "average-forward-reverse-complement"
+          ],
+          "description": "Optional description of how directional matchup probabilities were reconciled before export."
+        },
+        "exported_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the model artifact was written."
+        },
         "model_url": {
           "type": ["string", "null"],
           "format": "uri",
@@ -103,6 +144,15 @@
           "type": ["string", "null"],
           "format": "uri",
           "description": "Optional URL to a precomputed season-specific matchup prediction table."
+        },
+        "feature_importance_url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "Optional URL to a feature-importance artifact for offline-trained models."
+        },
+        "is_custom": {
+          "type": "boolean",
+          "description": "Optional flag indicating that the model was user-created in the browser rather than published from the ML repo."
         }
       }
     }

@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://andrewgrowney.com/schemas/march-madness-ml/precomputed-predictions.schema.json",
+  "title": "March Madness Precomputed Predictions Artifact",
+  "description": "Season-specific pairwise matchup probabilities exported from an offline model such as RandomForest, sklearn MLP, Keras, or XGBoost.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "season",
+    "model",
+    "prediction_format",
+    "team_ids",
+    "predictions"
+  ],
+  "properties": {
+    "season": {
+      "type": "integer",
+      "minimum": 1985,
+      "description": "Tournament season represented by the exported predictions."
+    },
+    "model": {
+      "$ref": "model-manifest.schema.json#/$defs/modelEntry"
+    },
+    "prediction_format": {
+      "type": "string",
+      "const": "pairwise-winner-probability",
+      "description": "Compact lookup-table format expected by the website for precomputed pairwise predictions."
+    },
+    "team_ids": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "description": "List of team IDs covered by the exported matchup table.",
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      }
+    },
+    "feature_importance": {
+      "type": "array",
+      "description": "Optional global feature-importance ranking exported with the model artifact.",
+      "items": {
+        "$ref": "#/$defs/featureImportanceEntry"
+      }
+    },
+    "predictions": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "Map keyed by ordered matchup id '<team_a_id>:<team_b_id>'. Each value stores [winnerId, winnerProbability]. Storing both directions explicitly is recommended.",
+      "patternProperties": {
+        "^[0-9]+:[0-9]+$": {
+          "$ref": "#/$defs/pairwisePrediction"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "featureImportanceEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "featureKey",
+        "importance"
+      ],
+      "properties": {
+        "featureKey": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Feature identifier aligned to the exported feature set."
+        },
+        "importance": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Global importance score as emitted by the offline model pipeline."
+        },
+        "rank": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Optional rank for display ordering."
+        }
+      }
+    },
+    "pairwisePrediction": {
+      "type": "array",
+      "description": "Compact ordered-pair prediction stored as [winnerId, winnerProbability]. The ordered matchup key still defines team A and team B.",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Winner selected from the exported probabilities."
+        },
+        {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 1,
+          "multipleOf": 0.000001,
+          "description": "Probability assigned to the winnerId for this ordered matchup."
+        }
+      ],
+      "items": false
+    }
+  }
+}

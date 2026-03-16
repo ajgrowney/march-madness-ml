@@ -1,0 +1,62 @@
+{
+  "model_id": "rf-2026-v1",
+  "season": 2026,
+  "feature_set": "2026_initial",
+  "feature_importance": [
+    {
+      "featureKey": "NET_last",
+      "importance": 0.182759,
+      "rank": 1
+    },
+    {
+      "featureKey": "AdjNE_mean",
+      "importance": 0.175312,
+      "rank": 2
+    },
+    {
+      "featureKey": "WinPct",
+      "importance": 0.132169,
+      "rank": 3
+    },
+    {
+      "featureKey": "AdjOE_mean",
+      "importance": 0.094294,
+      "rank": 4
+    },
+    {
+      "featureKey": "AdjDE_mean",
+      "importance": 0.084576,
+      "rank": 5
+    },
+    {
+      "featureKey": "SOV",
+      "importance": 0.073246,
+      "rank": 6
+    },
+    {
+      "featureKey": "SOS",
+      "importance": 0.063872,
+      "rank": 7
+    },
+    {
+      "featureKey": "FG%_mean",
+      "importance": 0.060211,
+      "rank": 8
+    },
+    {
+      "featureKey": "FG3%_mean",
+      "importance": 0.056174,
+      "rank": 9
+    },
+    {
+      "featureKey": "FT%_mean",
+      "importance": 0.055007,
+      "rank": 10
+    },
+    {
+      "featureKey": "Seed",
+      "importance": 0.02238,
+      "rank": 11
+    }
+  ]
+}
