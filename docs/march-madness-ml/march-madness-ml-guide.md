@@ -15,21 +15,24 @@ The website currently expects these JSON artifacts:
 1. `data/web/index/{season}/teams.json`
 Purpose: lightweight team search index and route bootstrap.
 
-2. `data/web/features/{season}/base.json`
-Purpose: compact feature store for client-side inference and model-aware UI.
+2. `data/web/features/{season}/stat_explorer_v1.json`
+Purpose: compact canonical feature store for client-side inference and model-aware UI.
 
-3. `data/web/ts/{team_id}_{season}.json`
+3. `data/web/stats/{season}/stat_explorer_v1.json`
+Purpose: stat explorer payload for the tournament field and historical finish cohorts.
+
+4. `data/web/ts/{team_id}_{season}.json`
 Purpose: rich Team Insights payload.
 
-4. `data/web/brackets/{season}.json`
+5. `data/web/brackets/{season}.json`
 Purpose: bracket dependency graph and slot definitions.
 
-5. `data/web/models/manifest.json`
+6. `data/web/models/manifest.json`
 Purpose: model discovery, compatibility, and loading instructions.
 
 The training artifact should remain separate:
 
-6. `TeamSeasons_{season}.csv`
+7. `TeamSeasons_{season}.csv`
 Purpose: canonical model training and offline analysis matrix.
 
 ## Included Schemas
@@ -97,7 +100,7 @@ Rules:
 #### Feature Store
 
 Path:
-`data/web/features/{season}/base.json`
+`data/web/features/{season}/stat_explorer_v1.json`
 
 Rules:
 
@@ -105,6 +108,19 @@ Rules:
 - Include `feature_order` explicitly.
 - Store team vectors in an object keyed by TeamID string for constant-time lookup in the browser.
 - Keep values numeric so they can be consumed directly by runtime inference code.
+
+#### Stat Explorer Payload
+
+Path:
+`data/web/stats/{season}/stat_explorer_v1.json`
+
+Rules:
+
+- This is the browser-facing stat explorer contract.
+- `current_field.teams` must contain only the current tournament field.
+- `historical_distributions` must contain raw historical rows needed for browser-side year filtering.
+- `historical_summary` should provide the default all-years summary used on first paint.
+- `round_buckets` and `filters.regions` should be consumed directly by the UI.
 
 #### Bracket Definition
 
@@ -188,7 +204,7 @@ Suggested functions:
 
 Do not expose the entire training matrix to the browser by default.
 
-Start with one compact feature set such as `base_{season}`.
+Start with one compact canonical feature set, `stat_explorer_v1`.
 
 Example columns:
 
@@ -204,12 +220,6 @@ Example columns:
 - `FG3%_mean`
 - `FT%_mean`
 
-Later, if needed, add additional named feature stores such as:
-
-- `resume_{season}`
-- `shooting_{season}`
-- `full_{season}`
-
 The website should always refer to a named feature set, not an ad hoc list of columns.
 
 ## Suggested Folder Layout in `march-madness-ml`
@@ -222,7 +232,10 @@ data/
         teams.json
     features/
       2026/
-        base.json
+        stat_explorer_v1.json
+    stats/
+      2026/
+        stat_explorer_v1.json
     ts/
       1242_2026.json
       1277_2026.json
@@ -255,9 +268,10 @@ Use stable paths and version your pipeline in git instead.
 The most useful first milestone in `march-madness-ml` is:
 
 1. export `teams.json`
-2. export `base.json`
-3. export `2026.json` bracket definition
-4. validate them against the schemas
+2. export `stat_explorer_v1.json`
+3. export `stats/2026/stat_explorer_v1.json`
+4. export `2026.json` bracket definition
+5. validate them against the schemas
 
 That is enough to switch the bracket page off mocked data.
 
@@ -271,7 +285,7 @@ The current implementation scope for the first pass is:
 - Publish artifacts from this repo under `data/web/`
 - Use Kaggle `TeamName` for both `name` and `short_name`
 - Build the team index from all teams appearing in 2026 regular-season data
-- Use `2026_initial` as the first browser feature set
+- Use `stat_explorer_v1` as the canonical browser feature set
 - Use historical similarity matches from `2003` through `2025`
 - Emit top `5` similar teams
 - Keep team pages thin for the first pass
@@ -280,7 +294,7 @@ The current implementation scope for the first pass is:
 
 ### Locked Initial Feature Set
 
-`2026_initial` will contain:
+`stat_explorer_v1` contains:
 
 - `Seed`
 - `WinPct`
@@ -328,7 +342,7 @@ Tasks:
 1. Load 2026 regular-season team data from Kaggle inputs.
 2. Build `TeamSeason` objects from the existing feature-engineering layer.
 3. Compute similarity from the `2003-2025` historical pool.
-4. Lock the `2026_initial` feature set for browser inference.
+4. Lock the `stat_explorer_v1` feature set for browser inference.
 5. Apply feature-specific defaults only where missing values require them.
 
 ### Phase 3. First Artifact Exports
@@ -338,10 +352,11 @@ Export the first website contracts needed to switch the bracket page off mocked 
 Tasks:
 
 1. Export `data/web/index/2026/teams.json`.
-2. Export `data/web/features/2026/base.json`.
-3. Export `data/web/brackets/2026.json` using the placeholder 2025-derived bracket.
-4. Export `data/web/models/manifest.json` with a mock default model.
-5. If low-cost, also export thin team pages under `data/web/ts/`.
+2. Export `data/web/features/2026/stat_explorer_v1.json`.
+3. Export `data/web/stats/2026/stat_explorer_v1.json`.
+4. Export `data/web/brackets/2026.json` using the placeholder 2025-derived bracket.
+5. Export `data/web/models/manifest.json` with a mock default model.
+6. If low-cost, also export thin team pages under `data/web/ts/`.
 
 ### Phase 4. Contract Cleanup
 
@@ -367,7 +382,7 @@ Tasks:
 ### Recommended Execution Order
 
 1. Export `teams.json`
-2. Export `base.json`
+2. Export `stat_explorer_v1.json`
 3. Export `2026.json` bracket definition
 4. Export the mock manifest
 5. Add thin team pages

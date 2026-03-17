@@ -4,35 +4,35 @@
   "name": "SF Austin",
   "record": {
     "overall": [
-      24,
-      4
+      26,
+      5
     ],
     "conf": [
-      19,
-      2
+      21,
+      3
     ],
     "home": [
       13,
       1
     ],
     "road": [
-      11,
-      3
+      13,
+      4
     ],
     "quad_1": [
       0,
-      1
+      2
     ],
     "quad_2": [
       2,
-      1
+      0
     ],
     "quad_3": [
       5,
-      1
+      2
     ],
     "quad_4": [
-      17,
+      19,
       1
     ]
   },
@@ -87,21 +87,21 @@
         "conf": true
       },
       {
-        "opp_id": 1249,
-        "team_score": 88,
-        "opp_score": 81,
-        "team_loc": "A",
-        "date_int": 82,
-        "date_str": "01/24",
-        "conf": true
-      },
-      {
         "opp_id": 1394,
         "team_score": 78,
         "opp_score": 68,
         "team_loc": "A",
         "date_int": 105,
         "date_str": "02/16",
+        "conf": true
+      },
+      {
+        "opp_id": 1394,
+        "team_score": 60,
+        "opp_score": 58,
+        "team_loc": "N",
+        "date_int": 127,
+        "date_str": "03/10",
         "conf": true
       }
     ],
@@ -206,6 +206,15 @@
         "conf": true
       },
       {
+        "opp_id": 1249,
+        "team_score": 88,
+        "opp_score": 81,
+        "team_loc": "A",
+        "date_int": 82,
+        "date_str": "01/24",
+        "conf": true
+      },
+      {
         "opp_id": 1322,
         "team_score": 69,
         "opp_score": 67,
@@ -258,6 +267,15 @@
         "date_int": 117,
         "date_str": "02/28",
         "conf": true
+      },
+      {
+        "opp_id": 1230,
+        "team_score": 76,
+        "opp_score": 68,
+        "team_loc": "A",
+        "date_int": 119,
+        "date_str": "03/02",
+        "conf": true
       }
     ]
   },
@@ -271,9 +289,19 @@
         "date_int": 63,
         "date_str": "01/05",
         "conf": true
+      },
+      {
+        "opp_id": 1270,
+        "team_score": 59,
+        "opp_score": 76,
+        "team_loc": "A",
+        "date_int": 128,
+        "date_str": "03/11",
+        "conf": true
       }
     ],
-    "2": [
+    "2": [],
+    "3": [
       {
         "opp_id": 1201,
         "team_score": 78,
@@ -282,9 +310,7 @@
         "date_int": 15,
         "date_str": "11/18",
         "conf": false
-      }
-    ],
-    "3": [
+      },
       {
         "opp_id": 1426,
         "team_score": 61,
@@ -309,103 +335,103 @@
   },
   "conf": "southland",
   "stat_rankings": {
-    "Points": 156,
-    "Poss": 283,
-    "OE": 77,
-    "DE": 21,
-    "NE": 30,
-    "FGM": 110,
-    "FGA": 69,
-    "FGM3": 103,
-    "FGA3": 139,
-    "FTM": 289,
-    "FTA": 260,
-    "OR": 64,
-    "DR": 131,
-    "Ast": 192,
-    "TO": 322,
-    "Stl": 158,
-    "Blk": 256,
-    "Fouls": 300,
-    "FG%": 181,
-    "FG3%": 78,
-    "EFG%": 159,
-    "FT%": 271,
-    "OppPoints": 350,
-    "OppFGM": 323,
-    "OppFGA": 265,
-    "OppFGM3": 356,
-    "OppFGA3": 326,
-    "OppFTM": 304,
-    "OppFTA": 310,
-    "OppOR": 290,
-    "OppDR": 289,
-    "OppAst": 340,
-    "OppTO": 285,
-    "OppStl": 257,
-    "OppBlk": 81,
-    "OppFouls": 316,
-    "OppFG%": 314,
-    "OppFG3%": 355,
-    "OppEFG%": 341,
-    "OppFT%": 146,
-    "AdjOE": 151,
-    "AdjDE": 142,
-    "AdjNE": 138,
-    "SOS": 351,
-    "SOV": 246
+    "Points": 174,
+    "Poss": 298,
+    "OE": 94,
+    "DE": 24,
+    "NE": 34,
+    "FGM": 124,
+    "FGA": 94,
+    "FGM3": 109,
+    "FGA3": 147,
+    "FTM": 303,
+    "FTA": 273,
+    "OR": 88,
+    "DR": 151,
+    "Ast": 203,
+    "TO": 349,
+    "Stl": 156,
+    "Blk": 125,
+    "Fouls": 322,
+    "FG%": 188,
+    "FG3%": 75,
+    "EFG%": 168,
+    "FT%": 280,
+    "OppPoints": 351,
+    "OppFGM": 310,
+    "OppFGA": 285,
+    "OppFGM3": 348,
+    "OppFGA3": 325,
+    "OppFTM": 326,
+    "OppFTA": 326,
+    "OppOR": 309,
+    "OppDR": 280,
+    "OppAst": 336,
+    "OppTO": 173,
+    "OppStl": 338,
+    "OppBlk": 94,
+    "OppFouls": 335,
+    "OppFG%": 288,
+    "OppFG3%": 340,
+    "OppEFG%": 323,
+    "OppFT%": 191,
+    "AdjOE": 180,
+    "AdjDE": 148,
+    "AdjNE": 160,
+    "SOS": 340,
+    "SOV": 257
   },
   "stats": {
-    "Points": 75.679,
-    "Poss": 66.852,
-    "OE": 113.503,
-    "DE": 98.705,
-    "NE": 14.798,
-    "FGM": 27.107,
-    "FGA": 60.679,
-    "FGM3": 8.679,
-    "FGA3": 24.143,
-    "FTM": 12.786,
-    "FTA": 18.643,
-    "OR": 10.25,
-    "DR": 22.964,
-    "Ast": 13.321,
-    "TO": 8.679,
-    "Stl": 5.929,
-    "Blk": 4.571,
-    "Fouls": 16.107,
-    "FG%": 0.448,
+    "Points": 74.645,
+    "Poss": 67.376,
+    "OE": 110.822,
+    "DE": 98.016,
+    "NE": 12.806,
+    "FGM": 26.774,
+    "FGA": 60.097,
+    "FGM3": 8.548,
+    "FGA3": 23.774,
+    "FTM": 12.548,
+    "FTA": 18.258,
+    "OR": 9.935,
+    "DR": 22.742,
+    "Ast": 13.097,
+    "TO": 8.742,
+    "Stl": 6.677,
+    "Blk": 3.581,
+    "Fouls": 15.742,
+    "FG%": 0.446,
     "FG3%": 0.357,
-    "EFG%": 0.52,
-    "FT%": 0.696,
-    "OppPoints": 65.821,
-    "OppFGM": 23.643,
-    "OppFGA": 56.464,
-    "OppFGM3": 5.786,
-    "OppFGA3": 19.643,
-    "OppFTM": 12.75,
-    "OppFTA": 17.5,
-    "OppOR": 8.036,
-    "OppDR": 21.107,
-    "OppAst": 11.071,
-    "OppTO": 9.0,
-    "OppStl": 5.357,
-    "OppBlk": 5.643,
-    "OppFouls": 15.857,
-    "OppFG%": 0.421,
-    "OppFG3%": 0.293,
-    "OppEFG%": 0.472,
-    "OppFT%": 0.728,
-    "AdjOE": 110.247,
-    "AdjDE": 106.373,
-    "AdjNE": 3.874
+    "EFG%": 0.518,
+    "FT%": 0.693,
+    "OppPoints": 65.968,
+    "OppFGM": 23.903,
+    "OppFGA": 56.097,
+    "OppFGM3": 5.968,
+    "OppFGA3": 19.613,
+    "OppFTM": 12.194,
+    "OppFTA": 16.806,
+    "OppOR": 7.839,
+    "OppDR": 21.419,
+    "OppAst": 11.323,
+    "OppTO": 10.935,
+    "OppStl": 5.258,
+    "OppBlk": 3.677,
+    "OppFouls": 15.484,
+    "OppFG%": 0.428,
+    "OppFG3%": 0.305,
+    "OppEFG%": 0.482,
+    "OppFT%": 0.72,
+    "AdjOE": 106.639,
+    "AdjDE": 105.703,
+    "AdjNE": 0.936
   },
   "coach": "matt_braeuer",
-  "win_pct": 0.857,
-  "sos": 0.431,
-  "sov": 0.382,
+  "win_pct": 0.839,
+  "sos": 0.44,
+  "sov": 0.383,
   "ordinal_data": {
-    "NET": 81
+    "NET": 86
   },
   "tournament": null,
   "similar_teams": []

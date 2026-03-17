@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import json
 import math
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -26,6 +26,7 @@ from mm_analytics.utilities import NpEncoder
 
 INITIAL_FEATURE_SET_NAME = "2026_initial"
 HISTORICAL_FEATURE_SET_NAME = "historical_v1"
+STAT_EXPLORER_FEATURE_SET_NAME = "stat_explorer_v1"
 PLACEHOLDER_BRACKET_SOURCE_SEASON = 2025
 REGION_DETAILS = {
     "W": {"friendly_name": "East", "abbrev": "East"},
@@ -61,6 +62,59 @@ HISTORICAL_FEATURE_COLUMNS = [
     "FG3%_mean",
     "FT%_mean",
 ]
+STAT_EXPLORER_FEATURE_COLUMNS = [
+    "Q1_WinPct",
+    "Q2_WinPct",
+    "Q3_WinPct",
+    "Q4_WinPct",
+    "SOS",
+    "SOV",
+    "Poss_mean",
+    "Fouls_mean",
+    "AdjOE_mean",
+    "AdjNE_mean",
+    "EFG%_mean",
+    "FG3%_mean",
+    "FT%_mean",
+    "FTA_mean",
+    "TO_mean",
+    "Ast_mean",
+    "OR_mean",
+    "FGA3_mean",
+    "AdjDE_mean",
+    "Stl_mean",
+    "Blk_mean",
+    "OppTO_mean",
+    "DR_mean",
+    "OppFGA3_mean",
+]
+STAT_EXPLORER_FEATURE_GROUPS = {
+    "Resume": ["Q1_WinPct", "Q2_WinPct", "Q3_WinPct", "Q4_WinPct", "SOS", "SOV"],
+    "Tempo": ["Poss_mean", "Fouls_mean"],
+    "Offense": [
+        "AdjOE_mean",
+        "AdjNE_mean",
+        "EFG%_mean",
+        "FG3%_mean",
+        "FT%_mean",
+        "FTA_mean",
+        "TO_mean",
+        "Ast_mean",
+        "OR_mean",
+        "FGA3_mean",
+    ],
+    "Defense": ["AdjDE_mean", "Stl_mean", "Blk_mean", "OppTO_mean", "DR_mean", "OppFGA3_mean"],
+}
+STAT_EXPLORER_HISTORICAL_RANGE = (2003, 2025)
+STAT_EXPLORER_ROUND_BUCKETS = [
+    {"key": "round64", "label": "Round of 64", "exit_round_labels": ["Play In", "First Round"]},
+    {"key": "round32", "label": "Round 32", "exit_round_labels": ["Second Round"]},
+    {"key": "sweet16", "label": "Sweet 16", "exit_round_nums": [3]},
+    {"key": "elite8", "label": "Elite 8", "exit_round_nums": [4]},
+    {"key": "final4", "label": "Final Four", "exit_round_nums": [5]},
+    {"key": "championship", "label": "Championship", "exit_round_nums": [6]},
+    {"key": "champion", "label": "Champions", "exit_round_nums": [7]},
+]
 
 
 @dataclass(frozen=True)
@@ -68,6 +122,7 @@ class ExportPaths:
     output_root: Path
     team_index_path: Path
     feature_store_path: Path
+    stat_explorer_path: Path
     bracket_path: Path
     model_manifest_path: Path
     team_pages_dir: Path
@@ -87,6 +142,9 @@ class SmokeCheckResults:
     bracket_slot_count: int
     seeded_teams_in_index: int
     seeded_teams_in_feature_store: int
+    stat_explorer_current_field_count: int
+    stat_explorer_historical_feature_count: int
+    stat_explorer_historical_row_count: int
 
 
 @dataclass(frozen=True)
@@ -103,12 +161,17 @@ class HistoricalExportPaths:
     training_manifest_path: Path
 
 
-def build_export_paths(season: int, output_root: str = "data/web") -> ExportPaths:
+def build_export_paths(
+    season: int,
+    feature_set_name: str = STAT_EXPLORER_FEATURE_SET_NAME,
+    output_root: str = "data/web",
+) -> ExportPaths:
     root = Path(output_root)
     return ExportPaths(
         output_root=root,
         team_index_path=root / "index" / str(season) / "teams.json",
-        feature_store_path=root / "features" / str(season) / "base.json",
+        feature_store_path=build_feature_store_path(root, season, feature_set_name),
+        stat_explorer_path=build_stat_explorer_path(root, season, feature_set_name),
         bracket_path=root / "brackets" / f"{season}.json",
         model_manifest_path=root / "models" / "manifest.json",
         team_pages_dir=root / "ts",
@@ -126,6 +189,7 @@ def build_historical_export_paths(output_root: str = "data/web") -> HistoricalEx
 def ensure_export_directories(paths: ExportPaths) -> None:
     paths.team_index_path.parent.mkdir(parents=True, exist_ok=True)
     paths.feature_store_path.parent.mkdir(parents=True, exist_ok=True)
+    paths.stat_explorer_path.parent.mkdir(parents=True, exist_ok=True)
     paths.bracket_path.parent.mkdir(parents=True, exist_ok=True)
     paths.model_manifest_path.parent.mkdir(parents=True, exist_ok=True)
     paths.team_pages_dir.mkdir(parents=True, exist_ok=True)
@@ -236,6 +300,256 @@ def get_feature_value(
 def build_feature_store_path(output_root: Path, season: int, feature_set_name: str) -> Path:
     file_name = "base.json" if feature_set_name == INITIAL_FEATURE_SET_NAME else f"{feature_set_name}.json"
     return output_root / "features" / str(season) / file_name
+
+
+def build_stat_explorer_path(output_root: Path, season: int, feature_set_name: str) -> Path:
+    return output_root / "stats" / str(season) / f"{feature_set_name}.json"
+
+
+def get_friendly_region_label(region_key: str) -> str:
+    region_details = REGION_DETAILS.get(region_key)
+    return region_details["friendly_name"] if region_details is not None else region_key
+
+
+def get_round_bucket_key(exit_round: Optional[str]) -> Optional[str]:
+    if exit_round is None:
+        return None
+
+    for bucket in STAT_EXPLORER_ROUND_BUCKETS:
+        exit_round_labels = bucket.get("exit_round_labels")
+        if exit_round_labels and exit_round in exit_round_labels:
+            return bucket["key"]
+
+    exit_round_num_map = {
+        "Play In": 1,
+        "First Round": 1,
+        "Second Round": 2,
+        "Sweet Sixteen": 3,
+        "Elite Eight": 4,
+        "Final Four": 5,
+        "Championship": 6,
+        "Champion": 7,
+    }
+    exit_round_num = exit_round_num_map.get(exit_round)
+    if exit_round_num is None:
+        return None
+
+    for bucket in STAT_EXPLORER_ROUND_BUCKETS:
+        if exit_round_num in bucket.get("exit_round_nums", []):
+            return bucket["key"]
+    return None
+
+
+def build_stat_explorer_current_field(
+    season: int,
+    team_seasons: Dict[int, TeamSeason],
+    seed_by_team_id: Dict[int, dict],
+) -> dict:
+    current_field_teams = []
+
+    for team_id, team_season in sorted(team_seasons.items(), key=lambda item: (item[1].tourney_seed or 99, item[1].name)):
+        seed_info = seed_by_team_id.get(team_id)
+        if seed_info is None:
+            continue
+
+        stats = {}
+        for feature_name in STAT_EXPLORER_FEATURE_COLUMNS:
+            value = get_feature_value(team_season, feature_name, seed_by_team_id)
+            if is_missing_value(value):
+                continue
+            stats[feature_name] = round(float(value), 6)
+
+        current_field_teams.append(
+            {
+                "team_id": team_id,
+                "name": team_season.name,
+                "short_name": team_season.name,
+                "seed": int(seed_info["seed"]),
+                "region": get_friendly_region_label(seed_info["region"]),
+                "region_key": seed_info["region"],
+                "slot": seed_info["slot"],
+                "tournament_team": True,
+                "stats": stats,
+            }
+        )
+
+    return {"teams": current_field_teams}
+
+
+def build_stat_explorer_historical_distributions(
+    start_season: int,
+    end_season: int,
+) -> dict:
+    historical_distributions = {
+        feature_name: [] for feature_name in STAT_EXPLORER_FEATURE_COLUMNS
+    }
+
+    for historical_season in range(start_season, end_season + 1):
+        team_seasons, _ = load_team_seasons_for_export(historical_season)
+        seed_by_team_id, _, _ = build_placeholder_seed_maps(historical_season)
+
+        for team_id, team_season in team_seasons.items():
+            if team_season.tourney_seed is None or team_season.tourney_exit_round is None:
+                continue
+
+            bucket_key = get_round_bucket_key(team_season.tourney_exit_round)
+            if bucket_key is None:
+                continue
+
+            for feature_name in STAT_EXPLORER_FEATURE_COLUMNS:
+                value = get_feature_value(team_season, feature_name, seed_by_team_id)
+                if is_missing_value(value):
+                    continue
+                historical_distributions[feature_name].append(
+                    {
+                        "season": historical_season,
+                        "bucket": bucket_key,
+                        "value": round(float(value), 6),
+                        "team_id": team_id,
+                        "team_name": team_season.name,
+                        "seed": int(team_season.tourney_seed),
+                        "exit_round": team_season.tourney_exit_round,
+                    }
+                )
+
+    return historical_distributions
+
+
+def build_stat_explorer_summary(historical_distributions: dict) -> dict:
+    historical_summary = {}
+
+    for feature_name, rows in historical_distributions.items():
+        bucket_values: Dict[str, List[float]] = {}
+        for row in rows:
+            bucket_values.setdefault(row["bucket"], []).append(float(row["value"]))
+
+        feature_summary = {}
+        for bucket_key, values in bucket_values.items():
+            if not values:
+                continue
+            value_array = np.array(sorted(values), dtype=float)
+            feature_summary[bucket_key] = {
+                "count": int(len(value_array)),
+                "min": round(float(np.min(value_array)), 6),
+                "p10": round(float(np.percentile(value_array, 10)), 6),
+                "q1": round(float(np.percentile(value_array, 25)), 6),
+                "median": round(float(np.percentile(value_array, 50)), 6),
+                "q3": round(float(np.percentile(value_array, 75)), 6),
+                "p90": round(float(np.percentile(value_array, 90)), 6),
+                "max": round(float(np.max(value_array)), 6),
+                "mean": round(float(np.mean(value_array)), 6),
+                "std": round(float(np.std(value_array)), 6),
+            }
+
+        historical_summary[feature_name] = feature_summary
+
+    return historical_summary
+
+
+def run_stat_explorer_smoke_checks(stat_explorer_payload: dict, team_index_payload: dict) -> dict:
+    round_bucket_keys = {bucket["key"] for bucket in stat_explorer_payload["round_buckets"]}
+    feature_order = set(stat_explorer_payload["feature_order"])
+    valid_region_keys = {region["key"] for region in stat_explorer_payload["filters"]["regions"]}
+    valid_region_labels = {region["label"] for region in stat_explorer_payload["filters"]["regions"]}
+    tournament_index_entries = {
+        entry["team_id"]: entry for entry in team_index_payload["teams"] if entry["tournament_team"]
+    }
+
+    current_field_teams = stat_explorer_payload["current_field"]["teams"]
+    current_field_team_ids = set()
+    for team_entry in current_field_teams:
+        team_id = team_entry["team_id"]
+        current_field_team_ids.add(team_id)
+        if not team_entry["tournament_team"]:
+            raise ValueError(f"Stat explorer current field contains non-tournament team: {team_id}")
+        if team_id not in tournament_index_entries:
+            raise ValueError(f"Stat explorer current field references unknown tournament team: {team_id}")
+        if team_entry["region"] not in valid_region_labels:
+            raise ValueError(
+                f"Stat explorer current field has invalid friendly region: team_id={team_id}, region={team_entry['region']}"
+            )
+        if team_entry.get("region_key") not in valid_region_keys:
+            raise ValueError(
+                f"Stat explorer current field has invalid region key: team_id={team_id}, region_key={team_entry.get('region_key')}"
+            )
+
+    expected_tournament_team_ids = set(tournament_index_entries.keys())
+    if current_field_team_ids != expected_tournament_team_ids:
+        raise ValueError(
+            "Stat explorer current field does not match tournament team index: "
+            f"missing={sorted(expected_tournament_team_ids - current_field_team_ids)[:5]}, "
+            f"extra={sorted(current_field_team_ids - expected_tournament_team_ids)[:5]}"
+        )
+
+    historical_row_count = 0
+    for feature_name, rows in stat_explorer_payload["historical_distributions"].items():
+        if feature_name not in feature_order:
+            raise ValueError(f"Stat explorer historical distributions contain unknown feature: {feature_name}")
+        for row in rows:
+            historical_row_count += 1
+            if row["bucket"] not in round_bucket_keys:
+                raise ValueError(
+                    f"Stat explorer historical row has unknown bucket: feature={feature_name}, bucket={row['bucket']}"
+                )
+
+    for feature_name, bucket_map in stat_explorer_payload["historical_summary"].items():
+        if feature_name not in feature_order:
+            raise ValueError(f"Stat explorer historical summary contains unknown feature: {feature_name}")
+        for bucket_key in bucket_map.keys():
+            if bucket_key not in round_bucket_keys:
+                raise ValueError(
+                    f"Stat explorer historical summary has unknown bucket: feature={feature_name}, bucket={bucket_key}"
+                )
+
+    for team_id, feature_map in stat_explorer_payload.get("default_percentiles", {}).items():
+        if int(team_id) not in expected_tournament_team_ids:
+            raise ValueError(f"Stat explorer default percentiles reference unknown tournament team: {team_id}")
+        for feature_name, bucket_map in feature_map.items():
+            if feature_name not in feature_order:
+                raise ValueError(f"Stat explorer default percentiles contain unknown feature: {feature_name}")
+            for bucket_key in bucket_map.keys():
+                if bucket_key not in round_bucket_keys:
+                    raise ValueError(
+                        f"Stat explorer default percentiles have unknown bucket: team_id={team_id}, feature={feature_name}, bucket={bucket_key}"
+                    )
+
+    return {
+        "current_field_count": len(current_field_teams),
+        "historical_feature_count": len(stat_explorer_payload["historical_distributions"]),
+        "historical_row_count": historical_row_count,
+    }
+
+
+def build_stat_explorer_payload(
+    season: int,
+    feature_set_name: str,
+    team_seasons: Dict[int, TeamSeason],
+    seed_by_team_id: Dict[int, dict],
+) -> dict:
+    start_season, end_season = STAT_EXPLORER_HISTORICAL_RANGE
+    historical_distributions = build_stat_explorer_historical_distributions(start_season, end_season)
+    historical_summary = build_stat_explorer_summary(historical_distributions)
+    return {
+        "season": season,
+        "feature_set": feature_set_name,
+        "historical_range": [start_season, end_season],
+        "feature_groups": STAT_EXPLORER_FEATURE_GROUPS,
+        "feature_order": STAT_EXPLORER_FEATURE_COLUMNS,
+        "round_buckets": STAT_EXPLORER_ROUND_BUCKETS,
+        "filters": {
+            "default_scope": "field",
+            "regions": [
+                {"key": region_key, "label": get_friendly_region_label(region_key)}
+                for region_key in ["W", "X", "Y", "Z"]
+            ],
+            "historical_range_default": [start_season, end_season],
+            "historical_range_allowed": [start_season, end_season],
+        },
+        "current_field": build_stat_explorer_current_field(season, team_seasons, seed_by_team_id),
+        "historical_distributions": historical_distributions,
+        "historical_summary": historical_summary,
+        "default_percentiles": {},
+    }
 
 
 def build_training_file_path(output_root: Path, season: int, feature_set_name: str) -> Path:
@@ -641,6 +955,7 @@ def run_smoke_checks(
     paths: ExportPaths,
     team_index_payload: dict,
     feature_store_payload: dict,
+    stat_explorer_payload: dict,
     bracket_payload: dict,
     manifest_payload: dict,
 ) -> SmokeCheckResults:
@@ -695,17 +1010,22 @@ def run_smoke_checks(
     seeded_teams_in_index = {
         entry["team_id"] for entry in team_index_payload["teams"] if entry["seed"] is not None
     }
-    seeded_teams_in_feature_store = {
-        int(team_id)
-        for team_id, team_values in feature_store_payload["teams"].items()
-        if team_values["Seed"] != 17.0
-    }
-    if seeded_teams_in_index != seeded_teams_in_feature_store:
-        raise ValueError(
-            "Seeded team mismatch between index and feature store: "
-            f"index_only={sorted(seeded_teams_in_index - seeded_teams_in_feature_store)[:5]}, "
-            f"feature_only={sorted(seeded_teams_in_feature_store - seeded_teams_in_index)[:5]}"
-        )
+    if "Seed" in feature_store_payload["feature_order"]:
+        seeded_teams_in_feature_store = {
+            int(team_id)
+            for team_id, team_values in feature_store_payload["teams"].items()
+            if team_values["Seed"] != 17.0
+        }
+        if seeded_teams_in_index != seeded_teams_in_feature_store:
+            raise ValueError(
+                "Seeded team mismatch between index and feature store: "
+                f"index_only={sorted(seeded_teams_in_index - seeded_teams_in_feature_store)[:5]}, "
+                f"feature_only={sorted(seeded_teams_in_feature_store - seeded_teams_in_index)[:5]}"
+            )
+    else:
+        seeded_teams_in_feature_store = seeded_teams_in_index
+
+    stat_explorer_checks = run_stat_explorer_smoke_checks(stat_explorer_payload, team_index_payload)
 
     return SmokeCheckResults(
         team_pages_written=len(team_index_payload["teams"]),
@@ -714,15 +1034,18 @@ def run_smoke_checks(
         bracket_slot_count=len(bracket_payload["slots"]),
         seeded_teams_in_index=len(seeded_teams_in_index),
         seeded_teams_in_feature_store=len(seeded_teams_in_feature_store),
+        stat_explorer_current_field_count=stat_explorer_checks["current_field_count"],
+        stat_explorer_historical_feature_count=stat_explorer_checks["historical_feature_count"],
+        stat_explorer_historical_row_count=stat_explorer_checks["historical_row_count"],
     )
 
 
 def bootstrap_web_export(
     season: int = 2026,
     output_root: str = "data/web",
-    feature_set_name: str = INITIAL_FEATURE_SET_NAME,
+    feature_set_name: str = STAT_EXPLORER_FEATURE_SET_NAME,
 ) -> dict:
-    paths = build_export_paths(season, output_root)
+    paths = build_export_paths(season, feature_set_name=feature_set_name, output_root=output_root)
     ensure_export_directories(paths)
     team_seasons, _ = load_team_seasons_for_export(season)
     seed_by_team_id, seed_by_label, source_season = build_placeholder_seed_maps(season)
@@ -732,20 +1055,28 @@ def bootstrap_web_export(
         season,
         team_seasons,
         feature_set_name,
-        INITIAL_FEATURE_COLUMNS,
+        STAT_EXPLORER_FEATURE_COLUMNS,
         seed_by_team_id,
+    )
+    stat_explorer_payload = build_stat_explorer_payload(
+        season=season,
+        feature_set_name=feature_set_name,
+        team_seasons=team_seasons,
+        seed_by_team_id=seed_by_team_id,
     )
     bracket_payload = build_bracket_definition(season, seed_by_label, source_season)
     manifest_payload = load_model_manifest(paths.model_manifest_path)
 
     write_json(paths.team_index_path, team_index_payload)
     write_json(paths.feature_store_path, feature_store_payload)
+    write_json(paths.stat_explorer_path, stat_explorer_payload)
     write_json(paths.bracket_path, bracket_payload)
     team_pages_written = write_team_pages(season, paths, team_seasons, seed_by_team_id)
     smoke_checks = run_smoke_checks(
         paths,
         team_index_payload,
         feature_store_payload,
+        stat_explorer_payload,
         bracket_payload,
         manifest_payload,
     )
@@ -753,8 +1084,13 @@ def bootstrap_web_export(
     return {
         "season": season,
         "feature_set": feature_set_name,
-        "feature_columns": INITIAL_FEATURE_COLUMNS,
+        "feature_columns": STAT_EXPLORER_FEATURE_COLUMNS,
         "team_count": len(team_seasons),
+        "stat_explorer": {
+            "current_field_team_count": smoke_checks.stat_explorer_current_field_count,
+            "historical_feature_count": smoke_checks.stat_explorer_historical_feature_count,
+            "historical_row_count": smoke_checks.stat_explorer_historical_row_count,
+        },
         "placeholder_bracket_source_season": source_season,
         "feature_defaults": {
             "values": feature_defaults.values,
@@ -767,10 +1103,14 @@ def bootstrap_web_export(
             "bracket_slot_count": smoke_checks.bracket_slot_count,
             "seeded_teams_in_index": smoke_checks.seeded_teams_in_index,
             "seeded_teams_in_feature_store": smoke_checks.seeded_teams_in_feature_store,
+            "stat_explorer_current_field_count": smoke_checks.stat_explorer_current_field_count,
+            "stat_explorer_historical_feature_count": smoke_checks.stat_explorer_historical_feature_count,
+            "stat_explorer_historical_row_count": smoke_checks.stat_explorer_historical_row_count,
         },
         "artifacts": {
             "team_index": str(paths.team_index_path),
             "feature_store": str(paths.feature_store_path),
+            "stat_explorer": str(paths.stat_explorer_path),
             "bracket": str(paths.bracket_path),
             "model_manifest": str(paths.model_manifest_path),
             "team_pages_dir": str(paths.team_pages_dir),
@@ -782,7 +1122,7 @@ def bootstrap_historical_training_export(
     start_season: int = 2003,
     end_season: int = 2025,
     output_root: str = "data/web",
-    feature_set_name: str = HISTORICAL_FEATURE_SET_NAME,
+    feature_set_name: str = STAT_EXPLORER_FEATURE_SET_NAME,
 ) -> dict:
     if start_season > end_season:
         raise ValueError(
@@ -807,7 +1147,7 @@ def bootstrap_historical_training_export(
             season=season,
             team_seasons=team_seasons,
             feature_set_name=feature_set_name,
-            feature_columns=HISTORICAL_FEATURE_COLUMNS,
+            feature_columns=STAT_EXPLORER_FEATURE_COLUMNS,
             seed_by_team_id=seed_by_team_id,
         )
         training_payload = build_historical_training_payload(
@@ -837,7 +1177,7 @@ def bootstrap_historical_training_export(
 
     manifest_payload = build_training_manifest(
         feature_set_name=feature_set_name,
-        feature_columns=HISTORICAL_FEATURE_COLUMNS,
+        feature_columns=STAT_EXPLORER_FEATURE_COLUMNS,
         seasons=seasons,
         output_root=paths.output_root,
     )

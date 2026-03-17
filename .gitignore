@@ -1,6 +1,8 @@
 Models/*
 TeamSeasons.csv
+TeamSeasons_2026.csv
 UnusedData/
 __pycache__/
 .env
 data/kaggle/
+data/kaggle-v2/

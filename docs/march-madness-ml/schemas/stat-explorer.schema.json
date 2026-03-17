@@ -1,0 +1,426 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://andrewgrowney.com/schemas/march-madness-ml/stat-explorer.schema.json",
+  "title": "March Madness Stat Explorer Payload",
+  "description": "Browser-facing payload used by the Stat Explorer view to compare 2026 tournament teams against historical finish distributions for a selected feature.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "season",
+    "feature_set",
+    "historical_range",
+    "feature_groups",
+    "feature_order",
+    "round_buckets",
+    "filters",
+    "current_field",
+    "historical_distributions",
+    "historical_summary"
+  ],
+  "properties": {
+    "season": {
+      "type": "integer",
+      "const": 2026,
+      "description": "Explorer season shown on the left-side team list. V1 is scoped to the 2026 tournament field."
+    },
+    "feature_set": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Named browser feature set used by the explorer and browser training, for example stat_explorer_v1."
+    },
+    "historical_range": {
+      "$ref": "#/$defs/yearRange",
+      "description": "Default historical year range loaded into the explorer before the user changes the season filter."
+    },
+    "feature_groups": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "Display groupings for the explorer feature selector.",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/featureKeyArray"
+      }
+    },
+    "feature_order": {
+      "$ref": "#/$defs/featureKeyArray",
+      "description": "Canonical feature order shared with browser training and any runtime vector construction."
+    },
+    "round_buckets": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Ordered finish buckets used as the historical columns in the explorer.",
+      "items": {
+        "$ref": "#/$defs/roundBucket"
+      }
+    },
+    "filters": {
+      "$ref": "#/$defs/filterConfig"
+    },
+    "current_field": {
+      "$ref": "#/$defs/currentField"
+    },
+    "historical_distributions": {
+      "type": "object",
+      "description": "Raw historical rows keyed by feature so the browser can recompute quartiles and percentiles after year-range filtering.",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/historicalValue"
+        }
+      }
+    },
+    "historical_summary": {
+      "type": "object",
+      "description": "Precomputed summary stats for the default historical range, keyed by feature and then round bucket.",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string",
+          "minLength": 1
+        },
+        "additionalProperties": {
+          "$ref": "#/$defs/distributionSummary"
+        }
+      }
+    },
+    "default_percentiles": {
+      "type": "object",
+      "description": "Optional render optimization containing precomputed percentiles for 2026 tournament teams against the default historical range. These values are not authoritative after a user changes the historical season filter.",
+      "propertyNames": {
+        "pattern": "^[0-9]+$"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "propertyNames": {
+          "type": "string",
+          "minLength": 1
+        },
+        "additionalProperties": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "minLength": 1
+          },
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "yearRange": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "prefixItems": [
+        {
+          "type": "integer",
+          "minimum": 1985
+        },
+        {
+          "type": "integer",
+          "minimum": 1985
+        }
+      ],
+      "items": false
+    },
+    "featureKeyArray": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "friendlyRegion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "label"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable internal region key, for example W, X, Y, or Z."
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Friendly region label shown directly in the UI, for example East or Midwest."
+        }
+      }
+    },
+    "roundBucket": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "label"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Stable bucket identifier used by the explorer payload and frontend state."
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display label for this historical finish bucket."
+        },
+        "exit_round_labels": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Optional exact ExitRound labels collapsed into this bucket. Preferred for buckets such as Round of 64 where label semantics matter more than numeric ordering."
+        },
+        "exit_round_nums": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "Optional ExitRoundNum values collapsed into this bucket."
+        }
+      },
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "required": [
+                "exit_round_labels"
+              ]
+            },
+            {
+              "required": [
+                "exit_round_nums"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "filterConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default_scope",
+        "regions"
+      ],
+      "properties": {
+        "default_scope": {
+          "type": "string",
+          "const": "field",
+          "description": "Default 2026 filter scope when the explorer first loads."
+        },
+        "regions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/friendlyRegion"
+          },
+          "description": "Friendly region options available for 2026 tournament-team filtering."
+        },
+        "historical_range_default": {
+          "$ref": "#/$defs/yearRange",
+          "description": "Optional duplicate of the default historical range for convenience in the UI filter model."
+        },
+        "historical_range_allowed": {
+          "$ref": "#/$defs/yearRange",
+          "description": "Optional minimum and maximum historical seasons the user may select in the UI."
+        }
+      }
+    },
+    "currentField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "teams"
+      ],
+      "properties": {
+        "teams": {
+          "type": "array",
+          "minItems": 1,
+          "description": "2026 tournament teams only. These are the rows or dots shown on the left side of the explorer.",
+          "items": {
+            "$ref": "#/$defs/currentTeam"
+          }
+        }
+      }
+    },
+    "currentTeam": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "team_id",
+        "name",
+        "short_name",
+        "seed",
+        "region",
+        "slot",
+        "tournament_team",
+        "stats"
+      ],
+      "properties": {
+        "team_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "short_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16
+        },
+        "region": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Friendly region label for direct UI use, for example East or West."
+        },
+        "region_key": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional stable region key if the frontend still needs to reconcile this payload with bracket or index data."
+        },
+        "slot": {
+          "type": ["string", "null"],
+          "minLength": 1
+        },
+        "tournament_team": {
+          "type": "boolean",
+          "const": true
+        },
+        "stats": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "type": "string",
+            "minLength": 1
+          },
+          "additionalProperties": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "historicalValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "season",
+        "bucket",
+        "value"
+      ],
+      "properties": {
+        "season": {
+          "type": "integer",
+          "minimum": 1985,
+          "description": "Historical season contributing this row."
+        },
+        "bucket": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Round bucket key matching one of the top-level round_buckets entries."
+        },
+        "value": {
+          "type": "number",
+          "description": "Feature value for one historical team assigned to this bucket."
+        },
+        "team_id": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Optional TeamID for hover detail or deeper drilldowns."
+        },
+        "team_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional historical team display name for richer hover cards or debugging."
+        },
+        "seed": {
+          "type": ["integer", "null"],
+          "minimum": 1,
+          "maximum": 16,
+          "description": "Optional historical seed for richer filtering or hover context."
+        },
+        "exit_round": {
+          "type": ["string", "null"],
+          "description": "Optional original exit-round label before bucketing."
+        }
+      }
+    },
+    "distributionSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "min",
+        "q1",
+        "median",
+        "q3",
+        "max"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "min": {
+          "type": "number"
+        },
+        "p10": {
+          "type": "number"
+        },
+        "q1": {
+          "type": "number"
+        },
+        "median": {
+          "type": "number"
+        },
+        "q3": {
+          "type": "number"
+        },
+        "p90": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "mean": {
+          "type": "number"
+        },
+        "std": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

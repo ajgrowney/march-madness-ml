@@ -5,11 +5,11 @@
   "record": {
     "overall": [
       14,
-      14
+      16
     ],
     "conf": [
       10,
-      7
+      9
     ],
     "home": [
       9,
@@ -17,7 +17,7 @@
     ],
     "road": [
       5,
-      9
+      11
     ],
     "quad_1": [
       0,
@@ -25,15 +25,15 @@
     ],
     "quad_2": [
       0,
-      4
+      5
     ],
     "quad_3": [
       4,
-      6
+      5
     ],
     "quad_4": [
       10,
-      3
+      5
     ]
   },
   "quad_wins": {
@@ -218,18 +218,18 @@
         "date_int": 44,
         "date_str": "12/17",
         "conf": false
+      },
+      {
+        "opp_id": 1286,
+        "team_score": 88,
+        "opp_score": 91,
+        "team_loc": "A",
+        "date_int": 82,
+        "date_str": "01/24",
+        "conf": true
       }
     ],
     "3": [
-      {
-        "opp_id": 1469,
-        "team_score": 80,
-        "opp_score": 82,
-        "team_loc": "H",
-        "date_int": 47,
-        "date_str": "12/20",
-        "conf": false
-      },
       {
         "opp_id": 1340,
         "team_score": 90,
@@ -249,15 +249,6 @@
         "conf": true
       },
       {
-        "opp_id": 1286,
-        "team_score": 88,
-        "opp_score": 91,
-        "team_loc": "A",
-        "date_int": 82,
-        "date_str": "01/24",
-        "conf": true
-      },
-      {
         "opp_id": 1294,
         "team_score": 74,
         "opp_score": 88,
@@ -274,6 +265,15 @@
         "date_int": 103,
         "date_str": "02/14",
         "conf": true
+      },
+      {
+        "opp_id": 1340,
+        "team_score": 60,
+        "opp_score": 84,
+        "team_loc": "A",
+        "date_int": 119,
+        "date_str": "03/02",
+        "conf": true
       }
     ],
     "4": [
@@ -284,6 +284,15 @@
         "team_loc": "H",
         "date_int": 19,
         "date_str": "11/22",
+        "conf": false
+      },
+      {
+        "opp_id": 1469,
+        "team_score": 80,
+        "opp_score": 82,
+        "team_loc": "H",
+        "date_int": 47,
+        "date_str": "12/20",
         "conf": false
       },
       {
@@ -303,108 +312,117 @@
         "date_int": 91,
         "date_str": "02/02",
         "conf": true
+      },
+      {
+        "opp_id": 1186,
+        "team_score": 79,
+        "opp_score": 84,
+        "team_loc": "N",
+        "date_int": 126,
+        "date_str": "03/09",
+        "conf": true
       }
     ]
   },
   "conf": "big_sky",
   "stat_rankings": {
-    "Points": 75,
-    "Poss": 66,
-    "OE": 97,
-    "DE": 235,
-    "NE": 159,
-    "FGM": 80,
+    "Points": 85,
+    "Poss": 84,
+    "OE": 111,
+    "DE": 262,
+    "NE": 180,
+    "FGM": 86,
     "FGA": 111,
-    "FGM3": 267,
-    "FGA3": 304,
-    "FTM": 50,
-    "FTA": 46,
-    "OR": 104,
-    "DR": 111,
-    "Ast": 217,
-    "TO": 134,
-    "Stl": 179,
+    "FGM3": 269,
+    "FGA3": 297,
+    "FTM": 53,
+    "FTA": 59,
+    "OR": 125,
+    "DR": 125,
+    "Ast": 241,
+    "TO": 194,
+    "Stl": 133,
     "Blk": 359,
-    "Fouls": 102,
-    "FG%": 98,
-    "FG3%": 119,
-    "EFG%": 149,
-    "FT%": 196,
-    "OppPoints": 75,
-    "OppFGM": 59,
-    "OppFGA": 166,
-    "OppFGM3": 217,
-    "OppFGA3": 203,
-    "OppFTM": 131,
-    "OppFTA": 137,
-    "OppOR": 303,
-    "OppDR": 209,
-    "OppAst": 181,
-    "OppTO": 131,
-    "OppStl": 98,
-    "OppBlk": 82,
-    "OppFouls": 68,
-    "OppFG%": 44,
-    "OppFG3%": 248,
-    "OppEFG%": 62,
-    "OppFT%": 119,
-    "AdjOE": 144,
-    "AdjDE": 249,
-    "AdjNE": 194,
-    "SOS": 317,
-    "SOV": 328
+    "Fouls": 92,
+    "FG%": 102,
+    "FG3%": 162,
+    "EFG%": 164,
+    "FT%": 190,
+    "OppPoints": 67,
+    "OppFGM": 54,
+    "OppFGA": 170,
+    "OppFGM3": 209,
+    "OppFGA3": 196,
+    "OppFTM": 138,
+    "OppFTA": 145,
+    "OppOR": 305,
+    "OppDR": 203,
+    "OppAst": 137,
+    "OppTO": 139,
+    "OppStl": 220,
+    "OppBlk": 16,
+    "OppFouls": 77,
+    "OppFG%": 31,
+    "OppFG3%": 232,
+    "OppEFG%": 43,
+    "OppFT%": 139,
+    "AdjOE": 158,
+    "AdjDE": 270,
+    "AdjNE": 217,
+    "SOS": 303,
+    "SOV": 323
   },
   "stats": {
-    "Points": 79.5,
-    "Poss": 71.383,
-    "OE": 112.012,
-    "DE": 110.536,
-    "NE": 1.476,
-    "FGM": 27.643,
-    "FGA": 59.821,
-    "FGM3": 6.893,
-    "FGA3": 19.571,
-    "FTM": 17.321,
-    "FTA": 23.821,
-    "OR": 9.714,
-    "DR": 23.286,
-    "Ast": 13.0,
-    "TO": 10.321,
-    "Stl": 5.786,
-    "Blk": 3.25,
-    "Fouls": 18.536,
-    "FG%": 0.463,
-    "FG3%": 0.35,
-    "EFG%": 0.522,
-    "FT%": 0.721,
-    "OppPoints": 78.714,
-    "OppFGM": 27.786,
-    "OppFGA": 58.429,
-    "OppFGM3": 7.571,
-    "OppFGA3": 22.714,
-    "OppFTM": 15.571,
-    "OppFTA": 21.25,
-    "OppOR": 7.929,
-    "OppDR": 22.179,
-    "OppAst": 13.571,
-    "OppTO": 10.429,
-    "OppStl": 6.25,
-    "OppBlk": 5.643,
-    "OppFouls": 19.0,
-    "OppFG%": 0.479,
-    "OppFG3%": 0.329,
-    "OppEFG%": 0.544,
-    "OppFT%": 0.733,
-    "AdjOE": 110.978,
-    "AdjDE": 114.888,
-    "AdjNE": -3.91
+    "Points": 78.833,
+    "Poss": 72.0,
+    "OE": 109.876,
+    "DE": 109.958,
+    "NE": -0.082,
+    "FGM": 27.5,
+    "FGA": 59.767,
+    "FGM3": 6.767,
+    "FGA3": 19.6,
+    "FTM": 17.067,
+    "FTA": 23.4,
+    "OR": 9.5,
+    "DR": 23.033,
+    "Ast": 12.633,
+    "TO": 10.733,
+    "Stl": 6.933,
+    "Blk": 1.533,
+    "Fouls": 18.633,
+    "FG%": 0.461,
+    "FG3%": 0.343,
+    "EFG%": 0.519,
+    "FT%": 0.722,
+    "OppPoints": 79.067,
+    "OppFGM": 28.0,
+    "OppFGA": 58.367,
+    "OppFGM3": 7.6,
+    "OppFGA3": 22.667,
+    "OppFTM": 15.467,
+    "OppFTA": 21.233,
+    "OppOR": 7.867,
+    "OppDR": 22.267,
+    "OppAst": 14.1,
+    "OppTO": 11.3,
+    "OppStl": 6.333,
+    "OppBlk": 4.4,
+    "OppFouls": 18.767,
+    "OppFG%": 0.483,
+    "OppFG3%": 0.331,
+    "OppEFG%": 0.549,
+    "OppFT%": 0.728,
+    "AdjOE": 108.059,
+    "AdjDE": 114.628,
+    "AdjNE": -6.569
   },
   "coach": "eric_duft",
-  "win_pct": 0.5,
-  "sos": 0.452,
-  "sov": 0.329,
+  "win_pct": 0.467,
+  "sos": 0.458,
+  "sov": 0.337,
   "ordinal_data": {
-    "NET": 194
+    "NET": 197
   },
   "tournament": null,
   "similar_teams": []

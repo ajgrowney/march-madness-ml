@@ -25,7 +25,7 @@
         2025,
         2026
       ],
-      "feature_set": "2026_initial",
+      "feature_set": "stat_explorer_v1",
       "prediction_format": "precomputed",
       "mirrored_prediction_strategy": "average-forward-reverse",
       "description": "RandomForest model trained offline and exported as pairwise 2026 tournament probabilities.",

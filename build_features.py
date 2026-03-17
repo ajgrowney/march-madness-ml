@@ -8,7 +8,7 @@ import pandas as pd
 from mm_analytics.objects import TeamSeason, get_team_seasons_and_rankings, team_seasons_to_df, get_season_ordinals
 from mm_analytics.utilities import NpEncoder, get_historical_similarity
 
-DATA_ROOT = "/Users/andrewgrowney/data/kaggle/marchmadness-2025"
+DATA_ROOT = "/Users/andrewgrowney/Code/Python/march-madness-ml/data/kaggle-v2"
 TOURNEY_RESULTS_DF = pd.read_csv(f"{DATA_ROOT}/MNCAATourneyDetailedResults.csv")
 SEEDS_DF = pd.read_csv(f'{DATA_ROOT}/MNCAATourneySeeds.csv')
 ORDINALS_DF = pd.read_csv(f'{DATA_ROOT}/MMasseyOrdinals.csv')
@@ -43,13 +43,15 @@ if __name__ == "__main__":
     for year in range(args.start_year, args.end_year+1):
         season_ordinal_sys  = "NET" if year >= 2019 else "RPI"
         ts = year_team_seasons(year)
+        print("Built TS:", ts)
         for tid, team_season in ts.items():
             team_seasons[(int(tid), int(year))] = team_season
     ts_df = team_seasons_to_df(team_seasons, FEATURE_COLUMNS, add_season_ordinal=True)
 
     # ---- Export ----
     if args.export == "csv":
-        ts_df.to_csv("TeamSeasons_2025.csv", index=False)
+        ts_df.rename(columns={"NET_last": "selection_ordinal_last"}, inplace=True)
+        ts_df.to_csv("TeamSeasons_2026.csv", index=False)
     else:
         ts_df.to_csv("tsdf.csv")
         similar = get_historical_similarity(ts_df, num_teams=10, precision=3)

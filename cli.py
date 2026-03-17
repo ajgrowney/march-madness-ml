@@ -236,7 +236,7 @@ def bracket(submission_id, model_id, year, sub_dir = "2022"):
 @click.command(name="export-web")
 @click.option("--season", default=2026, type=int, show_default=True)
 @click.option("--output-root", default="data/web", show_default=True)
-@click.option("--feature-set", default="2026_initial", show_default=True)
+@click.option("--feature-set", default="stat_explorer_v1", show_default=True)
 def export_web(season, output_root, feature_set):
     """Bootstrap the website export layout and load the season context."""
     from mm_analytics.web_export import bootstrap_web_export
@@ -253,7 +253,7 @@ def export_web(season, output_root, feature_set):
 @click.option("--start-season", default=2003, type=int, show_default=True)
 @click.option("--end-season", default=2025, type=int, show_default=True)
 @click.option("--output-root", default="data/web", show_default=True)
-@click.option("--feature-set", default="historical_v1", show_default=True)
+@click.option("--feature-set", default="stat_explorer_v1", show_default=True)
 def export_web_history(start_season, end_season, output_root, feature_set):
     """Export historical feature stores and matchup training datasets for the website."""
     from mm_analytics.web_export import bootstrap_historical_training_export

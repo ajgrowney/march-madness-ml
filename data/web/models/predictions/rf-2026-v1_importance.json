@@ -1,7 +1,7 @@
 {
   "model_id": "rf-2026-v1",
   "season": 2026,
-  "feature_set": "2026_initial",
+  "feature_set": "stat_explorer_v1",
   "feature_importance": [
     {
       "featureKey": "NET_last",

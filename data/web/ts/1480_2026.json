@@ -4,42 +4,41 @@
   "name": "West Georgia",
   "record": {
     "overall": [
-      12,
-      16
+      13,
+      17
     ],
     "conf": [
-      8,
-      10
+      9,
+      11
     ],
     "home": [
       8,
       5
     ],
     "road": [
-      4,
-      11
+      5,
+      12
     ],
     "quad_1": [
       0,
       3
     ],
     "quad_2": [
-      0,
+      1,
       0
     ],
     "quad_3": [
-      1,
+      0,
       4
     ],
     "quad_4": [
-      11,
-      9
+      12,
+      10
     ]
   },
   "quad_wins": {
     "1": [],
-    "2": [],
-    "3": [
+    "2": [
       {
         "opp_id": 1407,
         "team_score": 93,
@@ -50,6 +49,7 @@
         "conf": false
       }
     ],
+    "3": [],
     "4": [
       {
         "opp_id": 1154,
@@ -149,6 +149,15 @@
         "date_int": 117,
         "date_str": "02/28",
         "conf": true
+      },
+      {
+        "opp_id": 1316,
+        "team_score": 93,
+        "opp_score": 85,
+        "team_loc": "N",
+        "date_int": 121,
+        "date_str": "03/04",
+        "conf": true
       }
     ]
   },
@@ -194,15 +203,6 @@
         "conf": false
       },
       {
-        "opp_id": 1122,
-        "team_score": 78,
-        "opp_score": 81,
-        "team_loc": "H",
-        "date_int": 89,
-        "date_str": "01/31",
-        "conf": true
-      },
-      {
         "opp_id": 1146,
         "team_score": 62,
         "opp_score": 79,
@@ -218,6 +218,15 @@
         "team_loc": "A",
         "date_int": 110,
         "date_str": "02/21",
+        "conf": true
+      },
+      {
+        "opp_id": 1474,
+        "team_score": 63,
+        "opp_score": 71,
+        "team_loc": "N",
+        "date_int": 123,
+        "date_str": "03/06",
         "conf": true
       }
     ],
@@ -286,6 +295,15 @@
         "conf": true
       },
       {
+        "opp_id": 1122,
+        "team_score": 78,
+        "opp_score": 81,
+        "team_loc": "H",
+        "date_int": 89,
+        "date_str": "01/31",
+        "conf": true
+      },
+      {
         "opp_id": 1316,
         "team_score": 73,
         "opp_score": 81,
@@ -307,103 +325,103 @@
   },
   "conf": "a_sun",
   "stat_rankings": {
-    "Points": 164,
-    "Poss": 74,
-    "OE": 237,
-    "DE": 300,
-    "NE": 287,
-    "FGM": 79,
-    "FGA": 18,
-    "FGM3": 268,
-    "FGA3": 266,
-    "FTM": 284,
-    "FTA": 272,
-    "OR": 88,
-    "DR": 153,
-    "Ast": 251,
-    "TO": 192,
-    "Stl": 136,
-    "Blk": 63,
-    "Fouls": 214,
-    "FG%": 207,
-    "FG3%": 194,
-    "EFG%": 259,
-    "FT%": 249,
-    "OppPoints": 40,
-    "OppFGM": 36,
-    "OppFGA": 93,
-    "OppFGM3": 243,
-    "OppFGA3": 235,
-    "OppFTM": 82,
-    "OppFTA": 97,
-    "OppOR": 271,
-    "OppDR": 50,
-    "OppAst": 108,
-    "OppTO": 307,
-    "OppStl": 211,
-    "OppBlk": 281,
-    "OppFouls": 228,
-    "OppFG%": 43,
-    "OppFG3%": 143,
-    "OppEFG%": 73,
-    "OppFT%": 167,
-    "AdjOE": 195,
-    "AdjDE": 268,
-    "AdjNE": 239,
-    "SOS": 315,
-    "SOV": 271
+    "Points": 156,
+    "Poss": 67,
+    "OE": 240,
+    "DE": 294,
+    "NE": 279,
+    "FGM": 72,
+    "FGA": 17,
+    "FGM3": 264,
+    "FGA3": 259,
+    "FTM": 276,
+    "FTA": 267,
+    "OR": 82,
+    "DR": 121,
+    "Ast": 264,
+    "TO": 196,
+    "Stl": 193,
+    "Blk": 24,
+    "Fouls": 213,
+    "FG%": 210,
+    "FG3%": 215,
+    "EFG%": 257,
+    "FT%": 240,
+    "OppPoints": 38,
+    "OppFGM": 39,
+    "OppFGA": 90,
+    "OppFGM3": 229,
+    "OppFGA3": 210,
+    "OppFTM": 78,
+    "OppFTA": 92,
+    "OppOR": 294,
+    "OppDR": 53,
+    "OppAst": 118,
+    "OppTO": 266,
+    "OppStl": 140,
+    "OppBlk": 353,
+    "OppFouls": 227,
+    "OppFG%": 53,
+    "OppFG3%": 165,
+    "OppEFG%": 79,
+    "OppFT%": 138,
+    "AdjOE": 189,
+    "AdjDE": 254,
+    "AdjNE": 224,
+    "SOS": 316,
+    "SOV": 304
   },
   "stats": {
-    "Points": 75.143,
-    "Poss": 71.189,
-    "OE": 105.7,
-    "DE": 113.461,
-    "NE": -7.761,
-    "FGM": 27.679,
-    "FGA": 62.607,
-    "FGM3": 6.893,
-    "FGA3": 20.536,
-    "FTM": 12.893,
-    "FTA": 18.429,
-    "OR": 9.964,
-    "DR": 22.643,
-    "Ast": 12.607,
-    "TO": 9.893,
-    "Stl": 6.107,
-    "Blk": 5.857,
-    "Fouls": 17.25,
+    "Points": 75.333,
+    "Poss": 72.393,
+    "OE": 104.089,
+    "DE": 111.388,
+    "NE": -7.299,
+    "FGM": 27.767,
+    "FGA": 62.9,
+    "FGM3": 6.867,
+    "FGA3": 20.733,
+    "FTM": 12.933,
+    "FTA": 18.367,
+    "OR": 10.033,
+    "DR": 23.1,
+    "Ast": 12.3,
+    "TO": 10.7,
+    "Stl": 6.367,
+    "Blk": 4.667,
+    "Fouls": 17.233,
     "FG%": 0.443,
-    "FG3%": 0.337,
-    "EFG%": 0.499,
-    "FT%": 0.701,
-    "OppPoints": 80.679,
-    "OppFGM": 28.571,
-    "OppFGA": 60.0,
-    "OppFGM3": 7.357,
-    "OppFGA3": 21.929,
-    "OppFTM": 16.179,
-    "OppFTA": 22.143,
-    "OppOR": 8.214,
-    "OppDR": 24.214,
-    "OppAst": 14.5,
-    "OppTO": 8.786,
-    "OppStl": 5.643,
-    "OppBlk": 4.536,
-    "OppFouls": 17.036,
-    "OppFG%": 0.48,
-    "OppFG3%": 0.345,
-    "OppEFG%": 0.541,
-    "OppFT%": 0.725,
-    "AdjOE": 106.974,
-    "AdjDE": 116.31,
-    "AdjNE": -9.336
+    "FG3%": 0.333,
+    "EFG%": 0.498,
+    "FT%": 0.707,
+    "OppPoints": 80.5,
+    "OppFGM": 28.4,
+    "OppFGA": 60.1,
+    "OppFGM3": 7.433,
+    "OppFGA3": 22.467,
+    "OppFTM": 16.267,
+    "OppFTA": 22.167,
+    "OppOR": 8.0,
+    "OppDR": 24.167,
+    "OppAst": 14.333,
+    "OppTO": 9.867,
+    "OppStl": 6.767,
+    "OppBlk": 2.367,
+    "OppFouls": 16.967,
+    "OppFG%": 0.476,
+    "OppFG3%": 0.341,
+    "OppEFG%": 0.538,
+    "OppFT%": 0.728,
+    "AdjOE": 106.113,
+    "AdjDE": 113.39,
+    "AdjNE": -7.276
   },
   "coach": "dave_moore",
-  "win_pct": 0.429,
-  "sos": 0.453,
-  "sov": 0.37,
+  "win_pct": 0.433,
+  "sos": 0.452,
+  "sov": 0.355,
   "ordinal_data": {
-    "NET": 309
+    "NET": 298
   },
   "tournament": null,
   "similar_teams": []

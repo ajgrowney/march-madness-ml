@@ -4,36 +4,36 @@
   "name": "CS Northridge",
   "record": {
     "overall": [
-      16,
-      12
+      18,
+      14
     ],
     "conf": [
-      11,
-      7
+      13,
+      9
     ],
     "home": [
       10,
-      2
+      3
     ],
     "road": [
-      6,
-      10
+      8,
+      11
     ],
     "quad_1": [
       0,
-      1
+      2
     ],
     "quad_2": [
       1,
-      4
+      3
     ],
     "quad_3": [
-      7,
-      4
+      8,
+      5
     ],
     "quad_4": [
-      8,
-      3
+      9,
+      4
     ]
   },
   "quad_wins": {
@@ -112,6 +112,15 @@
         "date_int": 108,
         "date_str": "02/19",
         "conf": true
+      },
+      {
+        "opp_id": 1471,
+        "team_score": 80,
+        "opp_score": 70,
+        "team_loc": "N",
+        "date_int": 129,
+        "date_str": "03/12",
+        "conf": true
       }
     ],
     "4": [
@@ -186,11 +195,29 @@
         "date_int": 110,
         "date_str": "02/21",
         "conf": true
+      },
+      {
+        "opp_id": 1167,
+        "team_score": 86,
+        "opp_score": 84,
+        "team_loc": "A",
+        "date_int": 122,
+        "date_str": "03/05",
+        "conf": true
       }
     ]
   },
   "quad_losses": {
     "1": [
+      {
+        "opp_id": 1320,
+        "team_score": 57,
+        "opp_score": 86,
+        "team_loc": "A",
+        "date_int": 3,
+        "date_str": "11/06",
+        "conf": false
+      },
       {
         "opp_id": 1390,
         "team_score": 80,
@@ -202,15 +229,6 @@
       }
     ],
     "2": [
-      {
-        "opp_id": 1320,
-        "team_score": 57,
-        "opp_score": 86,
-        "team_loc": "A",
-        "date_int": 3,
-        "date_str": "11/06",
-        "conf": false
-      },
       {
         "opp_id": 1295,
         "team_score": 68,
@@ -275,6 +293,15 @@
         "date_int": 115,
         "date_str": "02/26",
         "conf": true
+      },
+      {
+        "opp_id": 1414,
+        "team_score": 78,
+        "opp_score": 93,
+        "team_loc": "N",
+        "date_int": 130,
+        "date_str": "03/13",
+        "conf": true
       }
     ],
     "4": [
@@ -304,108 +331,117 @@
         "date_int": 117,
         "date_str": "02/28",
         "conf": true
+      },
+      {
+        "opp_id": 1168,
+        "team_score": 77,
+        "opp_score": 90,
+        "team_loc": "H",
+        "date_int": 124,
+        "date_str": "03/07",
+        "conf": true
       }
     ]
   },
   "conf": "big_west",
   "stat_rankings": {
-    "Points": 58,
-    "Poss": 3,
-    "OE": 221,
-    "DE": 123,
-    "NE": 180,
-    "FGM": 23,
-    "FGA": 8,
-    "FGM3": 266,
-    "FGA3": 259,
-    "FTM": 177,
-    "FTA": 78,
-    "OR": 122,
-    "DR": 18,
-    "Ast": 34,
-    "TO": 25,
-    "Stl": 185,
-    "Blk": 240,
-    "Fouls": 111,
+    "Points": 55,
+    "Poss": 1,
+    "OE": 231,
+    "DE": 125,
+    "NE": 192,
+    "FGM": 22,
+    "FGA": 7,
+    "FGM3": 248,
+    "FGA3": 222,
+    "FTM": 187,
+    "FTA": 104,
+    "OR": 120,
+    "DR": 16,
+    "Ast": 31,
+    "TO": 30,
+    "Stl": 165,
+    "Blk": 258,
+    "Fouls": 126,
     "FG%": 116,
-    "FG3%": 209,
-    "EFG%": 180,
-    "FT%": 350,
-    "OppPoints": 35,
-    "OppFGM": 119,
-    "OppFGA": 23,
+    "FG3%": 238,
+    "EFG%": 185,
+    "FT%": 339,
+    "OppPoints": 29,
+    "OppFGM": 92,
+    "OppFGA": 21,
     "OppFGM3": 4,
     "OppFGA3": 1,
-    "OppFTM": 65,
-    "OppFTA": 104,
-    "OppOR": 253,
-    "OppDR": 79,
-    "OppAst": 61,
-    "OppTO": 139,
-    "OppStl": 14,
-    "OppBlk": 16,
-    "OppFouls": 60,
-    "OppFG%": 278,
-    "OppFG3%": 140,
-    "OppEFG%": 179,
-    "OppFT%": 9,
-    "AdjOE": 235,
-    "AdjDE": 177,
-    "AdjNE": 213,
-    "SOS": 203,
-    "SOV": 98
+    "OppFTM": 68,
+    "OppFTA": 125,
+    "OppOR": 263,
+    "OppDR": 92,
+    "OppAst": 48,
+    "OppTO": 89,
+    "OppStl": 17,
+    "OppBlk": 25,
+    "OppFouls": 99,
+    "OppFG%": 271,
+    "OppFG3%": 136,
+    "OppEFG%": 171,
+    "OppFT%": 11,
+    "AdjOE": 254,
+    "AdjDE": 199,
+    "AdjNE": 228,
+    "SOS": 191,
+    "SOV": 121
   },
   "stats": {
-    "Points": 80.679,
-    "Poss": 76.069,
-    "OE": 106.344,
-    "DE": 106.313,
-    "NE": 0.032,
-    "FGM": 29.464,
-    "FGA": 64.143,
-    "FGM3": 6.893,
-    "FGA3": 20.679,
-    "FTM": 14.857,
-    "FTA": 22.679,
-    "OR": 9.536,
-    "DR": 25.714,
-    "Ast": 16.75,
-    "TO": 11.821,
-    "Stl": 5.75,
-    "Blk": 4.643,
-    "Fouls": 18.357,
-    "FG%": 0.461,
-    "FG3%": 0.335,
-    "EFG%": 0.515,
-    "FT%": 0.656,
-    "OppPoints": 80.893,
-    "OppFGM": 26.929,
-    "OppFGA": 62.536,
-    "OppFGM3": 10.393,
-    "OppFGA3": 30.321,
-    "OppFTM": 16.643,
-    "OppFTA": 21.821,
-    "OppOR": 8.321,
-    "OppDR": 23.714,
-    "OppAst": 15.429,
-    "OppTO": 10.357,
-    "OppStl": 7.393,
-    "OppBlk": 6.5,
-    "OppFouls": 19.071,
-    "OppFG%": 0.432,
+    "Points": 80.625,
+    "Poss": 77.432,
+    "OE": 104.282,
+    "DE": 104.999,
+    "NE": -0.716,
+    "FGM": 29.469,
+    "FGA": 64.312,
+    "FGM3": 7.0,
+    "FGA3": 21.594,
+    "FTM": 14.688,
+    "FTA": 22.0,
+    "OR": 9.531,
+    "DR": 25.719,
+    "Ast": 16.688,
+    "TO": 12.906,
+    "Stl": 6.594,
+    "Blk": 2.812,
+    "Fouls": 18.188,
+    "FG%": 0.459,
+    "FG3%": 0.328,
+    "EFG%": 0.514,
+    "FT%": 0.668,
+    "OppPoints": 81.312,
+    "OppFGM": 27.219,
+    "OppFGA": 62.875,
+    "OppFGM3": 10.5,
+    "OppFGA3": 30.562,
+    "OppFTM": 16.375,
+    "OppFTA": 21.594,
+    "OppOR": 8.344,
+    "OppDR": 23.594,
+    "OppAst": 15.75,
+    "OppTO": 11.938,
+    "OppStl": 8.125,
+    "OppBlk": 4.312,
+    "OppFouls": 18.5,
+    "OppFG%": 0.434,
     "OppFG3%": 0.345,
-    "OppEFG%": 0.516,
-    "OppFT%": 0.768,
-    "AdjOE": 103.781,
-    "AdjDE": 109.83,
-    "AdjNE": -6.049
+    "OppEFG%": 0.518,
+    "OppFT%": 0.763,
+    "AdjOE": 101.163,
+    "AdjDE": 108.924,
+    "AdjNE": -7.761
   },
   "coach": "andy_newman",
-  "win_pct": 0.571,
-  "sos": 0.488,
-  "sov": 0.458,
+  "win_pct": 0.562,
+  "sos": 0.493,
+  "sov": 0.451,
   "ordinal_data": {
-    "NET": 166
+    "NET": 190
   },
   "tournament": null,
   "similar_teams": []

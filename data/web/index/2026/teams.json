@@ -1,6 +1,6 @@
 {
   "season": 2026,
-  "updated_at": "2026-03-16T06:56:11.035698+00:00",
+  "updated_at": "2026-03-17T20:48:45.451106+00:00",
   "teams": [
     {
       "team_id": 1101,
@@ -1285,7 +1285,7 @@
       "conference": "meac",
       "seed": 16,
       "region": "Y",
-      "slot": "Y16b",
+      "slot": "Y16a",
       "tournament_team": true,
       "team_page_path": "data/web/ts/1224_2026.json"
     },
@@ -1593,7 +1593,7 @@
       "conference": "patriot",
       "seed": 16,
       "region": "X",
-      "slot": "X16b",
+      "slot": "X16a",
       "tournament_team": true,
       "team_page_path": "data/web/ts/1250_2026.json"
     },
@@ -2154,7 +2154,7 @@
       "conference": "acc",
       "seed": 11,
       "region": "Z",
-      "slot": "Z11b",
+      "slot": "Z11a",
       "tournament_team": true,
       "team_page_path": "data/web/ts/1301_2026.json"
     },
@@ -2616,7 +2616,7 @@
       "conference": "swac",
       "seed": 16,
       "region": "X",
-      "slot": "X16a",
+      "slot": "X16b",
       "tournament_team": true,
       "team_page_path": "data/web/ts/1341_2026.json"
     },
@@ -3331,7 +3331,7 @@
       "conference": "sec",
       "seed": 11,
       "region": "Z",
-      "slot": "Z11a",
+      "slot": "Z11b",
       "tournament_team": true,
       "team_page_path": "data/web/ts/1400_2026.json"
     },
@@ -3529,7 +3529,7 @@
       "conference": "aec",
       "seed": 16,
       "region": "Y",
-      "slot": "Y16a",
+      "slot": "Y16b",
       "tournament_team": true,
       "team_page_path": "data/web/ts/1420_2026.json"
     },

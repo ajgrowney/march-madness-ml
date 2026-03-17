@@ -1,3 +1,6 @@
+"""
+Build out 
+"""
 from __future__ import annotations
 
 import argparse
@@ -12,7 +15,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 
 REPO_ROOT = Path(__file__).resolve().parent
-DEFAULT_BROWSER_FEATURE_STORE = REPO_ROOT / "data/web/features/2026/base.json"
+DEFAULT_BROWSER_FEATURE_STORE = REPO_ROOT / "data/web/features/2026/stat_explorer_v1.json"
 DEFAULT_TRAINING_MANIFEST = REPO_ROOT / "data/web/training/manifest.json"
 DEFAULT_TEAMS_INDEX = REPO_ROOT / "data/web/index/2026/teams.json"
 DEFAULT_BRACKET = REPO_ROOT / "data/web/brackets/2026.json"

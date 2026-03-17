@@ -42,12 +42,12 @@
       "round": 1,
       "team_1": {
         "source": "seed",
-        "team_id": 1341,
+        "team_id": 1250,
         "seed": 16
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1250,
+        "team_id": 1341,
         "seed": 16
       },
       "next_slot": "R1X1"
@@ -76,12 +76,12 @@
       "round": 1,
       "team_1": {
         "source": "seed",
-        "team_id": 1420,
+        "team_id": 1224,
         "seed": 16
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1224,
+        "team_id": 1420,
         "seed": 16
       },
       "next_slot": "R1Y1"
@@ -93,12 +93,12 @@
       "round": 1,
       "team_1": {
         "source": "seed",
-        "team_id": 1400,
+        "team_id": 1301,
         "seed": 11
       },
       "team_2": {
         "source": "seed",
-        "team_id": 1301,
+        "team_id": 1400,
         "seed": 11
       },
       "next_slot": "R1Z6"
