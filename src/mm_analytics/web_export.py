@@ -1450,6 +1450,15 @@ def bootstrap_web_export(
             "matches_per_team": TEAM_PAGE_SIMILARITY_TOP_N,
             "historical_range": [STAT_EXPLORER_HISTORICAL_RANGE[0], min(STAT_EXPLORER_HISTORICAL_RANGE[1], season - 1)],
         },
+        "exit_round_distribution": {
+            "tournament_team_count": len(exit_round_distribution_map),
+            "model_id": TEAM_PAGE_EXIT_MODEL_ID,
+            "model_family": TEAM_PAGE_EXIT_MODEL_FAMILY,
+            "feature_columns": EXIT_ROUND_MODEL_FEATURE_COLUMNS,
+            "training_season_range": [STAT_EXPLORER_HISTORICAL_RANGE[0], min(TEAM_PAGE_EXIT_MODEL_VALIDATION_SEASON - 1, season - 1)],
+            "validation_season": min(TEAM_PAGE_EXIT_MODEL_VALIDATION_SEASON, season - 1),
+            "calibrated": False,
+        },
         "placeholder_bracket_source_season": source_season,
         "feature_defaults": {
             "values": feature_defaults.values,
