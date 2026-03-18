@@ -615,5 +615,43 @@
       "lost_to": "Michigan St",
       "loss_score": "46-68"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 2.949,
+    "most_likely_round_num": 3,
+    "most_likely_round": "Sweet Sixteen",
+    "floor_round_num": 2,
+    "floor_round": "Round of 32",
+    "ceiling_round_num": 3,
+    "ceiling_round": "Sweet Sixteen",
+    "seed_expected_round": 3.261,
+    "seed_delta": -0.313,
+    "region_rank": 4,
+    "probabilities": {
+      "round64": 0.06,
+      "round32": 0.212,
+      "sweet16": 0.541,
+      "elite8": 0.12,
+      "final4": 0.046,
+      "championship": 0.013,
+      "champion": 0.007
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.728,
+      "elite8_plus": 0.186,
+      "final4_plus": 0.067,
+      "title_game_plus": 0.021
+    }
+  }
 }

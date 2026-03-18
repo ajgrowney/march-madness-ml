@@ -129,6 +129,36 @@ Empty-state rules:
 - If `similar_teams` is empty and `tournament` is null, render a non-tournament message rather than an error state.
 - If `similar_teams` is empty but `tournament` is present, treat that as missing enrichment and fall back to the rest of the team page.
 
+##### Team Insights Exit Round Distribution
+
+`exit_round_distribution` is the seeded-team tournament projection surface for Team Insights.
+
+Contract rules:
+
+- The field is `null` for non-tournament teams.
+- The export is intentionally uncalibrated in v1; the website should treat the probabilities as ranking and scenario support, not as audited betting-market odds.
+- `expected_exit_round` is the weighted average of the seven-class distribution where `1 = Round of 64` and `7 = Champion`.
+- `most_likely_round`, `floor_round`, and `ceiling_round` are already mapped to display labels and do not need further translation.
+- `seed_expected_round` is the historical expectation for teams with the same seed across the training window.
+- `seed_delta` is positive when the model likes the team more than a typical team with the same seed.
+- `region_rank` is the seeded-team rank within the current region by `expected_exit_round`, where `1` is strongest.
+- `probabilities` contains exact round-exit class probabilities.
+- `threshold_probabilities` contains cumulative advancement probabilities that are usually the most useful UI-facing numbers.
+- `model.calibrated` is `false` in this export by design.
+
+Suggested Team Insights rendering:
+
+- Use `threshold_probabilities.sweet16_plus`, `elite8_plus`, and `final4_plus` for summary chips or a compact advancement bar.
+- Use `expected_exit_round`, `floor_round`, and `ceiling_round` as the primary narrative for floor/ceiling.
+- Use `seed_delta` to explain whether a pick is aggressive or conservative relative to seed.
+- Use `region_rank` only in seeded-team regional comparisons; do not compare ranks across regions.
+- Keep the exact `probabilities` available for charts or hover detail, but lead the default UI with the cumulative thresholds.
+
+Empty-state rules:
+
+- If `exit_round_distribution` is `null` and `tournament` is null, render nothing for this section.
+- If `exit_round_distribution` is `null` but `tournament` is present, treat that as missing enrichment and fall back to the rest of the team page.
+
 #### Feature Store
 
 Path:

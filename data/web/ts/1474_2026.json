@@ -606,5 +606,43 @@
       "lost_to": "North Carolina",
       "loss_score": "73-88"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 1.121,
+    "most_likely_round_num": 1,
+    "most_likely_round": "Round of 64",
+    "floor_round_num": 1,
+    "floor_round": "Round of 64",
+    "ceiling_round_num": 1,
+    "ceiling_round": "Round of 64",
+    "seed_expected_round": 1.136,
+    "seed_delta": -0.015,
+    "region_rank": 15,
+    "probabilities": {
+      "round64": 0.903,
+      "round32": 0.079,
+      "sweet16": 0.014,
+      "elite8": 0.003,
+      "final4": 0.001,
+      "championship": 0.001,
+      "champion": 0.0
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.018,
+      "elite8_plus": 0.004,
+      "final4_plus": 0.001,
+      "title_game_plus": 0.001
+    }
+  }
 }

@@ -599,5 +599,43 @@
       "lost_to": "St Bonaventure",
       "loss_score": "58-65"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 1.288,
+    "most_likely_round_num": 1,
+    "most_likely_round": "Round of 64",
+    "floor_round_num": 1,
+    "floor_round": "Round of 64",
+    "ceiling_round_num": 1,
+    "ceiling_round": "Round of 64",
+    "seed_expected_round": 1.539,
+    "seed_delta": -0.251,
+    "region_rank": 12,
+    "probabilities": {
+      "round64": 0.789,
+      "round32": 0.161,
+      "sweet16": 0.027,
+      "elite8": 0.02,
+      "final4": 0.002,
+      "championship": 0.0,
+      "champion": 0.0
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.05,
+      "elite8_plus": 0.023,
+      "final4_plus": 0.003,
+      "title_game_plus": 0.001
+    }
+  }
 }

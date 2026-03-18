@@ -425,5 +425,6 @@
     "NET": 189
   },
   "tournament": null,
-  "similar_teams": []
+  "similar_teams": [],
+  "exit_round_distribution": null
 }

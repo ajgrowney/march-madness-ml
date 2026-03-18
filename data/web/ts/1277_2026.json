@@ -597,5 +597,43 @@
       "lost_to": "Baylor",
       "loss_score": "55-85"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 3.493,
+    "most_likely_round_num": 2,
+    "most_likely_round": "Round of 32",
+    "floor_round_num": 2,
+    "floor_round": "Round of 32",
+    "ceiling_round_num": 5,
+    "ceiling_round": "Final Four",
+    "seed_expected_round": 2.977,
+    "seed_delta": 0.516,
+    "region_rank": 2,
+    "probabilities": {
+      "round64": 0.065,
+      "round32": 0.367,
+      "sweet16": 0.206,
+      "elite8": 0.102,
+      "final4": 0.026,
+      "championship": 0.101,
+      "champion": 0.133
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.568,
+      "elite8_plus": 0.362,
+      "final4_plus": 0.26,
+      "title_game_plus": 0.235
+    }
+  }
 }

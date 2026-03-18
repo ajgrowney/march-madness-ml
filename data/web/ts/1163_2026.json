@@ -617,5 +617,43 @@
       "lost_to": "Houston",
       "loss_score": "67-70"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 3.012,
+    "most_likely_round_num": 2,
+    "most_likely_round": "Round of 32",
+    "floor_round_num": 2,
+    "floor_round": "Round of 32",
+    "ceiling_round_num": 4,
+    "ceiling_round": "Elite Eight",
+    "seed_expected_round": 3.261,
+    "seed_delta": -0.25,
+    "region_rank": 3,
+    "probabilities": {
+      "round64": 0.095,
+      "round32": 0.325,
+      "sweet16": 0.253,
+      "elite8": 0.181,
+      "final4": 0.116,
+      "championship": 0.009,
+      "champion": 0.022
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.58,
+      "elite8_plus": 0.327,
+      "final4_plus": 0.147,
+      "title_game_plus": 0.031
+    }
+  }
 }

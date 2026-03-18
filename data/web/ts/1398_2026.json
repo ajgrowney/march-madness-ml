@@ -571,5 +571,43 @@
       "lost_to": "Florida",
       "loss_score": "69-112"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 1.109,
+    "most_likely_round_num": 1,
+    "most_likely_round": "Round of 64",
+    "floor_round_num": 1,
+    "floor_round": "Round of 64",
+    "ceiling_round_num": 1,
+    "ceiling_round": "Round of 64",
+    "seed_expected_round": 1.136,
+    "seed_delta": -0.028,
+    "region_rank": 16,
+    "probabilities": {
+      "round64": 0.924,
+      "round32": 0.052,
+      "sweet16": 0.018,
+      "elite8": 0.005,
+      "final4": 0.001,
+      "championship": 0.001,
+      "champion": 0.0
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.024,
+      "elite8_plus": 0.006,
+      "final4_plus": 0.001,
+      "title_game_plus": 0.001
+    }
+  }
 }

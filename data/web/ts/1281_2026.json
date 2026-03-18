@@ -598,5 +598,43 @@
       "lost_to": "Wisconsin",
       "loss_score": "74-84"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 1.369,
+    "most_likely_round_num": 1,
+    "most_likely_round": "Round of 64",
+    "floor_round_num": 1,
+    "floor_round": "Round of 64",
+    "ceiling_round_num": 2,
+    "ceiling_round": "Round of 32",
+    "seed_expected_round": 1.539,
+    "seed_delta": -0.17,
+    "region_rank": 12,
+    "probabilities": {
+      "round64": 0.749,
+      "round32": 0.19,
+      "sweet16": 0.029,
+      "elite8": 0.009,
+      "final4": 0.022,
+      "championship": 0.001,
+      "champion": 0.0
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.061,
+      "elite8_plus": 0.032,
+      "final4_plus": 0.023,
+      "title_game_plus": 0.001
+    }
+  }
 }

@@ -608,5 +608,43 @@
       "lost_to": "BYU",
       "loss_score": "71-80"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 2.158,
+    "most_likely_round_num": 2,
+    "most_likely_round": "Round of 32",
+    "floor_round_num": 1,
+    "floor_round": "Round of 64",
+    "ceiling_round_num": 3,
+    "ceiling_round": "Sweet Sixteen",
+    "seed_expected_round": 1.539,
+    "seed_delta": 0.619,
+    "region_rank": 7,
+    "probabilities": {
+      "round64": 0.284,
+      "round32": 0.446,
+      "sweet16": 0.141,
+      "elite8": 0.089,
+      "final4": 0.037,
+      "championship": 0.001,
+      "champion": 0.001
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.27,
+      "elite8_plus": 0.129,
+      "final4_plus": 0.04,
+      "title_game_plus": 0.002
+    }
+  }
 }

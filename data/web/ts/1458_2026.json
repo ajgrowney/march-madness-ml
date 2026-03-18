@@ -617,5 +617,43 @@
       "lost_to": "Alabama",
       "loss_score": "88-113"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 2.22,
+    "most_likely_round_num": 1,
+    "most_likely_round": "Round of 64",
+    "floor_round_num": 1,
+    "floor_round": "Round of 64",
+    "ceiling_round_num": 3,
+    "ceiling_round": "Sweet Sixteen",
+    "seed_expected_round": 2.159,
+    "seed_delta": 0.061,
+    "region_rank": 6,
+    "probabilities": {
+      "round64": 0.4,
+      "round32": 0.268,
+      "sweet16": 0.156,
+      "elite8": 0.081,
+      "final4": 0.08,
+      "championship": 0.012,
+      "champion": 0.002
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.332,
+      "elite8_plus": 0.176,
+      "final4_plus": 0.094,
+      "title_game_plus": 0.015
+    }
+  }
 }

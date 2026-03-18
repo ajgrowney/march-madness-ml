@@ -9,6 +9,7 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+import xgboost as xgb
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.preprocessing import StandardScaler
 
@@ -112,12 +113,44 @@ STAT_EXPLORER_HISTORICAL_RANGE = (2003, 2025)
 TEAM_PAGE_SIMILARITY_TOP_N = 10
 TEAM_PAGE_SIMILARITY_SEED_WINDOW = 2
 TEAM_PAGE_SIMILARITY_SEED_WEIGHT = 0.15
+TEAM_PAGE_EXIT_MODEL_ID = "team-exit-round-xgb-v1"
+TEAM_PAGE_EXIT_MODEL_FAMILY = "xgboost-multiclass"
+TEAM_PAGE_EXIT_MODEL_VALIDATION_SEASON = 2025
 TEAM_PAGE_SIMILARITY_RESUME_COLUMNS = STAT_EXPLORER_FEATURE_GROUPS["Resume"]
 TEAM_PAGE_SIMILARITY_STAT_COLUMNS = (
     STAT_EXPLORER_FEATURE_GROUPS["Tempo"]
     + STAT_EXPLORER_FEATURE_GROUPS["Offense"]
     + STAT_EXPLORER_FEATURE_GROUPS["Defense"]
 )
+EXIT_ROUND_MODEL_FEATURE_COLUMNS = ["Seed"] + STAT_EXPLORER_FEATURE_COLUMNS
+EXIT_ROUND_NUM_MAP = {
+    "Play In": 1,
+    "First Round": 1,
+    "Second Round": 2,
+    "Sweet Sixteen": 3,
+    "Elite Eight": 4,
+    "Final Four": 5,
+    "Championship": 6,
+    "Champion": 7,
+}
+EXIT_ROUND_LABELS_BY_NUM = {
+    1: "Round of 64",
+    2: "Round of 32",
+    3: "Sweet Sixteen",
+    4: "Elite Eight",
+    5: "Final Four",
+    6: "Championship",
+    7: "Champion",
+}
+EXIT_ROUND_PROBABILITY_KEYS = {
+    1: "round64",
+    2: "round32",
+    3: "sweet16",
+    4: "elite8",
+    5: "final4",
+    6: "championship",
+    7: "champion",
+}
 STAT_EXPLORER_ROUND_BUCKETS = [
     {"key": "round64", "label": "Round of 64", "exit_round_labels": ["Play In", "First Round"]},
     {"key": "round32", "label": "Round 32", "exit_round_labels": ["Second Round"]},
@@ -668,6 +701,176 @@ def build_historical_similarity_frame(
     return pd.DataFrame(rows)
 
 
+def exit_round_label(round_num: int) -> str:
+    return EXIT_ROUND_LABELS_BY_NUM[int(round_num)]
+
+
+def exit_round_quantile(prob_vector: np.ndarray, quantile: float) -> int:
+    cumulative = np.cumsum(prob_vector)
+    return int(np.searchsorted(cumulative, quantile) + 1)
+
+
+def build_historical_exit_round_frame(
+    start_season: int,
+    end_season: int,
+) -> pd.DataFrame:
+    rows: List[dict] = []
+
+    for historical_season in range(start_season, end_season + 1):
+        historical_team_seasons, _ = load_team_seasons_for_export(historical_season)
+        historical_seed_by_team_id, _, _ = build_placeholder_seed_maps(historical_season)
+
+        for team_id, team_season in historical_team_seasons.items():
+            seed_info = historical_seed_by_team_id.get(team_id)
+            exit_round_num = EXIT_ROUND_NUM_MAP.get(team_season.tourney_exit_round)
+            if seed_info is None or exit_round_num is None:
+                continue
+
+            row = {
+                "id": int(team_id),
+                "season": int(historical_season),
+                "seed": int(seed_info["seed"]),
+                "exit_round": team_season.tourney_exit_round,
+                "exit_round_num": int(exit_round_num),
+            }
+            for feature_name in EXIT_ROUND_MODEL_FEATURE_COLUMNS:
+                value = get_feature_value(team_season, feature_name, historical_seed_by_team_id)
+                row[feature_name] = 0.0 if is_missing_value(value) else float(value)
+            rows.append(row)
+
+    return pd.DataFrame(rows)
+
+
+def build_team_page_exit_round_distribution_map(
+    season: int,
+    team_seasons: Dict[int, TeamSeason],
+    seed_by_team_id: Dict[int, dict],
+) -> Dict[int, dict]:
+    start_season, end_season = STAT_EXPLORER_HISTORICAL_RANGE
+    historical_end = min(end_season, season - 1)
+    if historical_end < start_season:
+        return {}
+
+    exit_model_df = build_historical_exit_round_frame(start_season, historical_end)
+    if exit_model_df.empty:
+        return {}
+
+    validation_season = min(TEAM_PAGE_EXIT_MODEL_VALIDATION_SEASON, historical_end)
+    train_exit_df = exit_model_df.loc[exit_model_df["season"] < validation_season].copy()
+    if train_exit_df.empty:
+        train_exit_df = exit_model_df.copy()
+
+    exit_round_model = xgb.XGBClassifier(
+        objective="multi:softprob",
+        num_class=7,
+        eval_metric="mlogloss",
+        n_estimators=350,
+        max_depth=3,
+        learning_rate=0.05,
+        subsample=0.85,
+        colsample_bytree=0.8,
+        min_child_weight=2,
+        reg_lambda=1.0,
+        random_state=42,
+    )
+    exit_round_model.fit(
+        train_exit_df[EXIT_ROUND_MODEL_FEATURE_COLUMNS],
+        train_exit_df["exit_round_num"] - 1,
+    )
+
+    seed_distribution = (
+        exit_model_df.groupby(["seed", "exit_round_num"]).size().unstack(fill_value=0)
+        .reindex(columns=range(1, 8), fill_value=0)
+    )
+    seed_distribution = seed_distribution.div(seed_distribution.sum(axis=1), axis=0)
+    seed_expected_round = {
+        int(seed): float(np.dot(row.to_numpy(), np.arange(1, 8)))
+        for seed, row in seed_distribution.iterrows()
+    }
+
+    current_rows: List[dict] = []
+    current_team_ids: List[int] = []
+    for team_id, team_season in team_seasons.items():
+        seed_info = seed_by_team_id.get(team_id)
+        if seed_info is None:
+            continue
+
+        row = {
+            "id": int(team_id),
+            "name": team_season.name,
+            "seed": int(seed_info["seed"]),
+            "region": seed_info["region"],
+        }
+        for feature_name in EXIT_ROUND_MODEL_FEATURE_COLUMNS:
+            value = get_feature_value(team_season, feature_name, seed_by_team_id)
+            row[feature_name] = 0.0 if is_missing_value(value) else float(value)
+        current_rows.append(row)
+        current_team_ids.append(int(team_id))
+
+    if not current_rows:
+        return {}
+
+    current_df = pd.DataFrame(current_rows)
+    current_probs = exit_round_model.predict_proba(current_df[EXIT_ROUND_MODEL_FEATURE_COLUMNS])
+    expected_exit_rounds = [
+        float(np.dot(prob_vector, np.arange(1, 8)))
+        for prob_vector in current_probs
+    ]
+    region_rank_series = (
+        pd.Series(expected_exit_rounds, index=current_df.index)
+        .groupby(current_df["region"])
+        .rank(ascending=False, method="dense")
+        .astype(int)
+    )
+
+    model_payload = {
+        "id": TEAM_PAGE_EXIT_MODEL_ID,
+        "family": TEAM_PAGE_EXIT_MODEL_FAMILY,
+        "feature_set": STAT_EXPLORER_FEATURE_SET_NAME,
+        "training_season_range": [int(start_season), int(max(start_season, validation_season - 1))],
+        "validation_season": None if validation_season <= start_season else int(validation_season),
+        "calibrated": False,
+    }
+
+    distribution_map: Dict[int, dict] = {}
+    for idx, team_id in enumerate(current_team_ids):
+        prob_vector = current_probs[idx]
+        seed_value = int(current_df.iloc[idx]["seed"])
+        seed_expectation = seed_expected_round.get(seed_value)
+        if seed_expectation is None:
+            continue
+
+        most_likely_round_num = int(prob_vector.argmax() + 1)
+        floor_round_num = exit_round_quantile(prob_vector, 0.25)
+        ceiling_round_num = exit_round_quantile(prob_vector, 0.75)
+
+        distribution_map[team_id] = {
+            "model": model_payload,
+            "expected_exit_round": expected_exit_rounds[idx],
+            "most_likely_round_num": most_likely_round_num,
+            "most_likely_round": exit_round_label(most_likely_round_num),
+            "floor_round_num": floor_round_num,
+            "floor_round": exit_round_label(floor_round_num),
+            "ceiling_round_num": ceiling_round_num,
+            "ceiling_round": exit_round_label(ceiling_round_num),
+            "seed_expected_round": seed_expectation,
+            "seed_delta": expected_exit_rounds[idx] - seed_expectation,
+            "region_rank": int(region_rank_series.iloc[idx]),
+            "probabilities": {
+                EXIT_ROUND_PROBABILITY_KEYS[round_num]: float(prob_vector[round_num - 1])
+                for round_num in range(1, 8)
+            },
+            "threshold_probabilities": {
+                "sweet16_plus": float(prob_vector[2:].sum()),
+                "elite8_plus": float(prob_vector[3:].sum()),
+                "final4_plus": float(prob_vector[4:].sum()),
+                "title_game_plus": float(prob_vector[5:].sum()),
+            },
+        }
+
+    return distribution_map
+
+
 def compute_similarity_scores(
     current_values: dict,
     candidates: pd.DataFrame,
@@ -1197,6 +1400,9 @@ def bootstrap_web_export(
     similarity_map = build_team_page_similarity_map(season, team_seasons, seed_by_team_id)
     for team_id, similar_teams in similarity_map.items():
         team_seasons[team_id].similar_teams = similar_teams
+    exit_round_distribution_map = build_team_page_exit_round_distribution_map(season, team_seasons, seed_by_team_id)
+    for team_id, exit_round_distribution in exit_round_distribution_map.items():
+        team_seasons[team_id].exit_round_distribution = exit_round_distribution
 
     team_index_payload = build_team_index(season, team_seasons, seed_by_team_id)
     feature_store_payload, feature_defaults = build_feature_store(

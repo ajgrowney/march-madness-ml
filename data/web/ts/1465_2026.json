@@ -607,5 +607,43 @@
       "lost_to": "Tennessee",
       "loss_score": "49-83"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 1.044,
+    "most_likely_round_num": 1,
+    "most_likely_round": "Round of 64",
+    "floor_round_num": 1,
+    "floor_round": "Round of 64",
+    "ceiling_round_num": 1,
+    "ceiling_round": "Round of 64",
+    "seed_expected_round": 1.236,
+    "seed_delta": -0.192,
+    "region_rank": 16,
+    "probabilities": {
+      "round64": 0.966,
+      "round32": 0.028,
+      "sweet16": 0.005,
+      "elite8": 0.001,
+      "final4": 0.001,
+      "championship": 0.0,
+      "champion": 0.0
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.006,
+      "elite8_plus": 0.002,
+      "final4_plus": 0.001,
+      "title_game_plus": 0.0
+    }
+  }
 }

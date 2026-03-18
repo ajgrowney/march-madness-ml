@@ -599,5 +599,43 @@
       "lost_to": "Loyola-Chicago",
       "loss_score": "68-69"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 1.492,
+    "most_likely_round_num": 1,
+    "most_likely_round": "Round of 64",
+    "floor_round_num": 1,
+    "floor_round": "Round of 64",
+    "ceiling_round_num": 2,
+    "ceiling_round": "Round of 32",
+    "seed_expected_round": 1.705,
+    "seed_delta": -0.212,
+    "region_rank": 10,
+    "probabilities": {
+      "round64": 0.715,
+      "round32": 0.172,
+      "sweet16": 0.045,
+      "elite8": 0.048,
+      "final4": 0.015,
+      "championship": 0.002,
+      "champion": 0.003
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.113,
+      "elite8_plus": 0.067,
+      "final4_plus": 0.02,
+      "title_game_plus": 0.005
+    }
+  }
 }

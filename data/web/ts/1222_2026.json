@@ -615,5 +615,43 @@
       "lost_to": null,
       "loss_score": null
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 3.778,
+    "most_likely_round_num": 3,
+    "most_likely_round": "Sweet Sixteen",
+    "floor_round_num": 3,
+    "floor_round": "Sweet Sixteen",
+    "ceiling_round_num": 5,
+    "ceiling_round": "Final Four",
+    "seed_expected_round": 3.261,
+    "seed_delta": 0.517,
+    "region_rank": 3,
+    "probabilities": {
+      "round64": 0.034,
+      "round32": 0.157,
+      "sweet16": 0.372,
+      "elite8": 0.175,
+      "final4": 0.075,
+      "championship": 0.072,
+      "champion": 0.115
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.81,
+      "elite8_plus": 0.437,
+      "final4_plus": 0.262,
+      "title_game_plus": 0.187
+    }
+  }
 }

@@ -615,5 +615,43 @@
       "lost_to": "Duke",
       "loss_score": "93-100"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 2.663,
+    "most_likely_round_num": 3,
+    "most_likely_round": "Sweet Sixteen",
+    "floor_round_num": 2,
+    "floor_round": "Round of 32",
+    "ceiling_round_num": 3,
+    "ceiling_round": "Sweet Sixteen",
+    "seed_expected_round": 2.568,
+    "seed_delta": 0.095,
+    "region_rank": 4,
+    "probabilities": {
+      "round64": 0.186,
+      "round32": 0.17,
+      "sweet16": 0.523,
+      "elite8": 0.07,
+      "final4": 0.025,
+      "championship": 0.02,
+      "champion": 0.007
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.644,
+      "elite8_plus": 0.121,
+      "final4_plus": 0.051,
+      "title_game_plus": 0.026
+    }
+  }
 }

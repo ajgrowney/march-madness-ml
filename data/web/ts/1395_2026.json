@@ -609,5 +609,43 @@
       "lost_to": "Connecticut",
       "loss_score": "59-67"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 1.714,
+    "most_likely_round_num": 2,
+    "most_likely_round": "Round of 32",
+    "floor_round_num": 1,
+    "floor_round": "Round of 64",
+    "ceiling_round_num": 2,
+    "ceiling_round": "Round of 32",
+    "seed_expected_round": 1.636,
+    "seed_delta": 0.078,
+    "region_rank": 8,
+    "probabilities": {
+      "round64": 0.39,
+      "round32": 0.533,
+      "sweet16": 0.058,
+      "elite8": 0.014,
+      "final4": 0.004,
+      "championship": 0.001,
+      "champion": 0.0
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.078,
+      "elite8_plus": 0.019,
+      "final4_plus": 0.005,
+      "title_game_plus": 0.001
+    }
+  }
 }

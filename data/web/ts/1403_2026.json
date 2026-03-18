@@ -598,5 +598,43 @@
       "lost_to": "Arizona",
       "loss_score": "83-87"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 2.38,
+    "most_likely_round_num": 2,
+    "most_likely_round": "Round of 32",
+    "floor_round_num": 1,
+    "floor_round": "Round of 64",
+    "ceiling_round_num": 3,
+    "ceiling_round": "Sweet Sixteen",
+    "seed_expected_round": 2.159,
+    "seed_delta": 0.221,
+    "region_rank": 6,
+    "probabilities": {
+      "round64": 0.278,
+      "round32": 0.328,
+      "sweet16": 0.221,
+      "elite8": 0.083,
+      "final4": 0.088,
+      "championship": 0.001,
+      "champion": 0.001
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.394,
+      "elite8_plus": 0.172,
+      "final4_plus": 0.089,
+      "title_game_plus": 0.002
+    }
+  }
 }

@@ -606,5 +606,43 @@
       "lost_to": "Kansas St",
       "loss_score": "59-69"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 2.112,
+    "most_likely_round_num": 1,
+    "most_likely_round": "Round of 64",
+    "floor_round_num": 1,
+    "floor_round": "Round of 64",
+    "ceiling_round_num": 3,
+    "ceiling_round": "Sweet Sixteen",
+    "seed_expected_round": 1.841,
+    "seed_delta": 0.271,
+    "region_rank": 5,
+    "probabilities": {
+      "round64": 0.448,
+      "round32": 0.262,
+      "sweet16": 0.172,
+      "elite8": 0.035,
+      "final4": 0.03,
+      "championship": 0.042,
+      "champion": 0.012
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.291,
+      "elite8_plus": 0.119,
+      "final4_plus": 0.084,
+      "title_game_plus": 0.054
+    }
+  }
 }

@@ -94,6 +94,44 @@ def serialize_similar_team(entry: Union[dict, tuple, list]) -> dict:
         "er": er,
     }
 
+
+def serialize_exit_round_distribution(entry: Union[dict, None]) -> Union[dict, None]:
+    if entry is None:
+        return None
+
+    model_entry = entry.get("model", {})
+    probabilities = entry.get("probabilities", {})
+    threshold_probabilities = entry.get("threshold_probabilities", {})
+
+    return {
+        "model": {
+            "id": model_entry.get("id"),
+            "family": model_entry.get("family"),
+            "feature_set": model_entry.get("feature_set"),
+            "training_season_range": model_entry.get("training_season_range"),
+            "validation_season": model_entry.get("validation_season"),
+            "calibrated": bool(model_entry.get("calibrated", False)),
+        },
+        "expected_exit_round": round(float(entry["expected_exit_round"]), 3),
+        "most_likely_round_num": int(entry["most_likely_round_num"]),
+        "most_likely_round": entry["most_likely_round"],
+        "floor_round_num": int(entry["floor_round_num"]),
+        "floor_round": entry["floor_round"],
+        "ceiling_round_num": int(entry["ceiling_round_num"]),
+        "ceiling_round": entry["ceiling_round"],
+        "seed_expected_round": round(float(entry["seed_expected_round"]), 3),
+        "seed_delta": round(float(entry["seed_delta"]), 3),
+        "region_rank": int(entry["region_rank"]),
+        "probabilities": {
+            key: round(float(value), 3)
+            for key, value in probabilities.items()
+        },
+        "threshold_probabilities": {
+            key: round(float(value), 3)
+            for key, value in threshold_probabilities.items()
+        },
+    }
+
 class TeamGame:
     def __init__(self, opp_id: int, opp_name:str, team_score: int, opp_score: int,
                  team_loc: str, date_int:int = None, date_str:str = None, conf: bool = None,
@@ -261,6 +299,7 @@ class TeamSeason:
         self.quad_losses    = {1:[], 2:[], 3:[], 4:[]} 
         # Similarity Data
         self.similar_teams = []
+        self.exit_round_distribution = None
         # Tournament Stats / Results
         self.tourney_games: List[TeamGame] = []
         self.tourney_exit_round: str = None
@@ -487,7 +526,8 @@ class TeamSeason:
             "sov": round(self.sov, 3),
             "ordinal_data": self.ordinal_data.to_json(statistics="last"),
             "tournament": tournament_data,
-            "similar_teams": [serialize_similar_team(entry) for entry in self.similar_teams]
+            "similar_teams": [serialize_similar_team(entry) for entry in self.similar_teams],
+            "exit_round_distribution": serialize_exit_round_distribution(self.exit_round_distribution),
         }
 
 QUAD_THRESHOLDS = {

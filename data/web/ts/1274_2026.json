@@ -607,5 +607,43 @@
       "lost_to": "Richmond",
       "loss_score": "63-67"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 1.905,
+    "most_likely_round_num": 1,
+    "most_likely_round": "Round of 64",
+    "floor_round_num": 1,
+    "floor_round": "Round of 64",
+    "ceiling_round_num": 3,
+    "ceiling_round": "Sweet Sixteen",
+    "seed_expected_round": 1.966,
+    "seed_delta": -0.061,
+    "region_rank": 9,
+    "probabilities": {
+      "round64": 0.461,
+      "round32": 0.238,
+      "sweet16": 0.261,
+      "elite8": 0.017,
+      "final4": 0.022,
+      "championship": 0.001,
+      "champion": 0.001
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.301,
+      "elite8_plus": 0.04,
+      "final4_plus": 0.023,
+      "title_game_plus": 0.001
+    }
+  }
 }

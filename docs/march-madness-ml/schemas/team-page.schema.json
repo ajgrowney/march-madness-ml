@@ -21,7 +21,8 @@
     "sov",
     "ordinal_data",
     "tournament",
-    "similar_teams"
+    "similar_teams",
+    "exit_round_distribution"
   ],
   "properties": {
     "id": {
@@ -94,6 +95,17 @@
       "items": {
         "$ref": "#/$defs/similarTeam"
       }
+    },
+    "exit_round_distribution": {
+      "description": "Model-based tournament exit projection for seeded teams; null for non-tournament teams or if enrichment is unavailable.",
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/exitRoundDistribution"
+        }
+      ]
     }
   },
   "$defs": {
@@ -323,6 +335,167 @@
         "loss_score": {
           "type": ["string", "null"],
           "description": "Final score from the matched historical team's elimination game, formatted as team-opp."
+        }
+      }
+    },
+    "exitRoundModel": {
+      "title": "Exit Round Model Metadata",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "family",
+        "feature_set",
+        "training_season_range",
+        "validation_season",
+        "calibrated"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "family": {
+          "type": "string",
+          "minLength": 1
+        },
+        "feature_set": {
+          "type": "string",
+          "minLength": 1
+        },
+        "training_season_range": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "integer",
+              "minimum": 1985
+            },
+            {
+              "type": "integer",
+              "minimum": 1985
+            }
+          ],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "validation_season": {
+          "type": ["integer", "null"],
+          "minimum": 1985
+        },
+        "calibrated": {
+          "type": "boolean"
+        }
+      }
+    },
+    "probabilityMap": {
+      "title": "Probability Map",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "round64",
+        "round32",
+        "sweet16",
+        "elite8",
+        "final4",
+        "championship",
+        "champion"
+      ],
+      "properties": {
+        "round64": { "type": "number" },
+        "round32": { "type": "number" },
+        "sweet16": { "type": "number" },
+        "elite8": { "type": "number" },
+        "final4": { "type": "number" },
+        "championship": { "type": "number" },
+        "champion": { "type": "number" }
+      }
+    },
+    "thresholdProbabilityMap": {
+      "title": "Threshold Probability Map",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sweet16_plus",
+        "elite8_plus",
+        "final4_plus",
+        "title_game_plus"
+      ],
+      "properties": {
+        "sweet16_plus": { "type": "number" },
+        "elite8_plus": { "type": "number" },
+        "final4_plus": { "type": "number" },
+        "title_game_plus": { "type": "number" }
+      }
+    },
+    "exitRoundDistribution": {
+      "title": "Exit Round Distribution",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model",
+        "expected_exit_round",
+        "most_likely_round_num",
+        "most_likely_round",
+        "floor_round_num",
+        "floor_round",
+        "ceiling_round_num",
+        "ceiling_round",
+        "seed_expected_round",
+        "seed_delta",
+        "region_rank",
+        "probabilities",
+        "threshold_probabilities"
+      ],
+      "properties": {
+        "model": {
+          "$ref": "#/$defs/exitRoundModel"
+        },
+        "expected_exit_round": {
+          "type": "number"
+        },
+        "most_likely_round_num": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 7
+        },
+        "most_likely_round": {
+          "type": "string",
+          "minLength": 1
+        },
+        "floor_round_num": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 7
+        },
+        "floor_round": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ceiling_round_num": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 7
+        },
+        "ceiling_round": {
+          "type": "string",
+          "minLength": 1
+        },
+        "seed_expected_round": {
+          "type": "number"
+        },
+        "seed_delta": {
+          "type": "number"
+        },
+        "region_rank": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "probabilities": {
+          "$ref": "#/$defs/probabilityMap"
+        },
+        "threshold_probabilities": {
+          "$ref": "#/$defs/thresholdProbabilityMap"
         }
       }
     }

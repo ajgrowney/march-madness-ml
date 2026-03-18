@@ -599,5 +599,43 @@
       "lost_to": "Texas A&M",
       "loss_score": "83-98"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 2.22,
+    "most_likely_round_num": 2,
+    "most_likely_round": "Round of 32",
+    "floor_round_num": 2,
+    "floor_round": "Round of 32",
+    "ceiling_round_num": 2,
+    "ceiling_round": "Round of 32",
+    "seed_expected_round": 1.705,
+    "seed_delta": 0.515,
+    "region_rank": 7,
+    "probabilities": {
+      "round64": 0.197,
+      "round32": 0.574,
+      "sweet16": 0.085,
+      "elite8": 0.108,
+      "final4": 0.033,
+      "championship": 0.003,
+      "champion": 0.001
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.229,
+      "elite8_plus": 0.145,
+      "final4_plus": 0.037,
+      "title_game_plus": 0.004
+    }
+  }
 }

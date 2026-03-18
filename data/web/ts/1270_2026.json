@@ -589,5 +589,43 @@
       "lost_to": "Kentucky",
       "loss_score": "57-76"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 1.566,
+    "most_likely_round_num": 1,
+    "most_likely_round": "Round of 64",
+    "floor_round_num": 1,
+    "floor_round": "Round of 64",
+    "ceiling_round_num": 2,
+    "ceiling_round": "Round of 32",
+    "seed_expected_round": 1.489,
+    "seed_delta": 0.077,
+    "region_rank": 10,
+    "probabilities": {
+      "round64": 0.518,
+      "round32": 0.414,
+      "sweet16": 0.056,
+      "elite8": 0.009,
+      "final4": 0.002,
+      "championship": 0.0,
+      "champion": 0.0
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.068,
+      "elite8_plus": 0.012,
+      "final4_plus": 0.003,
+      "title_game_plus": 0.001
+    }
+  }
 }

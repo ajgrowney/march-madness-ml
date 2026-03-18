@@ -615,5 +615,43 @@
       "lost_to": "VCU",
       "loss_score": "61-71"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 4.42,
+    "most_likely_round_num": 5,
+    "most_likely_round": "Final Four",
+    "floor_round_num": 3,
+    "floor_round": "Sweet Sixteen",
+    "ceiling_round_num": 6,
+    "ceiling_round": "Championship",
+    "seed_expected_round": 4.295,
+    "seed_delta": 0.125,
+    "region_rank": 1,
+    "probabilities": {
+      "round64": 0.019,
+      "round32": 0.187,
+      "sweet16": 0.13,
+      "elite8": 0.104,
+      "final4": 0.255,
+      "championship": 0.191,
+      "champion": 0.115
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.794,
+      "elite8_plus": 0.664,
+      "final4_plus": 0.56,
+      "title_game_plus": 0.306
+    }
+  }
 }

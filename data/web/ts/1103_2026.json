@@ -597,5 +597,43 @@
       "lost_to": "Maryland",
       "loss_score": "77-79"
     }
-  ]
+  ],
+  "exit_round_distribution": {
+    "model": {
+      "id": "team-exit-round-xgb-v1",
+      "family": "xgboost-multiclass",
+      "feature_set": "stat_explorer_v1",
+      "training_season_range": [
+        2003,
+        2024
+      ],
+      "validation_season": 2025,
+      "calibrated": false
+    },
+    "expected_exit_round": 1.396,
+    "most_likely_round_num": 1,
+    "most_likely_round": "Round of 64",
+    "floor_round_num": 1,
+    "floor_round": "Round of 64",
+    "ceiling_round_num": 2,
+    "ceiling_round": "Round of 32",
+    "seed_expected_round": 1.489,
+    "seed_delta": -0.093,
+    "region_rank": 12,
+    "probabilities": {
+      "round64": 0.735,
+      "round32": 0.169,
+      "sweet16": 0.072,
+      "elite8": 0.014,
+      "final4": 0.008,
+      "championship": 0.0,
+      "champion": 0.001
+    },
+    "threshold_probabilities": {
+      "sweet16_plus": 0.095,
+      "elite8_plus": 0.024,
+      "final4_plus": 0.01,
+      "title_game_plus": 0.002
+    }
+  }
 }
