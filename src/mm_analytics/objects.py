@@ -6,7 +6,7 @@ import re
 import numpy as np
 import pandas as pd
 
-from mm_analytics.utilities import get_historical_similarity, DATA_ROOT, NpEncoder, ROUND_DAYS
+from mm_analytics.utilities import DATA_ROOT, NpEncoder, ROUND_DAYS
 
 SEASON_ROUND_DAY_OVERRIDES = {
     2021: {
@@ -51,6 +51,48 @@ def to_pct(val1, val2) -> Union[float, None]:
     :return: float - Percentage
     """
     return val1 / val2 if val2 != 0 else None
+
+
+def serialize_similar_team(entry: Union[dict, tuple, list]) -> dict:
+    if isinstance(entry, dict):
+        payload = {
+            "id": int(entry["id"]),
+            "year": int(entry["year"]),
+            "avg": round(float(entry["avg"]), 3),
+            "res": round(float(entry["res"]), 3),
+            "st": round(float(entry["st"]), 3),
+            "er": entry.get("er"),
+        }
+
+        optional_fields = {
+            "name": entry.get("name"),
+            "seed": entry.get("seed"),
+            "feature_similarity": entry.get("feature_similarity"),
+            "seed_similarity": entry.get("seed_similarity"),
+            "lost_to_team_id": entry.get("lost_to_team_id"),
+            "lost_to": entry.get("lost_to"),
+            "loss_score": entry.get("loss_score"),
+        }
+        for field_name, value in optional_fields.items():
+            if value is None:
+                payload[field_name] = None
+            elif field_name in {"seed", "lost_to_team_id"}:
+                payload[field_name] = int(value)
+            elif field_name in {"feature_similarity", "seed_similarity"}:
+                payload[field_name] = round(float(value), 3)
+            else:
+                payload[field_name] = value
+        return payload
+
+    tid, ty, avgs, rs, ss, er = entry
+    return {
+        "id": tid,
+        "year": ty,
+        "avg": avgs,
+        "res": rs,
+        "st": ss,
+        "er": er,
+    }
 
 class TeamGame:
     def __init__(self, opp_id: int, opp_name:str, team_score: int, opp_score: int,
@@ -445,9 +487,7 @@ class TeamSeason:
             "sov": round(self.sov, 3),
             "ordinal_data": self.ordinal_data.to_json(statistics="last"),
             "tournament": tournament_data,
-            "similar_teams": [{
-                "id": tid, "year": ty, "avg": avgs, "res": rs, "st": ss, "er": er
-            } for (tid, ty, avgs, rs, ss, er) in self.similar_teams]
+            "similar_teams": [serialize_similar_team(entry) for entry in self.similar_teams]
         }
 
 QUAD_THRESHOLDS = {

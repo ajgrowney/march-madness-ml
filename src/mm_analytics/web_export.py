@@ -8,6 +8,9 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import numpy as np
+import pandas as pd
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.preprocessing import StandardScaler
 
 from mm_analytics.objects import (
     ORDINALS_DF,
@@ -106,6 +109,15 @@ STAT_EXPLORER_FEATURE_GROUPS = {
     "Defense": ["AdjDE_mean", "Stl_mean", "Blk_mean", "OppTO_mean", "DR_mean", "OppFGA3_mean"],
 }
 STAT_EXPLORER_HISTORICAL_RANGE = (2003, 2025)
+TEAM_PAGE_SIMILARITY_TOP_N = 10
+TEAM_PAGE_SIMILARITY_SEED_WINDOW = 2
+TEAM_PAGE_SIMILARITY_SEED_WEIGHT = 0.15
+TEAM_PAGE_SIMILARITY_RESUME_COLUMNS = STAT_EXPLORER_FEATURE_GROUPS["Resume"]
+TEAM_PAGE_SIMILARITY_STAT_COLUMNS = (
+    STAT_EXPLORER_FEATURE_GROUPS["Tempo"]
+    + STAT_EXPLORER_FEATURE_GROUPS["Offense"]
+    + STAT_EXPLORER_FEATURE_GROUPS["Defense"]
+)
 STAT_EXPLORER_ROUND_BUCKETS = [
     {"key": "round64", "label": "Round of 64", "exit_round_labels": ["Play In", "First Round"]},
     {"key": "round32", "label": "Round 32", "exit_round_labels": ["Second Round"]},
@@ -608,6 +620,139 @@ def build_team_index(
     }
 
 
+def build_tournament_loss_context(team_season: TeamSeason) -> dict:
+    losing_games = [game for game in team_season.tourney_games if not game.is_win()]
+    if not losing_games:
+        return {
+            "lost_to_team_id": None,
+            "lost_to": None,
+            "loss_score": None,
+        }
+
+    loss_game = losing_games[0]
+    return {
+        "lost_to_team_id": int(loss_game.opponent_id),
+        "lost_to": loss_game.opponent_name,
+        "loss_score": f"{int(loss_game.team_score)}-{int(loss_game.opp_score)}",
+    }
+
+
+def build_historical_similarity_frame(
+    start_season: int,
+    end_season: int,
+) -> pd.DataFrame:
+    rows: List[dict] = []
+
+    for historical_season in range(start_season, end_season + 1):
+        historical_team_seasons, _ = load_team_seasons_for_export(historical_season)
+        historical_seed_by_team_id, _, _ = build_placeholder_seed_maps(historical_season)
+
+        for team_id, team_season in historical_team_seasons.items():
+            seed_info = historical_seed_by_team_id.get(team_id)
+            if seed_info is None or team_season.tourney_exit_round is None:
+                continue
+
+            row = {
+                "id": int(team_id),
+                "name": team_season.name,
+                "year": int(historical_season),
+                "seed": int(seed_info["seed"]),
+                "er": team_season.tourney_exit_round,
+                **build_tournament_loss_context(team_season),
+            }
+            for feature_name in STAT_EXPLORER_FEATURE_COLUMNS:
+                value = get_feature_value(team_season, feature_name, historical_seed_by_team_id)
+                row[feature_name] = 0.0 if is_missing_value(value) else float(value)
+            rows.append(row)
+
+    return pd.DataFrame(rows)
+
+
+def compute_similarity_scores(
+    current_values: dict,
+    candidates: pd.DataFrame,
+    feature_columns: List[str],
+) -> np.ndarray:
+    scaler = StandardScaler()
+    candidate_matrix = scaler.fit_transform(candidates[feature_columns])
+    current_matrix = scaler.transform(pd.DataFrame([current_values], columns=feature_columns))
+    return cosine_similarity(current_matrix, candidate_matrix).ravel()
+
+
+def build_team_page_similarity_map(
+    season: int,
+    team_seasons: Dict[int, TeamSeason],
+    seed_by_team_id: Dict[int, dict],
+    top_n: int = TEAM_PAGE_SIMILARITY_TOP_N,
+    seed_window: Optional[int] = TEAM_PAGE_SIMILARITY_SEED_WINDOW,
+    seed_weight: float = TEAM_PAGE_SIMILARITY_SEED_WEIGHT,
+) -> Dict[int, List[dict]]:
+    start_season, end_season = STAT_EXPLORER_HISTORICAL_RANGE
+    historical_end = min(end_season, season - 1)
+    if historical_end < start_season:
+        return {}
+
+    candidates = build_historical_similarity_frame(start_season, historical_end)
+    if candidates.empty:
+        return {}
+
+    similarity_map: Dict[int, List[dict]] = {}
+    for team_id, team_season in team_seasons.items():
+        seed_info = seed_by_team_id.get(team_id)
+        if seed_info is None:
+            continue
+
+        team_seed = int(seed_info["seed"])
+        team_values = {}
+        for feature_name in STAT_EXPLORER_FEATURE_COLUMNS:
+            value = get_feature_value(team_season, feature_name, seed_by_team_id)
+            team_values[feature_name] = 0.0 if is_missing_value(value) else float(value)
+
+        team_candidates = candidates
+        if seed_window is not None:
+            seed_filtered = candidates.loc[candidates["seed"].between(team_seed - seed_window, team_seed + seed_window)].copy()
+            if len(seed_filtered) >= top_n:
+                team_candidates = seed_filtered
+
+        feature_similarity = compute_similarity_scores(team_values, team_candidates, STAT_EXPLORER_FEATURE_COLUMNS)
+        resume_similarity = compute_similarity_scores(team_values, team_candidates, TEAM_PAGE_SIMILARITY_RESUME_COLUMNS)
+        stat_similarity = compute_similarity_scores(team_values, team_candidates, TEAM_PAGE_SIMILARITY_STAT_COLUMNS)
+
+        seed_distance = (team_candidates["seed"] - team_seed).abs().astype(float)
+        max_seed_distance = max(float(seed_distance.max()), 1.0)
+        seed_similarity = 1 - (seed_distance / max_seed_distance)
+        combined_similarity = ((1 - seed_weight) * feature_similarity) + (seed_weight * seed_similarity.to_numpy())
+
+        ranked = team_candidates.assign(
+            avg=combined_similarity,
+            feature_similarity=feature_similarity,
+            res=resume_similarity,
+            st=stat_similarity,
+            seed_similarity=seed_similarity.to_numpy(),
+        ).sort_values("avg", ascending=False)
+
+        similarity_map[team_id] = [
+            {
+                "id": int(row.id),
+                "year": int(row.year),
+                "name": row.name,
+                "seed": int(row.seed),
+                "avg": round(float(row.avg), 3),
+                "feature_similarity": round(float(row.feature_similarity), 3),
+                "res": round(float(row.res), 3),
+                "st": round(float(row.st), 3),
+                "seed_similarity": round(float(row.seed_similarity), 3),
+                "er": row.er,
+                "lost_to_team_id": None if pd.isna(row.lost_to_team_id) else int(row.lost_to_team_id),
+                "lost_to": None if pd.isna(row.lost_to) else row.lost_to,
+                "loss_score": None if pd.isna(row.loss_score) else row.loss_score,
+            }
+            for row in ranked.head(top_n).itertuples(index=False)
+        ]
+
+    return similarity_map
+
+
 def build_team_page_payload(team_season: TeamSeason, seed_by_team_id: Dict[int, dict]) -> dict:
     payload = team_season.to_web_json()
     seed_info = seed_by_team_id.get(team_season.id)
@@ -1049,6 +1194,9 @@ def bootstrap_web_export(
     ensure_export_directories(paths)
     team_seasons, _ = load_team_seasons_for_export(season)
     seed_by_team_id, seed_by_label, source_season = build_placeholder_seed_maps(season)
+    similarity_map = build_team_page_similarity_map(season, team_seasons, seed_by_team_id)
+    for team_id, similar_teams in similarity_map.items():
+        team_seasons[team_id].similar_teams = similar_teams
 
     team_index_payload = build_team_index(season, team_seasons, seed_by_team_id)
     feature_store_payload, feature_defaults = build_feature_store(
@@ -1090,6 +1238,11 @@ def bootstrap_web_export(
             "current_field_team_count": smoke_checks.stat_explorer_current_field_count,
             "historical_feature_count": smoke_checks.stat_explorer_historical_feature_count,
             "historical_row_count": smoke_checks.stat_explorer_historical_row_count,
+        },
+        "team_similarity": {
+            "tournament_team_count": len(similarity_map),
+            "matches_per_team": TEAM_PAGE_SIMILARITY_TOP_N,
+            "historical_range": [STAT_EXPLORER_HISTORICAL_RANGE[0], min(STAT_EXPLORER_HISTORICAL_RANGE[1], season - 1)],
         },
         "placeholder_bracket_source_season": source_season,
         "feature_defaults": {

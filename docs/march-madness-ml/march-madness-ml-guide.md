@@ -97,6 +97,38 @@ Rules:
 - It is fetched on demand, so moderate size is acceptable.
 - Use a consistent null strategy for tournament and similarity edge cases.
 
+##### Team Insights Similar Teams
+
+`similar_teams` remains the single Team Insights comparison surface.
+
+Contract rules:
+
+- The array is already sorted best-to-worst by `avg`; the UI should preserve that order.
+- Tournament teams should usually have up to 10 entries.
+- Non-tournament teams may legitimately have an empty array.
+- Each entry is historical and references one seeded tournament team-season from 2003 forward.
+- `avg`, `res`, `st`, `feature_similarity`, and `seed_similarity` are normalized similarity scores in the `[0, 1]` range, where larger means more similar.
+- `avg` is the primary ranking score for display and already blends feature similarity with a seed prior.
+- `feature_similarity` is the raw full-vector similarity before the seed prior is blended in.
+- `res` is the resume-oriented similarity view.
+- `st` is the tempo and efficiency similarity view.
+- `seed_similarity` is highest when the historical comp had the same seed as the current team.
+- `er` is the historical tournament exit round for the comparison team.
+- `lost_to_team_id`, `lost_to`, and `loss_score` provide elimination context for the comp and may be null when the source record is incomplete.
+
+Suggested Team Insights rendering:
+
+- Treat `avg` as the headline similarity score.
+- Show `name`, `year`, `seed`, and `er` in the primary row.
+- Use `lost_to` and `loss_score` as the historical outcome summary, for example `Lost to Duke, 93-100`.
+- Use `res` and `st` as supporting breakdown chips or secondary columns instead of competing primary rankings.
+- Do not re-sort by `res`, `st`, or `feature_similarity` unless the product explicitly adds alternate sort controls.
+
+Empty-state rules:
+
+- If `similar_teams` is empty and `tournament` is null, render a non-tournament message rather than an error state.
+- If `similar_teams` is empty but `tournament` is present, treat that as missing enrichment and fall back to the rest of the team page.
+
 #### Feature Store
 
 Path:
