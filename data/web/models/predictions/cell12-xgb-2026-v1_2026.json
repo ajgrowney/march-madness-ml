@@ -2,7 +2,7 @@
   "season": 2026,
   "model": {
     "id": "cell12-xgb-2026-v1",
-    "name": "Cell 12 XGBoost 2026",
+    "name": "Real 2026",
     "type": "precomputed-predictions",
     "model_family": "xgboost",
     "seasons": [
