@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://andrewgrowney.com/schemas/march-madness-ml/model-manifest.schema.json",
   "title": "March Madness Model Manifest",
-  "description": "Manifest describing which reference models or runtime configs the website can load, which feature set they require, and how predictions should be resolved.",
+  "description": "Manifest describing which reference models, runtime configs, or insight artifacts the website can load, which feature set they require, and how matchup inference should be resolved.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -27,7 +27,7 @@
   "$defs": {
     "modelEntry": {
       "title": "Model Manifest Entry",
-      "description": "A model option presented to the website user. This may be heuristic, precomputed, runtime-config, or TensorFlow.js in the future.",
+      "description": "A model option presented to the website user. This may be heuristic, precomputed, runtime-config, TensorFlow.js, or a precomputed matchup-insights artifact.",
       "type": "object",
       "additionalProperties": false,
       "required": [
@@ -56,6 +56,7 @@
             "heuristic",
             "runtime-config",
             "precomputed-predictions",
+            "precomputed-insights",
             "tfjs",
             "sklearn-reference"
           ],
@@ -66,10 +67,13 @@
           "enum": [
             "heuristic",
             "logistic-regression",
+            "random_forest",
             "random-forest",
             "mlp",
             "keras-dnn",
             "xgboost",
+            "nearest-neighbor",
+            "matchup-clustering",
             "other"
           ],
           "description": "Optional training-family label used to describe the underlying model implementation for precomputed or runtime-backed models."
@@ -93,9 +97,26 @@
             "runtime",
             "runtime-config",
             "precomputed",
+            "precomputed-insights",
             "tfjs"
           ],
-          "description": "How the website should resolve matchup predictions for this model."
+          "description": "How the website should resolve matchup inference for this model."
+        },
+        "inference_task": {
+          "type": "string",
+          "enum": [
+            "winner-probability",
+            "matchup-insights"
+          ],
+          "description": "Optional declaration of what the model returns for a matchup. Omit for legacy winner-probability models."
+        },
+        "artifact_format": {
+          "type": "string",
+          "enum": [
+            "pairwise-winner-probability",
+            "pairwise-matchup-insights-v1"
+          ],
+          "description": "Optional browser-facing artifact format. This lets the site distinguish probability tables from matchup-insight tables without inferring from URLs."
         },
         "description": {
           "type": "string",
@@ -145,10 +166,32 @@
           "format": "uri",
           "description": "Optional URL to a precomputed season-specific matchup prediction table."
         },
+        "matchup_insights_url": {
+          "type": ["string", "null"],
+          "format": "uri",
+          "description": "Optional URL to a precomputed season-specific matchup insights table such as clustering analogs and slot-aware summaries."
+        },
         "feature_importance_url": {
           "type": ["string", "null"],
           "format": "uri",
           "description": "Optional URL to a feature-importance artifact for offline-trained models."
+        },
+        "supports_bracket_autofill": {
+          "type": "boolean",
+          "description": "Optional flag for whether the website may use this model to auto-advance bracket picks directly. Insight-only models should set this to false."
+        },
+        "training_feature_aliases": {
+          "type": "object",
+          "description": "Optional map from training-time feature names to browser-facing feature names when a published artifact used aliases internally.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "oob_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Optional out-of-bag score for random-forest style models."
         },
         "is_custom": {
           "type": "boolean",

@@ -1,0 +1,208 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://andrewgrowney.com/schemas/march-madness-ml/matchup-insights.schema.json",
+  "title": "March Madness Matchup Insights Artifact",
+  "description": "Season-specific pairwise matchup insights exported from a browser-consumable offline pipeline such as matchup clustering or nearest-neighbor analog retrieval.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "season",
+    "model",
+    "inference_task",
+    "artifact_format",
+    "team_ids",
+    "matchups"
+  ],
+  "properties": {
+    "season": {
+      "type": "integer",
+      "minimum": 1985,
+      "description": "Tournament season represented by the exported matchup insights."
+    },
+    "model": {
+      "$ref": "model-manifest.schema.json#/$defs/modelEntry"
+    },
+    "inference_task": {
+      "type": "string",
+      "const": "matchup-insights",
+      "description": "Declared inference task for the artifact."
+    },
+    "artifact_format": {
+      "type": "string",
+      "const": "pairwise-matchup-insights-v1",
+      "description": "Compact ordered-pair lookup format for matchup-clustering style insights."
+    },
+    "team_ids": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "description": "List of team IDs covered by the exported lookup table.",
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      }
+    },
+    "matchups": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "Map keyed by ordered matchup id '<team_a_id>:<team_b_id>'. Each value stores cluster assignment, optional slot context, and nearest historical analogs.",
+      "patternProperties": {
+        "^[0-9]+:[0-9]+$": {
+          "$ref": "#/$defs/matchupInsight"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "clusterSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cluster_id",
+        "cluster_game_count",
+        "filtered_game_count",
+        "favorite_win_rate",
+        "upset_rate"
+      ],
+      "properties": {
+        "cluster_id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cluster_game_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "filtered_game_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "favorite_win_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "upset_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "avg_margin": {
+          "type": "number"
+        },
+        "avg_total_points": {
+          "type": "number"
+        },
+        "avg_seed_gap": {
+          "type": "number"
+        },
+        "common_round": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "nearestGame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "season",
+        "round",
+        "favorite_team_id",
+        "underdog_team_id",
+        "favorite_won",
+        "margin",
+        "total_points",
+        "similarity"
+      ],
+      "properties": {
+        "season": {
+          "type": "integer",
+          "minimum": 1985
+        },
+        "round": {
+          "type": "string",
+          "minLength": 1
+        },
+        "slot": {
+          "type": ["string", "null"]
+        },
+        "slot_family": {
+          "type": ["string", "null"]
+        },
+        "favorite_team_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "underdog_team_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "favorite_won": {
+          "type": "boolean"
+        },
+        "margin": {
+          "type": "number"
+        },
+        "total_points": {
+          "type": "number"
+        },
+        "similarity": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        }
+      }
+    },
+    "matchupInsight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "team_a_id",
+        "team_b_id",
+        "favorite_team_id",
+        "underdog_team_id",
+        "cluster_summary",
+        "nearest_games"
+      ],
+      "properties": {
+        "team_a_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "team_b_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "favorite_team_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "underdog_team_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "bracket_slot": {
+          "type": ["string", "null"]
+        },
+        "bracket_slot_family": {
+          "type": ["string", "null"]
+        },
+        "same_bracket_slot": {
+          "type": "boolean",
+          "description": "Whether the exported analog search was restricted to the same structural slot family."
+        },
+        "cluster_summary": {
+          "$ref": "#/$defs/clusterSummary"
+        },
+        "nearest_games": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nearestGame"
+          }
+        }
+      }
+    }
+  }
+}

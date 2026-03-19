@@ -205,6 +205,7 @@ Rules:
 - Be honest about model type.
 - If a model is a heuristic or runtime config, say so.
 - Do not label a scikit-learn artifact as TensorFlow.js unless it actually ships as a TFJS loadable model.
+- If a model is insight-only, expose that explicitly in the manifest and do not let the site pretend it can auto-fill bracket picks unless the artifact exports a real winner probability.
 
 ### 4. Validate Before Publish
 
