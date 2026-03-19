@@ -1,0 +1,2 @@
+log_probability,avg_win_probability,first_round_upsets,sweet16_double_digit_count,final_four_one_seeds,final_four_seed_sum,champion_seed,sample_idx,selection_reason,max_final_four_one_seeds,min_first_round_upsets,min_sweet16_double_digit,champion_title_probability
+-29.41081687620729,0.6740091290026777,7,1,2,6,1,3849,constraint_tier_1,2,6,1,0.1727234997240681

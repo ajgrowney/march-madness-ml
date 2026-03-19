@@ -1,5 +1,5 @@
 {
-  "default_model_id": "rf-2026-v1",
+  "default_model_id": "cell12-xgb-2026-v1",
   "models": [
     {
       "id": "matchup-cluster-2026-v1",
@@ -43,6 +43,50 @@
       "artifact_version": "1.0.0",
       "exported_at": "2026-03-18T20:54:18.703145+00:00",
       "matchup_insights_url": "data/web/models/insights/matchup-cluster-2026-v1_2026.json"
+    },
+    {
+      "id": "cell12-xgb-2026-v1",
+      "name": "Cell 12 XGBoost 2026",
+      "type": "precomputed-predictions",
+      "model_family": "xgboost",
+      "seasons": [
+        2026
+      ],
+      "training_seasons": [
+        2003,
+        2004,
+        2005,
+        2006,
+        2007,
+        2008,
+        2009,
+        2010,
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "feature_set": "stat_explorer_v1",
+      "prediction_format": "precomputed",
+      "mirrored_prediction_strategy": "average-forward-reverse",
+      "description": "XGBoost model matching notebook cell 12 and exported as pairwise 2026 tournament probabilities.",
+      "artifact_version": "0.1.0",
+      "exported_at": "2026-03-19T13:17:53.175433+00:00",
+      "predictions_url": "data/web/models/predictions/cell12-xgb-2026-v1_2026.json",
+      "feature_importance_url": "data/web/models/predictions/cell12-xgb-2026-v1_importance.json",
+      "validation_accuracy": 0.689096
     },
     {
       "id": "rf-2026-v1",

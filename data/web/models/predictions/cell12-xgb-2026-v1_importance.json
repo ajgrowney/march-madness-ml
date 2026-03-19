@@ -1,0 +1,127 @@
+{
+  "model_id": "cell12-xgb-2026-v1",
+  "season": 2026,
+  "feature_set": "stat_explorer_v1",
+  "feature_importance": [
+    {
+      "featureKey": "AdjNE_mean",
+      "importance": 0.312539,
+      "rank": 1
+    },
+    {
+      "featureKey": "AdjDE_mean",
+      "importance": 0.171391,
+      "rank": 2
+    },
+    {
+      "featureKey": "AdjOE_mean",
+      "importance": 0.168813,
+      "rank": 3
+    },
+    {
+      "featureKey": "Q4_WinPct",
+      "importance": 0.12038,
+      "rank": 4
+    },
+    {
+      "featureKey": "Q3_WinPct",
+      "importance": 0.048209,
+      "rank": 5
+    },
+    {
+      "featureKey": "Q2_WinPct",
+      "importance": 0.027718,
+      "rank": 6
+    },
+    {
+      "featureKey": "SOV",
+      "importance": 0.022609,
+      "rank": 7
+    },
+    {
+      "featureKey": "Q1_WinPct",
+      "importance": 0.021352,
+      "rank": 8
+    },
+    {
+      "featureKey": "Ast_mean",
+      "importance": 0.017762,
+      "rank": 9
+    },
+    {
+      "featureKey": "TO_mean",
+      "importance": 0.01041,
+      "rank": 10
+    },
+    {
+      "featureKey": "FTA_mean",
+      "importance": 0.010291,
+      "rank": 11
+    },
+    {
+      "featureKey": "EFG%_mean",
+      "importance": 0.009222,
+      "rank": 12
+    },
+    {
+      "featureKey": "SOS",
+      "importance": 0.008163,
+      "rank": 13
+    },
+    {
+      "featureKey": "FT%_mean",
+      "importance": 0.005137,
+      "rank": 14
+    },
+    {
+      "featureKey": "FG3%_mean",
+      "importance": 0.004847,
+      "rank": 15
+    },
+    {
+      "featureKey": "Stl_mean",
+      "importance": 0.004826,
+      "rank": 16
+    },
+    {
+      "featureKey": "OppTO_mean",
+      "importance": 0.004674,
+      "rank": 17
+    },
+    {
+      "featureKey": "DR_mean",
+      "importance": 0.004648,
+      "rank": 18
+    },
+    {
+      "featureKey": "Fouls_mean",
+      "importance": 0.004599,
+      "rank": 19
+    },
+    {
+      "featureKey": "OR_mean",
+      "importance": 0.004571,
+      "rank": 20
+    },
+    {
+      "featureKey": "Blk_mean",
+      "importance": 0.004503,
+      "rank": 21
+    },
+    {
+      "featureKey": "Poss_mean",
+      "importance": 0.00449,
+      "rank": 22
+    },
+    {
+      "featureKey": "OppFGA3_mean",
+      "importance": 0.004478,
+      "rank": 23
+    },
+    {
+      "featureKey": "FGA3_mean",
+      "importance": 0.004369,
+      "rank": 24
+    }
+  ]
+}
